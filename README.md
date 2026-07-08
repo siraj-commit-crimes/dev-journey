@@ -4,7 +4,7 @@ Starting my development career — learning with Najdi.
 
 ## What I'm learning
 
-- [ ] Git basics (commits, branches, push/pull)
+- [x] Git basics (commits, branches, push/pull)
 - [ ] Terminal commands
 - [ ] GitHub workflow (repos, pull requests)
 - [ ] First programming language (TBD with Najdi)
