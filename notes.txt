@@ -1,0 +1,7 @@
+Learning Git with Najdi
+
+Branching practice — Day 1
+- Created branch: add-notes
+- Adding this file on the branch, not on main
+
+Next: commit, push, open a Pull Request
