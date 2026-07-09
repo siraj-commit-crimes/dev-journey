@@ -7,7 +7,7 @@ Starting my development career — learning with Najdi.
 - [x] Git basics (commits, branches, push/pull)
 - [x] Terminal commands
 - [x] GitHub workflow (repos, pull requests)
-- [x] Python basics (lessons 1-5)
+- [x] Python basics (lessons 1-6)
 
 ## Notes
 
