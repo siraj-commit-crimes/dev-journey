@@ -9,6 +9,12 @@ Starting my development career — learning with Najdi.
 - [x] GitHub workflow (repos, pull requests)
 - [x] Python basics (lessons 1-6)
 
+## Projects
+
+- [x] [Excel QC](excel_qc/) — upload a social media monitoring sheet and Claude checks
+  gender, sentiment toward the client and competitors (emojis and sarcasm included),
+  and unifies topics
+
 ## Notes
 
 This repo tracks my progress. Small commits, clear messages, always on a branch.
