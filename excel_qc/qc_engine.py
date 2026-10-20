@@ -166,8 +166,13 @@ TOPIC_SCHEMA = {
 
 def clean(value):
     """Turn any cell value into a plain string ('' for empty cells)."""
-    if value is None or (isinstance(value, float) and pd.isna(value)):
+    if value is None:
         return ""
+    try:
+        if pd.isna(value):  # NaN, pd.NA, NaT
+            return ""
+    except (TypeError, ValueError):  # lists and other values pd.isna can't answer for
+        pass
     return str(value).strip()
 
 
@@ -479,7 +484,124 @@ def build_summary(result, columns):
     return pd.DataFrame(lines, columns=["Check", "Count", "Note"])
 
 
-# ---------- step 4: write the Excel file ----------
+# ---------- step 4: review ----------
+
+REVIEW_KINDS = ["Gender", "Sentiment", "Topic", "Irrelevant"]
+RELEVANCE = ["Relevant", "Irrelevant"]
+
+
+def review_table(result, columns, kind):
+    """The flagged rows for one kind of check, ready to review.
+
+    Returns a DataFrame indexed like result with Row, Text, Original, Suggested, Reason.
+    """
+    flagged = result["QC_Flags"].fillna("").str.split(", ").map(lambda f: kind in f)
+    rows = result[flagged & (result["QC_Status"] == "Check")]
+    table = pd.DataFrame(index=rows.index)
+    table["Row"] = rows.index + 2  # the row number in Excel (row 1 is the header)
+    table["Text"] = rows[columns["text"]].map(clean)
+    if kind == "Gender":
+        table["Original"] = rows[columns["gender"]].map(clean)
+        table["Suggested"] = rows["QC_Gender"]
+        table["Reason"] = rows["QC_Gender_Reason"]
+    elif kind == "Sentiment":
+        table["Original"] = rows[columns["sentiment"]].map(clean)
+        table["Suggested"] = rows["QC_Sentiment"]
+        sarcasm = rows["QC_Sarcasm"].map(lambda v: "Sarcasm. " if v == "Yes" else "")
+        table["Reason"] = sarcasm + rows["QC_Sentiment_Reason"]
+    elif kind == "Topic":
+        table["Original"] = rows["Unified_Topic"]
+        table["Suggested"] = rows["QC_Topic"]
+        table["Reason"] = "The topic doesn't match the text"
+    else:
+        table["Original"] = "Relevant"
+        table["Suggested"] = "Irrelevant"
+        target = rows.get("QC_Target_Brand", pd.Series("", index=rows.index)).map(clean)
+        table["Reason"] = target.map(
+            lambda t: f"Not really about {t}" if t else "Doesn't mention any monitored brand"
+        )
+    return table
+
+
+def review_options(table, kind, extra=()):
+    """The values the reviewer can pick for the Final column."""
+    base = {"Gender": GENDERS, "Sentiment": SENTIMENTS, "Irrelevant": RELEVANCE}.get(kind, [])
+    values = list(base) + list(table["Original"]) + list(table["Suggested"]) + list(extra)
+    return list(dict.fromkeys(v for v in values if clean(v)))
+
+
+def apply_topic_map(result, columns, mapping):
+    """Recompute Unified_Topic after the reviewer edits the topic mapping."""
+    if not columns.get("topic") or "Unified_Topic" not in result:
+        return result
+    result = result.copy()
+    result["Unified_Topic"] = [mapping.get(clean(t), clean(t)) for t in result[columns["topic"]]]
+    return result
+
+
+def build_final(result, columns, decisions):
+    """Apply the reviewer's decisions.
+
+    decisions: {"Gender": {row_index: "Female"}, "Sentiment": {...}, ...}
+    Flagged values that weren't reviewed keep the original value.
+    Returns (result with Final_* and Review_Status columns, final data with the
+    original columns and the final values filled in).
+    """
+    out = result.copy()
+    original_cols = [
+        c for c in result.columns
+        if not str(c).startswith(("QC_", "Final_")) and c not in ("Unified_Topic", "Review_Status")
+    ]
+    finals = {
+        "Gender": (columns.get("gender"), "Final_Gender"),
+        "Sentiment": (columns.get("sentiment"), "Final_Sentiment"),
+        "Topic": ("Unified_Topic" if columns.get("topic") else None, "Final_Topic"),
+    }
+    final_data = result[original_cols].copy()
+    for kind, (source, final_col) in finals.items():
+        if not source:
+            continue
+        chosen = decisions.get(kind, {})
+        out[final_col] = [chosen.get(i, clean(v)) for i, v in out[source].items()]
+        target = columns["topic"] if kind == "Topic" else source
+        final_data[target] = out[final_col]
+    if "QC_Relevant" in out:
+        chosen = decisions.get("Irrelevant", {})
+        out["Final_Relevant"] = [chosen.get(i, "Relevant") for i in out.index]
+        final_data["Relevant"] = out["Final_Relevant"]
+
+    statuses = []
+    for i, (status, flags) in out[["QC_Status", "QC_Flags"]].iterrows():
+        if status != "Check":
+            statuses.append(status)
+            continue
+        kinds = [k for k in clean(flags).split(", ") if k]
+        done = sum(i in decisions.get(k, {}) for k in kinds)
+        statuses.append("Reviewed" if done == len(kinds) else "Partly reviewed" if done else "Not reviewed")
+    out["Review_Status"] = statuses
+    return out, final_data
+
+
+def review_counts(result, columns, decisions):
+    """{kind: (reviewed, total)} for every kind that has flagged rows."""
+    counts = {}
+    for kind in REVIEW_KINDS:
+        if kind == "Gender" and not columns.get("gender"):
+            continue
+        if kind == "Sentiment" and not columns.get("sentiment"):
+            continue
+        if kind == "Topic" and not columns.get("topic"):
+            continue
+        if kind == "Irrelevant" and "QC_Relevant" not in result:
+            continue
+        rows = review_table(result, columns, kind).index
+        if len(rows):
+            chosen = decisions.get(kind, {})
+            counts[kind] = (sum(i in chosen for i in rows), len(rows))
+    return counts
+
+
+# ---------- step 5: write the Excel file ----------
 
 YELLOW = PatternFill("solid", start_color="FFF2CC")
 RED = PatternFill("solid", start_color="F8CBAD")
@@ -487,11 +609,13 @@ GREEN = PatternFill("solid", start_color="E2EFDA")
 HEADER = PatternFill("solid", start_color="D9E1F2")
 
 
-def to_excel(result, summary, topic_map_df, columns, brand_df=None):
+def to_excel(result, summary, topic_map_df, columns, brand_df=None, final_data=None):
     """Build the output workbook and return it as bytes (ready for download)."""
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         summary.to_excel(writer, sheet_name="Summary", index=False)
+        if final_data is not None:
+            final_data.to_excel(writer, sheet_name="Final Data", index=False)
         result.to_excel(writer, sheet_name="QC Results", index=False)
         if not topic_map_df.empty:
             topic_map_df.to_excel(writer, sheet_name="Topic Mapping", index=False)
@@ -519,6 +643,19 @@ def to_excel(result, summary, topic_map_df, columns, brand_df=None):
                     if original_col:
                         sheet.cell(row_num, col_index[original_col]).fill = RED
                     sheet.cell(row_num, col_index[qc_col]).fill = YELLOW
+
+        # In Final Data, colour the cells the review changed.
+        if final_data is not None:
+            final_sheet = writer.sheets["Final Data"]
+            final_headers = list(final_data.columns)
+            for col in (columns.get("gender"), columns.get("sentiment"), columns.get("topic")):
+                if not col or col not in final_headers:
+                    continue
+                col_num = final_headers.index(col) + 1
+                before = result[col].map(clean).tolist()
+                for row_num, (old, new) in enumerate(zip(before, final_data[col].map(clean)), start=2):
+                    if old != new:
+                        final_sheet.cell(row_num, col_num).fill = GREEN
 
         for ws in writer.sheets.values():
             for cell in ws[1]:
