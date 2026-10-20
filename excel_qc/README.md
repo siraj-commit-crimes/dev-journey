@@ -101,6 +101,11 @@ the sidebar, then follow the four steps at the top:
 2. **Columns**: check the guesses (Text, Author, Handle, Gender, Sentiment, Topic,
    Brand / Query) and fix any that are wrong. The preview shows what each one holds.
 3. **Setup**:
+   - Optional: add the **client brief** (Word, PDF, or paste the text). Claude follows its
+     rules for what counts as relevant and how to judge sentiment (the brief wins over
+     the general rules), and the Reason column says when a brief rule decided, e.g.
+     "Brief: job posts are irrelevant". Click **✨ Fill in brands & topics from the brief**
+     to fill the tables below, then check them. Offline mode can't use the brief.
    - Add the client and competitors to the table, with Arabic spellings, nicknames
      and handles separated by commas (e.g. `STC` → `اس تي سي, stc_ksa`).
    - If the sheet has a column saying which brand each row is for, pick it under
