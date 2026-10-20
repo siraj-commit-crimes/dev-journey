@@ -22,7 +22,24 @@ Nothing in your file is overwritten. You get back a new Excel file with:
 | Topic Mapping | Each original topic → its unified topic |
 | Brand Sentiment | Positive / Negative / Neutral counts and net sentiment for the client and each competitor |
 
-## Setup (once)
+## Quick start: double-click
+
+You need Python 3.10+ from https://www.python.org/downloads/ (on Windows, tick
+**"Add python.exe to PATH"** in the installer).
+
+- **Mac:** double-click `Start Excel QC (Mac).command`
+- **Windows:** double-click `Start Excel QC (Windows).bat`
+
+The first time, it sets everything up, which takes a minute or two. After that, it opens the
+app in your browser straight away. Close the window that pops up to stop the app.
+
+To put it on your desktop: Mac → right-click the file → **Make Alias**, then drag the
+alias to the desktop. Windows → right-click the file → **Show more options** → **Send to**
+→ **Desktop (create shortcut)**.
+
+If macOS says the file "can't be opened", right-click it → **Open** → **Open** (only needed once).
+
+## Setup by hand (if you prefer the terminal)
 
 ```bash
 pip install -r excel_qc/requirements.txt
