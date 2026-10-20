@@ -13,12 +13,15 @@ Claude checks every row for:
 - **Topic**: merges labels that mean the same thing (e.g. `customer service`,
   `Customer Service` and `خدمة العملاء`) and flags rows whose topic doesn't match the text.
 
-Nothing in your file is overwritten. You get back a new Excel file with:
+You then **review** the flagged rows in the app (accept the suggestion, keep the
+original, or pick another value) and download a new Excel file. Nothing in your
+original file is overwritten. The download has:
 
 | Sheet | What's in it |
 |---|---|
-| Summary | How many rows are OK, how many mismatches per check, and the topic count before and after unifying |
-| QC Results | Your original columns plus `QC_Status`, `QC_Flags`, `QC_Gender`, `QC_Sentiment`, `QC_Sarcasm`, `QC_Topic`, `Unified_Topic` and a short reason for each. Wrong original cells are red and suggestions are yellow |
+| Summary | Which mode was used, how many rows are OK, mismatches per check, topic count before and after unifying, and how many flagged items you reviewed |
+| Final Data | Your original sheet with your review decisions filled in. Cells that changed are green. This is the sheet to send back |
+| QC Results | Your original columns plus every suggestion and reason (`QC_Gender`, `QC_Sentiment`, `QC_Sarcasm`, `QC_Topic`...), the `Final_*` values and `Review_Status`. Wrong original cells are red and suggestions are yellow |
 | Topic Mapping | Each original topic → its unified topic |
 | Brand Sentiment | Positive / Negative / Neutral counts and net sentiment for the client and each competitor |
 
@@ -62,28 +65,32 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 streamlit run excel_qc/app.py
 ```
 
-The page opens in your browser. Then:
+The page opens in your browser. Pick **Claude AI** (paste your API key) or **Offline**
+in the sidebar, then follow the four steps at the top:
 
-1. Upload the `.xlsx` (or `.csv`) file and choose the sheet.
-2. Check the column guesses. The tool guesses from the headers; fix any that are wrong.
-3. Start with the first 50 rows to see the quality and cost, then set it to 0 to run the whole file.
-4. Add the client and competitors in the sidebar, one per line, with other spellings
-   and handles after the name:
-   ```
-   Client: STC, اس تي سي, stc_ksa
-   Competitor: Mobily, موبايلي
-   Competitor: Zain, زين
-   ```
-   If the sheet has a column saying which brand each row is for (Brand, Query,
-   Keyword...), pick it under **Brand / Query**. Sentiment for each row is then judged
-   toward that brand. Without that column, the tool finds the brands in each post itself
-   and compares your Sentiment column with the sentiment toward the client.
-5. Optional: paste your team's approved topic list in the sidebar so every topic maps onto it.
-6. Click **Run QC**, review the "Rows to check" table, then download the Excel file.
+1. **Upload**: drop in the `.xlsx` or `.csv` file and choose the sheet.
+2. **Columns**: check the guesses (Text, Author, Handle, Gender, Sentiment, Topic,
+   Brand / Query) and fix any that are wrong. The preview shows what each one holds.
+3. **Setup**:
+   - Add the client and competitors to the table, with Arabic spellings, nicknames
+     and handles separated by commas (e.g. `STC` → `اس تي سي, stc_ksa`).
+   - If the sheet has a column saying which brand each row is for, pick it under
+     **Brand / Query** in step 2. Sentiment for each row is then judged toward that
+     brand. Without it, the tool finds the brands in each post itself.
+   - Optional: paste your team's approved topic list.
+   - Choose **First 50 rows (test)** to check the quality and cost first, then run **All rows**.
+4. **Review & download**:
+   - The cards show how many rows are OK, to check, sarcastic and irrelevant.
+   - **Review** tab: for each kind of flag (Gender, Sentiment, Topic, Irrelevant), set the
+     **Final** value per row, or use **Accept all suggestions** / **Keep all originals**.
+     Rows left on *To review* keep their original value.
+   - **Brands** tab: sentiment share for the client and each competitor.
+   - **Topics** tab: see which labels were merged; edit the Unified names and click Apply.
+   - Click **Download Excel**.
 
 ## Offline mode (free, no API key)
 
-Pick **Offline rules (free, no AI)** in the Model menu. Instead of asking Claude, the
+Pick **Offline** under Checking mode in the sidebar. Instead of asking Claude, the
 tool uses fixed rules from `offline_engine.py`:
 
 - **Gender**: looks up the first name in lists of common Arabic and English names, and
