@@ -77,6 +77,27 @@ The page opens in your browser. Then:
 5. Optional: paste your team's approved topic list in the sidebar so every topic maps onto it.
 6. Click **Run QC**, review the "Rows to check" table, then download the Excel file.
 
+## Offline mode (free, no API key)
+
+Pick **Offline rules (free, no AI)** in the Model menu. Instead of asking Claude, the
+tool uses fixed rules from `offline_engine.py`:
+
+- **Gender**: looks up the first name in lists of common Arabic and English names, and
+  spots `abu_` / `um_` handles. Accounts with words like news, official, store, اخبار or
+  الرسمي, or that match a brand from your list, are Unknown.
+- **Sentiment**: counts positive and negative words and emojis (ممتاز, زفت, 😍, 😡...),
+  flipping a word after a negation (ما عجبني = negative). Praise next to a mocking emoji
+  (🙄 🤡), or 👏 next to a complaint, is marked as possible sarcasm.
+- **Brands**: finds your brand names in the text and scores the part of the sentence
+  about each one ("A better than B", "...بس...").
+- **Topics**: merges labels that are spelled almost the same (`customer service` =
+  `Customer Services`).
+
+It's much weaker than Claude: it misses most sarcasm, dialect and context, can't merge
+Arabic and English topics, and doesn't check whether a topic fits the text. Use it to
+catch obvious mistakes. To teach it new words or names, add them to the lists at the top
+of `offline_engine.py`.
+
 ## Cost and privacy
 
 - Each request sends about 20 rows. Opus 5.5 gives the best results. Sonnet 5.5 and

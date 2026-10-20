@@ -8,12 +8,14 @@ import os
 import pandas as pd
 import streamlit as st
 
+import offline_engine
 import qc_engine
 
 MODELS = {
     "Claude Opus 5.5 (best quality)": "claude-opus-5-5",
     "Claude Sonnet 5.5 (cheaper)": "claude-sonnet-5-5",
     "Claude Haiku 5.5 (cheapest, fastest)": "claude-haiku-5-5",
+    "Offline rules (free, no AI)": "offline",
 }
 
 st.set_page_config(page_title="Excel QC", page_icon="✅", layout="wide")
@@ -28,15 +30,25 @@ with st.sidebar:
         type="password",
         help="Leave empty if ANTHROPIC_API_KEY is already set on your computer.",
     )
-    has_key = bool(api_key or os.environ.get("ANTHROPIC_API_KEY"))
-    if not has_key:
-        st.warning("Add an API key to run the QC.")
     model_label = st.selectbox("Model", list(MODELS))
-    effort = st.select_slider(
-        "How hard Claude thinks", ["low", "medium", "high"], value="medium",
-        help="Higher catches more sarcasm but is slower and costs more.",
-    )
-    batch_size = st.slider("Rows per request", 5, 50, 20)
+    offline = MODELS[model_label] == "offline"
+    has_key = offline or bool(api_key or os.environ.get("ANTHROPIC_API_KEY"))
+    if offline:
+        st.info(
+            "Offline mode uses word and name lists instead of Claude. It's free but much "
+            "weaker: it misses most sarcasm and dialect, can't merge Arabic and English "
+            "topics, and doesn't check whether a topic fits the text. Use it to catch "
+            "obvious mistakes."
+        )
+    elif not has_key:
+        st.warning("Add an API key to run the QC, or pick Offline rules.")
+    effort, batch_size = "medium", 20
+    if not offline:
+        effort = st.select_slider(
+            "How hard Claude thinks", ["low", "medium", "high"], value="medium",
+            help="Higher catches more sarcasm but is slower and costs more.",
+        )
+        batch_size = st.slider("Rows per request", 5, 50, 20)
     brands_text = st.text_area(
         "Client and competitors",
         placeholder="Client: STC, اس تي سي, stc_ksa\nCompetitor: Mobily, موبايلي\nCompetitor: Zain, زين",
@@ -106,7 +118,7 @@ if st.button("Run QC", type="primary", disabled=not (columns["text"] and has_key
         bar.progress(done / total if total else 1.0, text=message)
 
     try:
-        client = qc_engine.make_client(api_key or None)
+        client = offline_engine.OfflineClient() if offline else qc_engine.make_client(api_key or None)
         result, summary, topic_map, brand_sentiment = qc_engine.run_qc(
             work_df, columns, client,
             model=MODELS[model_label], effort=effort, batch_size=batch_size,
@@ -116,6 +128,10 @@ if st.button("Run QC", type="primary", disabled=not (columns["text"] and has_key
         st.error(f"QC failed: {error}")
         st.stop()
     bar.progress(1.0, text="Done")
+    mode = "Offline rules (no AI)" if offline else model_label
+    summary = pd.concat([pd.DataFrame([("Checked with", None, mode)], columns=summary.columns), summary])
+    if offline:
+        summary.loc[summary["Check"] == "Topic mismatches", "Note"] = "Not checked in offline mode"
     # Streamlit reruns the whole script on every click (even Download),
     # so keep the results in session_state.
     st.session_state["qc"] = (result, summary, topic_map, brand_sentiment, dict(columns))
