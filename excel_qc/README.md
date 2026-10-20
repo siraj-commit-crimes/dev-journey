@@ -33,9 +33,13 @@ You need Python 3.10+ from https://www.python.org/downloads/ (on Windows, tick
 The first time, it sets everything up, which takes a minute or two. After that, it opens the
 app in your browser straight away. Close the window that pops up to stop the app.
 
-To put it on your desktop: Mac → right-click the file → **Make Alias**, then drag the
-alias to the desktop. Windows → right-click the file → **Show more options** → **Send to**
-→ **Desktop (create shortcut)**.
+**Windows shortcut:** double-click `Create Shortcut (Windows).bat` once. It adds an
+**Excel QC** icon to your desktop and Start menu, so you can press the Windows key, type
+`Excel QC` and press Enter. To pin it to the taskbar, right-click the desktop icon →
+**Show more options** → **Pin to taskbar**.
+
+**Mac shortcut:** right-click `Start Excel QC (Mac).command` → **Make Alias**, then drag the
+alias to the desktop.
 
 If macOS says the file "can't be opened", right-click it → **Open** → **Open** (only needed once).
 
