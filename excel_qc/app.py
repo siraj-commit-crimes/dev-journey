@@ -9,6 +9,7 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
+import claude_code_engine
 import offline_engine
 import qc_engine
 import ui
@@ -17,6 +18,11 @@ MODELS = {
     "Opus 5.5 · best quality": "claude-opus-5-5",
     "Sonnet 5.5 · cheaper": "claude-sonnet-5-5",
     "Haiku 5.5 · cheapest, fastest": "claude-haiku-5-5",
+}
+SUBSCRIPTION_MODELS = {
+    "Sonnet · recommended for Pro": "claude-sonnet-5-5",
+    "Opus · best, uses limits fastest": "claude-opus-5-5",
+    "Haiku · lightest on limits": "claude-haiku-5-5",
 }
 STEPS = ["Upload", "Columns", "Setup", "Review & download"]
 TO_REVIEW = "To review"  # shown in the Final column until the reviewer picks a value
@@ -55,6 +61,11 @@ def read_sheet(data, name, sheet):
     return pd.read_excel(BytesIO(data), sheet_name=sheet)
 
 
+@st.cache_data(show_spinner="Checking Claude Code...", ttl=300)
+def cached_claude_status():
+    return claude_code_engine.check_status()
+
+
 @st.cache_data(show_spinner=False)
 def sheet_names(data, name):
     if name.lower().endswith(".csv"):
@@ -66,18 +77,47 @@ def sheet_names(data, name):
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
     mode = st.segmented_control(
-        "Checking mode", ["Claude AI", "Offline"], default="Claude AI", key="mode",
-        help="Claude reads every post like a person. Offline uses word and name lists: free, but much weaker.",
-    ) or "Claude AI"
+        "How to check", ["Subscription", "API key", "Offline"], default="Subscription", key="check_mode",
+        help="Subscription: Claude Code with your Claude Pro/Max login. API key: pay-as-you-go "
+             "credit. Offline: free word and name lists, much weaker.",
+    ) or "Subscription"
     offline = mode == "Offline"
+    subscription = mode == "Subscription"
     api_key = ""
-    model, effort, batch_size = "offline", "medium", 20
+    model, effort, batch_size, workers = "offline", "medium", 20, 4
     if offline:
         st.info(
             "**Offline mode** is free and needs no key, but it misses most sarcasm and "
             "dialect, can't merge Arabic with English topics, and doesn't check whether "
             "a topic fits the text."
         )
+    elif subscription:
+        ready, status = cached_claude_status()
+        (st.success if ready else st.warning)(status)
+        if not ready:
+            with st.expander("Set up Claude Code (one time)", expanded=True):
+                st.markdown(
+                    "1. Open **PowerShell** and run:\n"
+                    "   ```\n   irm https://claude.ai/install.ps1 | iex\n   ```\n"
+                    "2. Close PowerShell, open a new one, and run `claude`.\n"
+                    "3. Log in with your Claude account in the browser, then type `/exit`.\n"
+                    "4. Click **Check again** below."
+                )
+        if st.button("↻ Check again", width="stretch"):
+            cached_claude_status.clear()
+            st.rerun()
+        model = SUBSCRIPTION_MODELS[st.selectbox("Model", list(SUBSCRIPTION_MODELS))]
+        st.caption("Uses your plan's usage limits. Big files can hit the limit; start with 50 rows.")
+        workers = 2  # fewer calls at once, so the plan's limits last longer
+        with st.expander("Advanced"):
+            effort = st.select_slider(
+                "Thinking effort", ["low", "medium", "high"], value="low",
+                help="Higher catches more sarcasm but uses your limits faster.",
+            )
+            batch_size = st.slider(
+                "Rows per request", 10, 60, 30,
+                help="More rows per request = fewer calls, so your limits last longer.",
+            )
     else:
         api_key = st.text_input(
             "API key", type="password", placeholder="sk-ant-...",
@@ -93,9 +133,12 @@ with st.sidebar:
                 "Rows per request", 5, 50, 20,
                 help="How many rows go to Claude in one message. Smaller = more careful.",
             )
-    has_key = offline or bool(api_key or os.environ.get("ANTHROPIC_API_KEY"))
-    if not has_key:
-        st.warning("Add an API key, or switch to Offline.")
+    if subscription:
+        has_key = ready
+    else:
+        has_key = offline or bool(api_key or os.environ.get("ANTHROPIC_API_KEY"))
+        if not has_key:
+            st.warning("Add an API key, or switch to Subscription or Offline.")
     st.divider()
     if ss.get("file_name"):
         st.caption(f"📄 {ss.file_name}")
@@ -117,7 +160,7 @@ if ss.step == 1:
             file_id = f"{uploaded.name}-{len(data)}"
             if ss.get("file_id") != file_id:
                 # A new file: forget everything from the last one (but keep the mode).
-                for key in [k for k in ss.keys() if k != "mode"]:
+                for key in [k for k in ss.keys() if k != "check_mode"]:
                     del ss[key]
                 ss.step, ss.decisions, ss.editor_version = 1, {}, 0
                 ss.file_id, ss.file_bytes, ss.file_name = file_id, data, uploaded.name
@@ -231,9 +274,13 @@ elif ss.step == 3:
         if limit is None:
             limit = st.number_input("Number of rows", 1, len(df), min(200, len(df)))
         limit = min(limit, len(df))
+        if offline:
+            mode_label = "Offline rules (no AI)"
+        else:
+            mode_label = f"{model} · {'subscription' if subscription else 'API key'}"
         ui.chips([
             f"{limit:,} of {len(df):,} rows",
-            "Offline rules" if offline else model,
+            mode_label,
             f"{len(brands)} brand(s)",
             f"{len(allowed_topics)} approved topic(s)",
         ])
@@ -252,16 +299,20 @@ elif ss.step == 3:
             bar.progress(done / total if total else 1.0, text=message)
 
         try:
-            client = offline_engine.OfflineClient() if offline else qc_engine.make_client(api_key or None)
+            if offline:
+                client = offline_engine.OfflineClient()
+            elif subscription:
+                client = claude_code_engine.ClaudeCodeClient()
+            else:
+                client = qc_engine.make_client(api_key or None)
             result, summary, topic_map, brand_df = qc_engine.run_qc(
                 df.head(limit), columns, client, model=model, effort=effort,
                 batch_size=batch_size, allowed_topics=allowed_topics, brands=brands,
-                progress=show_progress,
+                workers=workers, progress=show_progress,
             )
         except Exception as error:
             st.error(f"QC failed: {error}")
             st.stop()
-        mode_label = "Offline rules (no AI)" if offline else model
         summary = pd.concat(
             [pd.DataFrame([("Checked with", None, mode_label)], columns=summary.columns), summary]
         )
@@ -302,7 +353,11 @@ elif ss.step == 4:
     ])
     errors = (result["QC_Status"] == "Error").sum()
     if errors:
-        st.warning(f"{errors} rows couldn't be checked. They're marked Error in the file; try running again.")
+        reason = result.loc[result["QC_Status"] == "Error", "QC_Flags"].iloc[0]
+        st.warning(
+            f"{errors} rows couldn't be checked. They're marked Error in the file; "
+            f"try running again. Reason: {reason}"
+        )
     if qc["offline"]:
         st.caption("Checked with offline rules. Treat the suggestions as hints, not answers.")
 
