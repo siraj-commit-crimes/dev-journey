@@ -9,6 +9,7 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
+import brief as brief_reader
 import claude_code_engine
 import offline_engine
 import qc_engine
@@ -145,6 +146,14 @@ with st.sidebar:
     st.button("↺ Start over", on_click=start_over, width="stretch")
 
 
+def get_client():
+    if offline:
+        return offline_engine.OfflineClient()
+    if subscription:
+        return claude_code_engine.ClaudeCodeClient()
+    return qc_engine.make_client(api_key or None)
+
+
 # ---------- header ----------
 ui.header()
 ui.stepper(STEPS, ss.step)
@@ -224,6 +233,74 @@ elif ss.step == 3:
     ss.setdefault("brands_base", pd.DataFrame(
         [{"Role": "Client", "Brand": "", "Other spellings & handles": ""}]
     ))
+    ss.setdefault("brands_version", 0)
+
+    # --- client brief ---
+    with st.container(border=True):
+        ui.section(
+            "Client brief",
+            "Optional: the client's brief as Word, PDF or pasted text. Claude follows its "
+            "rules for what's relevant and how to judge sentiment, and can fill in the "
+            "brands and topics below for you.",
+        )
+        file_tab, paste_tab = st.tabs(["📄 Upload file", "✏️ Paste text"])
+        with file_tab:
+            brief_file = st.file_uploader(
+                "Brief file", type=["docx", "pdf", "txt"], label_visibility="collapsed", key="brief_upload",
+            )
+            if brief_file is not None and ss.get("brief_name") != brief_file.name:
+                try:
+                    ss.brief_file_text = brief_reader.read_brief(brief_file.name, brief_file.getvalue())
+                    ss.brief_name = brief_file.name
+                except Exception as error:  # a damaged or unsupported file
+                    st.error(f"Couldn't read the brief: {error}")
+            if ss.get("brief_name"):
+                c1, c2 = st.columns([4, 1], vertical_alignment="center")
+                c1.caption(f"Using **{ss.brief_name}** ({len(ss.brief_file_text.split()):,} words)")
+                if c2.button("Remove", width="stretch"):
+                    ss.pop("brief_name", None)
+                    ss.pop("brief_file_text", None)
+                    st.rerun()
+        with paste_tab:
+            pasted = st.text_area(
+                "Brief text", value=ss.get("brief_pasted", ""), height=140, label_visibility="collapsed",
+                placeholder="Paste the brief here, e.g. from an email.",
+            )
+        brief_text = "\n\n".join(t for t in [ss.get("brief_file_text", ""), pasted.strip()] if t)
+        if brief_text:
+            with st.expander("What the tool read from the brief"):
+                st.text(brief_text[:3000] + ("\n..." if len(brief_text) > 3000 else ""))
+        if brief_text and offline:
+            st.caption("⚠️ Offline mode can't read the brief. Switch to Subscription or API key to use it.")
+        fill = st.button(
+            "✨ Fill in brands & topics from the brief",
+            disabled=not brief_text or offline or not has_key,
+            help="Claude reads the brief and fills the tables below. Check them before running.",
+        )
+        if fill:
+            with st.spinner("Reading the brief..."):
+                try:
+                    found_brands, found_topics = qc_engine.extract_setup(get_client(), brief_text, model, effort)
+                except Exception as error:
+                    st.error(f"Couldn't read the brief: {error}")
+                    st.stop()
+            if found_brands:
+                ss.brands_base = pd.DataFrame([
+                    {"Role": b["role"], "Brand": b["name"], "Other spellings & handles": ", ".join(b["aliases"])}
+                    for b in found_brands
+                ])
+                ss.brands_version += 1
+            if found_topics:
+                ss.topics_text = "\n".join(found_topics)
+            ss.brief_pasted = pasted
+            ss.flash = (
+                f"Filled in {len(found_brands)} brand(s) and {len(found_topics)} topic(s) "
+                "from the brief. Check them below."
+            )
+            st.rerun()
+        if ss.get("flash"):
+            st.success(ss.pop("flash"))
+
     left, right = st.columns([3, 2], gap="medium")
     with left, st.container(border=True):
         ui.section(
@@ -232,7 +309,7 @@ elif ss.step == 3:
             "Add Arabic spellings, nicknames and handles, separated by commas.",
         )
         brands_df = st.data_editor(
-            ss.brands_base, key="brands_editor", num_rows="dynamic", hide_index=True,
+            ss.brands_base, key=f"brands_editor_{ss.brands_version}", num_rows="dynamic", hide_index=True,
             width="stretch",
             column_config={
                 "Role": st.column_config.SelectboxColumn(
@@ -283,11 +360,14 @@ elif ss.step == 3:
             mode_label,
             f"{len(brands)} brand(s)",
             f"{len(allowed_topics)} approved topic(s)",
+            ("brief: not used offline" if offline else "brief ✓") if brief_text else "no brief",
         ])
 
     def leave_setup(step):
         ss.brands_base = brands_df
+        ss.brands_version += 1
         ss.topics_text = topics_text
+        ss.brief_pasted = pasted
         go(step)
 
     back, run, _ = st.columns([1, 1.4, 5])
@@ -299,23 +379,24 @@ elif ss.step == 3:
             bar.progress(done / total if total else 1.0, text=message)
 
         try:
-            if offline:
-                client = offline_engine.OfflineClient()
-            elif subscription:
-                client = claude_code_engine.ClaudeCodeClient()
-            else:
-                client = qc_engine.make_client(api_key or None)
             result, summary, topic_map, brand_df = qc_engine.run_qc(
-                df.head(limit), columns, client, model=model, effort=effort,
+                df.head(limit), columns, get_client(), model=model, effort=effort,
                 batch_size=batch_size, allowed_topics=allowed_topics, brands=brands,
-                workers=workers, progress=show_progress,
+                brief="" if offline else brief_text, workers=workers, progress=show_progress,
             )
         except Exception as error:
             st.error(f"QC failed: {error}")
             st.stop()
-        summary = pd.concat(
-            [pd.DataFrame([("Checked with", None, mode_label)], columns=summary.columns), summary]
+        brief_note = "Not used" if not brief_text else "Not used in offline mode" if offline else (
+            f"Used: {ss.get('brief_name') or 'pasted text'} ({len(brief_text.split()):,} words)"
         )
+        summary = pd.concat([
+            pd.DataFrame(
+                [("Checked with", None, mode_label), ("Client brief", None, brief_note)],
+                columns=summary.columns,
+            ),
+            summary,
+        ])
         if offline:
             summary.loc[summary["Check"] == "Topic mismatches", "Note"] = "Not checked in offline mode"
         ss.qc = {
