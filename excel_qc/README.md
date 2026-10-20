@@ -46,14 +46,43 @@ alias to the desktop.
 
 If macOS says the file "can't be opened", right-click it → **Open** → **Open** (only needed once).
 
+## Three ways to check
+
+Pick one under **How to check** in the sidebar:
+
+| Mode | Needs | Cost | Quality |
+|---|---|---|---|
+| **Subscription** | Claude Code installed and logged in with your Claude Pro or Max account | Included in your plan, within its usage limits | Claude |
+| **API key** | An API key from https://console.anthropic.com with credit | Pay per use | Claude |
+| **Offline** | Nothing | Free | Word and name lists only: much weaker |
+
+### Set up Subscription mode (one time, Windows)
+
+1. Open **PowerShell** and install Claude Code:
+   ```powershell
+   irm https://claude.ai/install.ps1 | iex
+   ```
+2. Close PowerShell, open a new one, and run `claude`. Log in with your Claude account in
+   the browser that opens, then type `/exit`.
+3. In the app, pick **Subscription** and click **Check again**. It should say *Ready*.
+
+On a Mac, use `curl -fsSL https://claude.ai/install.sh | bash` in step 1.
+
+Each batch of rows is one Claude Code request and counts toward your plan's usage
+limits, like chatting does. Big files can hit the limit: start with 50 rows, use
+**Sonnet** or **Haiku** on Pro, and if rows come back as *Error* with "usage limit",
+wait for the reset and run again. Requests run in an empty temporary folder with
+Claude Code's file and command tools turned off, so post text can't make it run
+anything on your computer.
+
 ## Setup by hand (if you prefer the terminal)
 
 ```bash
 pip install -r excel_qc/requirements.txt
 ```
 
-You need an Anthropic API key from https://console.anthropic.com. Either paste it in
-the app's sidebar, or set it once in your terminal:
+For **API key** mode, either paste the key in the app's sidebar, or set it once in
+your terminal:
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
@@ -65,8 +94,8 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 streamlit run excel_qc/app.py
 ```
 
-The page opens in your browser. Pick **Claude AI** (paste your API key) or **Offline**
-in the sidebar, then follow the four steps at the top:
+The page opens in your browser. Pick **Subscription**, **API key** or **Offline** in
+the sidebar, then follow the four steps at the top:
 
 1. **Upload**: drop in the `.xlsx` or `.csv` file and choose the sheet.
 2. **Columns**: check the guesses (Text, Author, Handle, Gender, Sentiment, Topic,
