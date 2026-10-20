@@ -25,6 +25,7 @@ COLUMN_HINTS = {
     "author": ["author", "attribute", "full name", "display name", "user name", "name"],
     "gender": ["gender", "sex"],
     "sentiment": ["sentiment", "tone", "polarity"],
+    "brand": ["brand", "query", "keyword", "search term", "project", "client"],
     "topic": ["topic", "category", "theme", "subject", "tag"],
 }
 
@@ -53,14 +54,31 @@ For every row decide:
    - Brands, companies, news outlets, government bodies, fan pages, bots and anything
      you cannot tell with reasonable confidence are Unknown. Do not guess.
 
-2. Sentiment of the text: Positive, Negative or Neutral.
+2. Sentiment: Positive, Negative or Neutral, judged toward the TARGET BRAND only,
+   not the general mood of the post.
+   - target_brand is the row's "brand" field when it has one. Otherwise it is the client
+     from the brand list if the post mentions the client, otherwise the first monitored
+     brand the post mentions. With no brand list and no row brand, target_brand is ""
+     and you judge the post's overall sentiment.
+   - Complaints or praise about something other than the target brand do not count:
+     "the food was great but the delivery app was slow" is Positive for the restaurant
+     and Negative for the delivery app.
+   - Comparisons count from the target brand's side: "STC is better than Mobily" is
+     Positive for STC and Negative for Mobily.
    - Read emojis as part of the meaning (😂 can mock, 🙄 is annoyed, 💔 is sad, 🔥 is usually praise).
    - Watch for sarcasm: praise words used to complain ("great service, only waited 3 hours 👏")
      are Negative. Set sarcasm to true when the literal words and the real meaning differ.
    - Neutral is for news, questions, ads and plain information with no opinion.
    - Judge the author's attitude toward the subject, not just positive or negative words.
 
-3. Topic: check whether the row's current topic actually describes the text.
+3. Brands: brands_mentioned lists every brand from the brand list that the post talks
+   about (match Arabic and English spellings, nicknames and handles; use the brand's
+   main name). brand_sentiments gives the sentiment toward each of those brands.
+   relevant is false when the post is not really about the target brand or any
+   monitored brand (noise picked up by the search query). With no brand list and no
+   row brand, return empty lists and relevant true.
+
+4. Topic: check whether the row's current topic actually describes the text.
    - topic_fits is false when the topic is wrong or empty.
    - suggested_topic must be the best topic for the text, chosen from the allowed topic
      list when one is given. If none fits, write a short new topic name.
@@ -92,12 +110,28 @@ ROW_SCHEMA = {
                     "sentiment": {"type": "string", "enum": SENTIMENTS},
                     "sarcasm": {"type": "boolean"},
                     "sentiment_reason": {"type": "string"},
+                    "target_brand": {"type": "string"},
+                    "brands_mentioned": {"type": "array", "items": {"type": "string"}},
+                    "brand_sentiments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "brand": {"type": "string"},
+                                "sentiment": {"type": "string", "enum": SENTIMENTS},
+                            },
+                            "required": ["brand", "sentiment"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "relevant": {"type": "boolean"},
                     "topic_fits": {"type": "boolean"},
                     "suggested_topic": {"type": "string"},
                 },
                 "required": [
                     "id", "gender", "gender_reason", "sentiment", "sarcasm",
-                    "sentiment_reason", "topic_fits", "suggested_topic",
+                    "sentiment_reason", "target_brand", "brands_mentioned",
+                    "brand_sentiments", "relevant", "topic_fits", "suggested_topic",
                 ],
                 "additionalProperties": False,
             },
@@ -173,6 +207,29 @@ def guess_columns(columns):
     return guesses
 
 
+def parse_brands(text):
+    """Read the brand list from the sidebar.
+
+    Each line is "Client: STC, اس تي سي, stc_ksa" or "Competitor: Mobily, موبايلي".
+    The first name is the brand's main name, the rest are other spellings.
+    Lines without "Client:" or "Competitor:" count as competitors.
+    """
+    brands = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        role = "Competitor"
+        head, sep, rest = line.partition(":")
+        if sep and head.strip().lower() in ("client", "competitor"):
+            role = head.strip().title()
+            line = rest
+        names = [n.strip() for n in line.split(",") if n.strip()]
+        if names:
+            brands.append({"name": names[0], "role": role, "aliases": names[1:]})
+    return brands
+
+
 def make_client(api_key=None):
     # With no key given, the SDK reads ANTHROPIC_API_KEY from the environment.
     return anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()
@@ -230,9 +287,9 @@ def unify_topics(client, topic_counts, model=DEFAULT_MODEL, effort="medium", all
 
 # ---------- step 2: check each row ----------
 
-def check_batch(client, rows, topic_list, model=DEFAULT_MODEL, effort="medium"):
-    """rows: list of dicts with id, text, author, handle, topic. Returns {id: result}."""
-    payload = {"allowed_topics": topic_list, "rows": rows}
+def check_batch(client, rows, topic_list, model=DEFAULT_MODEL, effort="medium", brands=None):
+    """rows: list of dicts with id, text, author, handle, brand, topic. Returns {id: result}."""
+    payload = {"brand_list": brands or [], "allowed_topics": topic_list, "rows": rows}
     answer = ask_claude(
         client, model, effort, ROW_SYSTEM_PROMPT,
         json.dumps(payload, ensure_ascii=False), ROW_SCHEMA,
@@ -241,10 +298,12 @@ def check_batch(client, rows, topic_list, model=DEFAULT_MODEL, effort="medium"):
 
 
 def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size=20,
-           allowed_topics=None, workers=4, progress=None):
+           allowed_topics=None, brands=None, workers=4, progress=None):
     """Run the full QC on a DataFrame.
 
     columns: dict from guess_columns (the user can fix it in the app). "text" is required.
+    brands: list from parse_brands. Sentiment is judged toward the row's brand (brand
+            column) or the client; competitors get their own sentiment.
     progress: optional function(done_rows, total_rows, message) for the progress bar.
     Returns (result_df, summary_df, topic_map_df).
     """
@@ -267,6 +326,7 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
     authors = column_values("author")
     handles = column_values("handle")
     topics = column_values("topic")
+    row_brands = column_values("brand")
 
     # Step 1: unify topic labels across the whole file.
     topic_map = {}
@@ -279,7 +339,8 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
 
     # Step 2: send rows to Claude in batches, a few batches at a time.
     rows = [
-        {"id": i, "text": texts[i], "author": authors[i], "handle": handles[i], "topic": unified[i]}
+        {"id": i, "text": texts[i], "author": authors[i], "handle": handles[i],
+         "brand": row_brands[i], "topic": unified[i]}
         for i in range(total)
     ]
     batches = [rows[i:i + batch_size] for i in range(0, total, batch_size)]
@@ -289,7 +350,7 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
     report(0, total, "Checking rows...")
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(check_batch, client, batch, topic_list, model, effort): batch
+            pool.submit(check_batch, client, batch, topic_list, model, effort, brands): batch
             for batch in batches
         }
         for future in as_completed(futures):
@@ -305,9 +366,11 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
     # Step 3: compare Claude's answers with what is in the file.
     original_gender = column_values("gender")
     original_sentiment = column_values("sentiment")
+    check_brands = bool(brands or columns.get("brand"))
     new_cols = {name: [] for name in [
         "QC_Status", "QC_Flags", "Unified_Topic", "QC_Topic", "QC_Topic_Fits",
         "QC_Gender", "QC_Gender_Reason", "QC_Sentiment", "QC_Sarcasm", "QC_Sentiment_Reason",
+        "QC_Target_Brand", "QC_Relevant", "QC_Brands_Mentioned", "QC_Sentiment_By_Brand",
     ]}
     for i in range(total):
         item = answers.get(i)
@@ -326,6 +389,8 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
             flags.append("Sentiment")
         if columns.get("topic") and not item["topic_fits"]:
             flags.append("Topic")
+        if check_brands and not item["relevant"]:
+            flags.append("Irrelevant")
 
         new_cols["QC_Status"].append("Check" if flags else "OK")
         new_cols["QC_Flags"].append(", ".join(flags))
@@ -337,20 +402,52 @@ def run_qc(df, columns, client, model=DEFAULT_MODEL, effort="medium", batch_size
         new_cols["QC_Sentiment"].append(item["sentiment"])
         new_cols["QC_Sarcasm"].append("Yes" if item["sarcasm"] else "")
         new_cols["QC_Sentiment_Reason"].append(item["sentiment_reason"])
+        new_cols["QC_Target_Brand"].append(item["target_brand"])
+        new_cols["QC_Relevant"].append("Yes" if item["relevant"] else "No")
+        new_cols["QC_Brands_Mentioned"].append(", ".join(item["brands_mentioned"]))
+        new_cols["QC_Sentiment_By_Brand"].append(
+            " | ".join(f"{b['brand']}: {b['sentiment']}" for b in item["brand_sentiments"])
+        )
 
     if not columns.get("topic"):
         del new_cols["Unified_Topic"]
         del new_cols["QC_Topic_Fits"]
+    if not check_brands:
+        del new_cols["QC_Target_Brand"]
+        del new_cols["QC_Relevant"]
+    if not brands:
+        del new_cols["QC_Brands_Mentioned"]
+        del new_cols["QC_Sentiment_By_Brand"]
     for name, values in new_cols.items():
         result[name] = values
 
     summary = build_summary(result, columns)
+    brand_df = build_brand_sentiment(result)
     topic_map_df = pd.DataFrame(
         [{"Original_Topic": k, "Unified_Topic": v, "Rows": topics.count(k)} for k, v in topic_map.items()]
     )
     if not topic_map_df.empty:
         topic_map_df = topic_map_df.sort_values(["Unified_Topic", "Rows"], ascending=[True, False])
-    return result, summary, topic_map_df
+    return result, summary, topic_map_df, brand_df
+
+
+def build_brand_sentiment(result):
+    """Count Positive/Negative/Neutral per brand, for client vs competitor comparison."""
+    if "QC_Sentiment_By_Brand" not in result:
+        return pd.DataFrame()
+    counts = {}
+    for cell in result["QC_Sentiment_By_Brand"]:
+        for part in clean(cell).split(" | "):
+            brand, _, sentiment = part.rpartition(": ")
+            if brand and sentiment in SENTIMENTS:
+                counts.setdefault(brand, dict.fromkeys(SENTIMENTS, 0))[sentiment] += 1
+    rows = []
+    for brand, c in counts.items():
+        total = sum(c.values())
+        net = (c["Positive"] - c["Negative"]) / total * 100 if total else 0
+        rows.append({"Brand": brand, **c, "Mentions": total, "Net_Sentiment": f"{net:.0f}%"})
+    df = pd.DataFrame(rows)
+    return df.sort_values("Mentions", ascending=False) if not df.empty else df
 
 
 def build_summary(result, columns):
@@ -369,6 +466,9 @@ def build_summary(result, columns):
         if columns.get(role):
             n = (checked & flags.str.contains(kind)).sum()
             lines.append((f"{kind} mismatches", n, pct(n)))
+    if "QC_Relevant" in result:
+        n = (result["QC_Relevant"] == "No").sum()
+        lines.append(("Irrelevant posts (not about the brands)", n, pct(n)))
     sarcastic = (result["QC_Sarcasm"] == "Yes").sum()
     lines.append(("Sarcastic posts found", sarcastic, pct(sarcastic)))
     if "Unified_Topic" in result:
@@ -387,7 +487,7 @@ GREEN = PatternFill("solid", start_color="E2EFDA")
 HEADER = PatternFill("solid", start_color="D9E1F2")
 
 
-def to_excel(result, summary, topic_map_df, columns):
+def to_excel(result, summary, topic_map_df, columns, brand_df=None):
     """Build the output workbook and return it as bytes (ready for download)."""
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
@@ -395,6 +495,8 @@ def to_excel(result, summary, topic_map_df, columns):
         result.to_excel(writer, sheet_name="QC Results", index=False)
         if not topic_map_df.empty:
             topic_map_df.to_excel(writer, sheet_name="Topic Mapping", index=False)
+        if brand_df is not None and not brand_df.empty:
+            brand_df.to_excel(writer, sheet_name="Brand Sentiment", index=False)
 
         sheet = writer.sheets["QC Results"]
         headers = list(result.columns)
@@ -404,6 +506,7 @@ def to_excel(result, summary, topic_map_df, columns):
             "Gender": (columns.get("gender"), "QC_Gender"),
             "Sentiment": (columns.get("sentiment"), "QC_Sentiment"),
             "Topic": (columns.get("topic"), "QC_Topic"),
+            "Irrelevant": (None, "QC_Relevant"),
         }
         for row_num, (status, flags) in enumerate(zip(result["QC_Status"], result["QC_Flags"]), start=2):
             sheet.cell(row_num, col_index["QC_Status"]).fill = (

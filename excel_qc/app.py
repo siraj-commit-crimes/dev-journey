@@ -18,7 +18,7 @@ MODELS = {
 
 st.set_page_config(page_title="Excel QC", page_icon="✅", layout="wide")
 st.title("Excel QC")
-st.caption("Checks gender, sentiment (emojis and sarcasm included) and topics, then gives you back a highlighted Excel file.")
+st.caption("Checks gender, sentiment toward your client and competitors (emojis and sarcasm included) and topics, then gives you back a highlighted Excel file.")
 
 # ---------- sidebar: settings ----------
 with st.sidebar:
@@ -37,6 +37,16 @@ with st.sidebar:
         help="Higher catches more sarcasm but is slower and costs more.",
     )
     batch_size = st.slider("Rows per request", 5, 50, 20)
+    brands_text = st.text_area(
+        "Client and competitors",
+        placeholder="Client: STC, اس تي سي, stc_ksa\nCompetitor: Mobily, موبايلي\nCompetitor: Zain, زين",
+        help="One brand per line. Start with Client: or Competitor:, then the brand name and any "
+             "other spellings or handles, separated by commas. Sentiment is judged toward "
+             "these brands, not the general mood of the post.",
+    )
+    brands = qc_engine.parse_brands(brands_text)
+    if not brands:
+        st.info("No brands added: sentiment will be the post's overall mood.")
     allowed_text = st.text_area(
         "Approved topic list (optional)",
         help="One topic per line. If you fill this in, every topic is mapped onto this list.",
@@ -69,6 +79,7 @@ labels = {
     "handle": "Handle",
     "gender": "Gender",
     "sentiment": "Sentiment",
+    "brand": "Brand / Query (optional)",
     "topic": "Topic",
 }
 columns = {}
@@ -96,10 +107,10 @@ if st.button("Run QC", type="primary", disabled=not (columns["text"] and has_key
 
     try:
         client = qc_engine.make_client(api_key or None)
-        result, summary, topic_map = qc_engine.run_qc(
+        result, summary, topic_map, brand_sentiment = qc_engine.run_qc(
             work_df, columns, client,
             model=MODELS[model_label], effort=effort, batch_size=batch_size,
-            allowed_topics=allowed_topics, progress=show_progress,
+            allowed_topics=allowed_topics, brands=brands, progress=show_progress,
         )
     except Exception as error:
         st.error(f"QC failed: {error}")
@@ -107,12 +118,12 @@ if st.button("Run QC", type="primary", disabled=not (columns["text"] and has_key
     bar.progress(1.0, text="Done")
     # Streamlit reruns the whole script on every click (even Download),
     # so keep the results in session_state.
-    st.session_state["qc"] = (result, summary, topic_map, dict(columns))
+    st.session_state["qc"] = (result, summary, topic_map, brand_sentiment, dict(columns))
     st.session_state["qc_file"] = file_id
 
 if "qc" not in st.session_state:
     st.stop()
-result, summary, topic_map, columns = st.session_state["qc"]
+result, summary, topic_map, brand_sentiment, columns = st.session_state["qc"]
 
 # ---------- results ----------
 st.subheader("Summary")
@@ -126,6 +137,10 @@ st.subheader("Rows to check")
 to_check = result[result["QC_Status"] != "OK"]
 st.dataframe(to_check, use_container_width=True)
 
+if not brand_sentiment.empty:
+    st.subheader("Sentiment by brand")
+    st.dataframe(brand_sentiment, hide_index=True, use_container_width=True)
+
 if not topic_map.empty:
     st.subheader("Topic mapping")
     st.dataframe(topic_map, hide_index=True, use_container_width=True)
@@ -133,7 +148,7 @@ if not topic_map.empty:
 name = uploaded.name.rsplit(".", 1)[0]
 st.download_button(
     "Download QC'd Excel",
-    data=qc_engine.to_excel(result, summary, topic_map, columns),
+    data=qc_engine.to_excel(result, summary, topic_map, columns, brand_sentiment),
     file_name=f"{name}_QC.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     type="primary",
