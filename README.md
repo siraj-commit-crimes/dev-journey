@@ -14,6 +14,8 @@ Starting my development career — learning with Najdi.
 - [x] [Excel QC](excel_qc/) — upload a social media monitoring sheet and Claude checks
   gender, sentiment toward the client and competitors (emojis and sarcasm included),
   and unifies topics
+- [ ] [Shopify Services](shopify-services/) — plan, client templates and a bilingual
+  (English/Arabic) [portfolio site](docs/index.html) for building Shopify stores in Lebanon
 
 ## Notes
 
