@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Siraj — Shopify Stores for Lebanese Brands</title>
+  <meta name="description" content="Shopify stores for Lebanese small businesses: cash on delivery, delivery fees by region, WhatsApp orders, English and Arabic.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fbfaf7;
+      --surface: #ffffff;
+      --text: #1d1f1c;
+      --muted: #5c625a;
+      --border: #e3e1da;
+      --accent: #2f7d4f;
+      --accent-soft: #e6f2ea;
+      --accent-text: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141614;
+        --surface: #1c1f1c;
+        --text: #eceee9;
+        --muted: #a3aa9f;
+        --border: #2e332d;
+        --accent: #5cbf83;
+        --accent-soft: #1f3327;
+        --accent-text: #0e1a12;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    html[lang="ar"] body { font-family: Cairo, system-ui, sans-serif; }
+
+    /* Each piece of text exists twice: lang="en" and lang="ar".
+       Only the one matching the page language is shown. */
+    html[lang="en"] [lang="ar"],
+    html[lang="ar"] [lang="en"] { display: none; }
+
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    header .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; height: 60px;
+    }
+    .brand { font-weight: 700; font-size: 1.05rem; text-decoration: none; color: var(--text); }
+    .brand span { color: var(--accent); }
+    nav { display: flex; align-items: center; gap: 18px; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+    nav a:hover { color: var(--text); }
+    .lang-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      border-radius: 999px; padding: 6px 14px; cursor: pointer; font: inherit; font-size: 0.9rem;
+    }
+
+    .hero { padding-block: 72px 56px; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.15; margin: 0 0 16px; max-width: 18ch; }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 56ch; margin: 0 0 28px; }
+    .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-block; padding: 12px 22px; border-radius: 10px;
+      text-decoration: none; font-weight: 600;
+    }
+    .btn-primary { background: var(--accent); color: var(--accent-text); }
+    .btn-ghost { border: 1px solid var(--border); color: var(--text); background: var(--surface); }
+
+    section { padding: 56px 0; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.7rem; margin: 0 0 8px; }
+    .lead { color: var(--muted); margin: 0 0 32px; max-width: 60ch; }
+
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px;
+    }
+    .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .price-card { display: flex; flex-direction: column; }
+    .price-card.featured { border: 2px solid var(--accent); }
+    .price { font-size: 1.9rem; font-weight: 700; margin: 6px 0 2px; }
+    .from { font-size: 0.85rem; color: var(--muted); }
+    .price-card ul { padding-inline-start: 18px; margin: 14px 0 0; color: var(--muted); }
+    .price-card li { margin-bottom: 6px; }
+    .tag {
+      align-self: flex-start; background: var(--accent-soft); color: var(--accent);
+      font-size: 0.8rem; font-weight: 600; border-radius: 999px; padding: 2px 10px; margin-bottom: 8px;
+    }
+    .note { color: var(--muted); font-size: 0.9rem; margin-top: 20px; }
+
+    .steps { counter-reset: step; }
+    .steps .card::before {
+      counter-increment: step; content: counter(step);
+      display: inline-grid; place-items: center; width: 32px; height: 32px;
+      border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+      font-weight: 700; margin-bottom: 12px;
+    }
+
+    .demo { min-height: 150px; display: flex; flex-direction: column; justify-content: flex-end; }
+    .demo .soon { font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-top: 8px; }
+
+    .contact { text-align: center; }
+    .contact .lead { margin-inline: auto; }
+    .contact .btns { justify-content: center; }
+
+    footer { padding: 28px 0; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+
+    @media (max-width: 640px) {
+      nav a { display: none; }
+      .hero { padding-block: 48px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#">Siraj <span>· Shopify</span></a>
+    <nav>
+      <a href="#services"><span lang="en">Services</span><span lang="ar">الخدمات</span></a>
+      <a href="#packages"><span lang="en">Packages</span><span lang="ar">الباقات</span></a>
+      <a href="#work"><span lang="en">Work</span><span lang="ar">أعمالي</span></a>
+      <a href="#contact"><span lang="en">Contact</span><span lang="ar">تواصل</span></a>
+      <button class="lang-btn" id="lang-btn" type="button">العربية</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>
+      <span lang="en">Your Instagram shop, turned into a real online store.</span>
+      <span lang="ar">حوّل صفحتك على إنستغرام لمتجر إلكتروني حقيقي.</span>
+    </h1>
+    <p>
+      <span lang="en">I build Shopify stores for Lebanese brands. Customers order 24/7 with cash on delivery, delivery fees are set by region, and every order lands on your WhatsApp.</span>
+      <span lang="ar">بعمل متاجر Shopify للبراندات اللبنانية. الزبون بيطلب بأي وقت والدفع عند التسليم، سعر التوصيل حسب المنطقة، وكل طلبية بتوصلك على الواتساب.</span>
+    </p>
+    <div class="btns">
+      <!-- TODO: replace 961XXXXXXXX with your WhatsApp number (country code, no + or spaces) -->
+      <a class="btn btn-primary" href="https://wa.me/961XXXXXXXX">
+        <span lang="en">Chat on WhatsApp</span><span lang="ar">راسلني على واتساب</span>
+      </a>
+      <a class="btn btn-ghost" href="#packages">
+        <span lang="en">See packages</span><span lang="ar">شوف الباقات</span>
+      </a>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="wrap">
+      <h2><span lang="en">Built for selling in Lebanon</span><span lang="ar">مصمّم للبيع بلبنان</span></h2>
+      <p class="lead">
+        <span lang="en">Every store comes ready for how Lebanese customers actually buy.</span>
+        <span lang="ar">كل متجر جاهز للطريقة اللي بيشتري فيها الزبون اللبناني.</span>
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3><span lang="en">Cash on delivery</span><span lang="ar">الدفع عند التسليم</span></h3>
+          <p><span lang="en">A simple checkout built around COD, with card or Whish payment as an option.</span><span lang="ar">طلب سهل مبني على الدفع عند التسليم، مع خيار الدفع بالبطاقة أو Whish.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">Delivery by region</span><span lang="ar">التوصيل حسب المنطقة</span></h3>
+          <p><span lang="en">Fees set for Beirut, Mount Lebanon, North, South and Bekaa.</span><span lang="ar">أسعار توصيل لبيروت، جبل لبنان، الشمال، الجنوب والبقاع.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">WhatsApp &amp; Instagram</span><span lang="ar">واتساب وإنستغرام</span></h3>
+          <p><span lang="en">Orders sent to your WhatsApp, and products synced to your Instagram shop.</span><span lang="ar">الطلبيات بتوصلك عالواتساب، والمنتجات مربوطة بمتجرك على إنستغرام.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">English &amp; Arabic</span><span lang="ar">عربي وإنكليزي</span></h3>
+          <p><span lang="en">A bilingual store, with Arabic shown properly right to left.</span><span lang="ar">متجر بلغتين، والعربي معروض صح من اليمين لليسار.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="packages">
+    <div class="wrap">
+      <h2><span lang="en">Packages</span><span lang="ar">الباقات</span></h2>
+      <p class="lead">
+        <span lang="en">Starting prices in USD. Every quote lists exactly what's included.</span>
+        <span lang="ar">الأسعار بتبلّش من هون، بالدولار. كل عرض سعر بيوضّح شو بيشمل بالضبط.</span>
+      </p>
+      <div class="grid">
+        <div class="card price-card">
+          <h3>Starter</h3>
+          <div class="from"><span lang="en">starting from</span><span lang="ar">ابتداءً من</span></div>
+          <div class="price">$350</div>
+          <ul>
+            <li><span lang="en">Theme setup, up to 30 products</span><span lang="ar">تجهيز التصميم، لحد 30 منتج</span></li>
+            <li><span lang="en">Cash-on-delivery checkout</span><span lang="ar">الدفع عند التسليم</span></li>
+            <li><span lang="en">Delivery zones and fees</span><span lang="ar">مناطق وأسعار التوصيل</span></li>
+            <li><span lang="en">WhatsApp order button</span><span lang="ar">زر الطلب عبر واتساب</span></li>
+            <li><span lang="en">1 language</span><span lang="ar">لغة وحدة</span></li>
+          </ul>
+        </div>
+        <div class="card price-card featured">
+          <span class="tag"><span lang="en">Most popular</span><span lang="ar">الأكثر طلباً</span></span>
+          <h3>Business</h3>
+          <div class="from"><span lang="en">starting from</span><span lang="ar">ابتداءً من</span></div>
+          <div class="price">$700</div>
+          <ul>
+            <li><span lang="en">Everything in Starter</span><span lang="ar">كل شي بباقة Starter</span></li>
+            <li><span lang="en">English and Arabic</span><span lang="ar">عربي وإنكليزي</span></li>
+            <li><span lang="en">Up to 100 products</span><span lang="ar">لحد 100 منتج</span></li>
+            <li><span lang="en">Instagram &amp; Facebook shop sync</span><span lang="ar">ربط متجر إنستغرام وفيسبوك</span></li>
+            <li><span lang="en">Basic SEO and a training session</span><span lang="ar">SEO أساسي وجلسة تدريب</span></li>
+          </ul>
+        </div>
+        <div class="card price-card">
+          <h3>Custom</h3>
+          <div class="from"><span lang="en">starting from</span><span lang="ar">ابتداءً من</span></div>
+          <div class="price">$1,500</div>
+          <ul>
+            <li><span lang="en">Custom design</span><span lang="ar">تصميم خاص</span></li>
+            <li><span lang="en">Theme code changes</span><span lang="ar">تعديلات على كود التصميم</span></li>
+            <li><span lang="en">Card payment setup</span><span lang="ar">تفعيل الدفع بالبطاقة</span></li>
+            <li><span lang="en">Move from another platform</span><span lang="ar">نقل من منصة تانية</span></li>
+          </ul>
+        </div>
+        <div class="card price-card">
+          <h3><span lang="en">Care plan</span><span lang="ar">باقة المتابعة</span></h3>
+          <div class="from"><span lang="en">starting from</span><span lang="ar">ابتداءً من</span></div>
+          <div class="price">$50<small style="font-size:1rem;font-weight:400">/<span lang="en">mo</span><span lang="ar">شهر</span></small></div>
+          <ul>
+            <li><span lang="en">Updates and fixes</span><span lang="ar">تحديثات وتصليحات</span></li>
+            <li><span lang="en">Adding new products</span><span lang="ar">إضافة منتجات جديدة</span></li>
+            <li><span lang="en">Monthly sales report</span><span lang="ar">تقرير مبيعات شهري</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">
+        <span lang="en">50% upfront, 50% at launch. Your Shopify plan and apps are paid separately, on your own account.</span>
+        <span lang="ar">50% بالبداية و50% عند الإطلاق. اشتراك Shopify والتطبيقات بتندفع على حسابك الخاص.</span>
+      </p>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="wrap">
+      <h2><span lang="en">How it works</span><span lang="ar">كيف منشتغل</span></h2>
+      <p class="lead">
+        <span lang="en">From first message to first order.</span>
+        <span lang="ar">من أول رسالة لأول طلبية.</span>
+      </p>
+      <div class="grid steps">
+        <div class="card">
+          <h3><span lang="en">Chat</span><span lang="ar">منحكي</span></h3>
+          <p><span lang="en">We talk about your products, customers and delivery.</span><span lang="ar">منحكي عن منتجاتك، زبائنك والتوصيل.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">Quote</span><span lang="ar">عرض السعر</span></h3>
+          <p><span lang="en">You get a clear price and timeline.</span><span lang="ar">بيوصلك سعر واضح ومدة التنفيذ.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">Build</span><span lang="ar">التنفيذ</span></h3>
+          <p><span lang="en">I set up the store and you review it before launch.</span><span lang="ar">بجهّز المتجر وبتراجعه قبل الإطلاق.</span></p>
+        </div>
+        <div class="card">
+          <h3><span lang="en">Launch</span><span lang="ar">الإطلاق</span></h3>
+          <p><span lang="en">Your store goes live and I show you how to run it.</span><span lang="ar">المتجر بينطلق وبعلّمك كيف تديره.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <h2><span lang="en">Demo stores</span><span lang="ar">متاجر تجريبية</span></h2>
+      <p class="lead">
+        <span lang="en">Sample stores showing what yours could look like.</span>
+        <span lang="ar">متاجر نموذجية بتورجيك كيف ممكن يطلع متجرك.</span>
+      </p>
+      <!-- TODO: when a demo store is ready, turn its card into a link and add a screenshot -->
+      <div class="grid">
+        <div class="card demo">
+          <h3><span lang="en">Clothing boutique</span><span lang="ar">بوتيك ألبسة</span></h3>
+          <div class="soon"><span lang="en">Coming soon</span><span lang="ar">قريباً</span></div>
+        </div>
+        <div class="card demo">
+          <h3><span lang="en">Cosmetics &amp; perfume</span><span lang="ar">تجميل وعطور</span></h3>
+          <div class="soon"><span lang="en">Coming soon</span><span lang="ar">قريباً</span></div>
+        </div>
+        <div class="card demo">
+          <h3><span lang="en">Sweets &amp; food</span><span lang="ar">حلويات ومأكولات</span></h3>
+          <div class="soon"><span lang="en">Coming soon</span><span lang="ar">قريباً</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2><span lang="en">Let's build your store</span><span lang="ar">يلا نعمل متجرك</span></h2>
+      <p class="lead">
+        <span lang="en">Send me a message with your Instagram page and I'll reply with ideas for your store.</span>
+        <span lang="ar">بعتلي رسالة مع صفحتك على إنستغرام وبرجعلك بأفكار لمتجرك.</span>
+      </p>
+      <div class="btns">
+        <!-- TODO: replace 961XXXXXXXX with your WhatsApp number -->
+        <a class="btn btn-primary" href="https://wa.me/961XXXXXXXX">WhatsApp</a>
+        <a class="btn btn-ghost" href="https://instagram.com/theshopifyexpertlb">@theshopifyexpertlb</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Siraj · <span lang="en">Shopify stores for Lebanese brands</span><span lang="ar">متاجر Shopify للبراندات اللبنانية</span></div>
+</footer>
+
+<script>
+  // Switch between English and Arabic, and remember the choice.
+  const btn = document.getElementById("lang-btn");
+
+  function setLang(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    btn.textContent = lang === "ar" ? "English" : "العربية";
+    try { localStorage.setItem("lang", lang); } catch (e) {}
+  }
+
+  let saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  setLang(saved === "ar" ? "ar" : "en");
+
+  btn.addEventListener("click", () => {
+    setLang(document.documentElement.lang === "ar" ? "en" : "ar");
+  });
+</script>
+</body>
+</html>
