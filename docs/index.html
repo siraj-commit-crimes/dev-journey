@@ -114,6 +114,9 @@
 
     .demo { min-height: 150px; display: flex; flex-direction: column; justify-content: flex-end; }
     .demo .soon { font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-top: 8px; }
+    .client { text-decoration: none; color: var(--text); border-color: var(--accent); }
+    .client:hover { background: var(--accent-soft); }
+    .client .tag { margin-bottom: auto; }
 
     .contact { text-align: center; }
     .contact .lead { margin-inline: auto; }
@@ -283,17 +286,19 @@
 
   <section id="work">
     <div class="wrap">
-      <h2><span lang="en">Demo stores</span><span lang="ar">متاجر تجريبية</span></h2>
+      <h2><span lang="en">Work</span><span lang="ar">أعمالي</span></h2>
       <p class="lead">
-        <span lang="en">Sample stores showing what yours could look like.</span>
-        <span lang="ar">متاجر نموذجية بتورجيك كيف ممكن يطلع متجرك.</span>
+        <span lang="en">Stores I've built for clients, plus sample stores showing what yours could look like.</span>
+        <span lang="ar">متاجر عملتها لزبائن، ومتاجر نموذجية بتورجيك كيف ممكن يطلع متجرك.</span>
       </p>
       <!-- TODO: when a demo store is ready, turn its card into a link and add a screenshot -->
       <div class="grid">
-        <div class="card demo">
-          <h3><span lang="en">Clothing boutique</span><span lang="ar">بوتيك ألبسة</span></h3>
-          <div class="soon"><span lang="en">Coming soon</span><span lang="ar">قريباً</span></div>
-        </div>
+        <a class="card demo client" href="https://adamlb.co/">
+          <span class="tag"><span lang="en">Client</span><span lang="ar">زبون</span></span>
+          <h3>Adam</h3>
+          <p><span lang="en">Lebanese clothing brand. I set up cash on delivery and delivery across Lebanon.</span><span lang="ar">براند ألبسة لبناني. جهّزت الدفع عند التسليم والتوصيل على كل لبنان.</span></p>
+          <div class="soon">adamlb.co ↗</div>
+        </a>
         <div class="card demo">
           <h3><span lang="en">Cosmetics &amp; perfume</span><span lang="ar">تجميل وعطور</span></h3>
           <div class="soon"><span lang="en">Coming soon</span><span lang="ar">قريباً</span></div>
