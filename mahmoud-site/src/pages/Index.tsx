@@ -3,13 +3,14 @@ import { ChevronDown, Instagram, Mail, MessageCircle, X } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import Brands from "@/pages/Brands";
 import { supabase } from "@/lib/supabase";
-import { defaultDetails, defaultGallery, heroImage } from "@/lib/content";
-import video from "@/assets/video.mp4";
+import { defaultDetails, defaultGallery } from "@/lib/content";
+import { instagramUrl, useSiteSettings, whatsappUrl } from "@/lib/settings";
 
 const Index = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [gallery, setGallery] = useState<string[]>(defaultGallery);
   const [details, setDetails] = useState(defaultDetails);
+  const site = useSiteSettings();
 
   useEffect(() => {
     (async () => {
@@ -28,9 +29,9 @@ const Index = () => {
       <section className="relative h-screen w-full overflow-hidden">
         {/* Phones: original framing. Laptops (md+): framed on the face. */}
         <img
-          src={heroImage}
+          src={site.hero_image_url}
           alt="Mahmoud Haidar - Professional Model"
-          className="absolute inset-0 w-full h-full pt-10 object-cover object-[32%_55%] md:object-[50%_30%]"
+          className={`absolute inset-0 w-full h-full pt-10 transition-opacity duration-500 ${site.loaded ? "opacity-100" : "opacity-0"} object-cover object-[32%_55%] md:object-[50%_30%]`}
         />
         {/* Light dark wash so the white name stays readable on the photo. */}
         <div className="absolute inset-0 bg-black/25" />
@@ -54,11 +55,8 @@ const Index = () => {
           <ScrollReveal>
             <h2 className="text-section-title text-foreground mb-8">About</h2>
             <div className="w-[60px] h-px bg-foreground/20 mx-auto mb-10" />
-            <p className="text-foreground/70 leading-relaxed text-sm md:text-base">
-              Mahmoud Haidar is a professional model based in Lebanon, known for his striking presence and
-              versatility. With experience in editorial, commercial, and runway work, he brings a refined intensity
-              to every project. His portfolio spans collaborations with leading fashion houses and photographers
-              across the region.
+            <p className="text-foreground/70 leading-relaxed text-sm md:text-base whitespace-pre-line">
+              {site.about_text}
             </p>
           </ScrollReveal>
         </div>
@@ -69,13 +67,13 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
             <div className="aspect-video bg-secondary border border-border overflow-hidden rounded-sm">
-              <video src={video} controls className="w-full h-full object-cover" playsInline>
+              <video key={site.video_url} src={site.video_url} controls className="w-full h-full object-cover" playsInline>
                 Your browser does not support the video tag.
               </video>
             </div>
           </ScrollReveal>
           <ScrollReveal>
-            <p className="text-muted-foreground text-sm mt-8 tracking-wide">Georges Hobeika - Fashion Show.</p>
+            <p className="text-muted-foreground text-sm mt-8 tracking-wide">{site.video_caption}</p>
           </ScrollReveal>
         </div>
       </section>
@@ -105,29 +103,29 @@ const Index = () => {
           <ScrollReveal>
             <div className="flex flex-col items-center gap-8">
               <a
-                href="mailto:mahmoudhaidarr00@gmail.com"
+                href={`mailto:${site.email}`}
                 className="flex items-center gap-3 text-foreground/70 hover:text-foreground transition-colors duration-300 group"
               >
                 <Mail className="w-4 h-4" />
-                <h5 className="text-nav font-bold">mahmoudhaidarr00@gmail.com</h5>
+                <h5 className="text-nav font-bold">{site.email}</h5>
               </a>
               <a
-                href="https://instagram.com/mahmoudhaidar_"
+                href={instagramUrl(site.instagram)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-foreground/70 hover:text-foreground transition-colors duration-300 group"
               >
                 <Instagram className="w-4 h-4" />
-                <span className="text-nav font-bold">@mahmoudhaidar_</span>
+                <span className="text-nav font-bold">@{site.instagram.replace(/^@/, "")}</span>
               </a>
               <a
-                href="https://wa.me/96179132606"
+                href={whatsappUrl(site.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-foreground/70 hover:text-foreground transition-colors duration-300 group"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span className="text-nav font-bold">+961 79 132 606</span>
+                <span className="text-nav font-bold">{site.whatsapp}</span>
               </a>
             </div>
           </ScrollReveal>

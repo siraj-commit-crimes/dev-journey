@@ -6,18 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
+import { defaultSettings, loadSettings, type SettingKey, type SiteSettings } from "@/lib/settings";
 
 type GalleryRow = { id: string; image_url: string; sort_order: number; alt_text?: string | null };
 type BrandRow = { id: string; name: string; logo_url: string; activity_image_url: string; sort_order: number };
 type DetailRow = { id: string; label: string; value: string; sort_order: number };
-type Tab = "gallery" | "brands" | "details";
+type Tab = "site" | "gallery" | "brands" | "details";
 
 const showError = (description: string) => toast.error("Error", { description });
 
 const Admin = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("gallery");
+  const [tab, setTab] = useState<Tab>("site");
+  const [site, setSite] = useState<SiteSettings>(defaultSettings);
+  const [uploading, setUploading] = useState<SettingKey | null>(null);
   const [gallery, setGallery] = useState<GalleryRow[]>([]);
   const [brands, setBrands] = useState<BrandRow[]>([]);
   const [details, setDetails] = useState<DetailRow[]>([]);
@@ -37,6 +40,7 @@ const Admin = () => {
       if (g.data) setGallery(g.data);
       if (b.data) setBrands(b.data);
       if (d.data) setDetails(d.data);
+      setSite({ ...defaultSettings, ...(await loadSettings()) });
     })();
   }, []);
 
@@ -50,6 +54,41 @@ const Admin = () => {
       return null;
     }
     return supabase.storage.from("portfolio").getPublicUrl(path).data.publicUrl;
+  };
+
+  // ---- Site (homepage photo, about, video, contact) ----
+  const saveSetting = async (key: SettingKey, value: string) => {
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    if (error) {
+      showError(
+        error.message.includes("site_settings")
+          ? "The Site tab isn't set up in the database yet. See the setup guide."
+          : error.message,
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const saveSiteText = async () => {
+    setSaving(true);
+    const keys: SettingKey[] = ["about_text", "video_caption", "email", "instagram", "whatsapp"];
+    let ok = true;
+    for (const k of keys) ok = (await saveSetting(k, site[k].trim())) && ok;
+    setSaving(false);
+    if (ok) toast("Saved");
+  };
+
+  const uploadSiteFile = async (key: "hero_image_url" | "video_url", file: File) => {
+    setUploading(key);
+    const url = await upload(file, key === "hero_image_url" ? "site" : "video");
+    if (url && (await saveSetting(key, url))) {
+      setSite((s) => ({ ...s, [key]: url }));
+      toast(key === "hero_image_url" ? "Homepage photo updated" : "Video updated");
+    }
+    setUploading(null);
   };
 
   // ---- Gallery ----
@@ -83,6 +122,7 @@ const Admin = () => {
   };
 
   const deleteGalleryImage = async (id: string) => {
+    if (!window.confirm("Delete this photo?")) return;
     await supabase.from("gallery_images").delete().eq("id", id);
     setGallery(gallery.filter((g) => g.id !== id));
   };
@@ -129,6 +169,7 @@ const Admin = () => {
   };
 
   const deleteBrand = async (id: string) => {
+    if (!window.confirm("Delete this brand?")) return;
     if (!id.startsWith("new-")) await supabase.from("brands").delete().eq("id", id);
     setBrands(brands.filter((b) => b.id !== id));
   };
@@ -162,6 +203,7 @@ const Admin = () => {
   };
 
   const deleteDetail = async (id: string) => {
+    if (!window.confirm("Delete this detail?")) return;
     if (!id.startsWith("new-")) await supabase.from("details").delete().eq("id", id);
     setDetails(details.filter((d) => d.id !== id));
   };
@@ -187,8 +229,8 @@ const Admin = () => {
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-10 border-b border-border pb-4">
-          {(["gallery", "brands", "details"] as Tab[]).map((t) => (
+        <div className="flex flex-wrap gap-x-5 gap-y-2 mb-10 border-b border-border pb-4">
+          {(["site", "gallery", "brands", "details"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -198,6 +240,68 @@ const Admin = () => {
             </button>
           ))}
         </div>
+
+        {tab === "site" && (
+          <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-nav text-foreground">Homepage photo</h2>
+              <img src={site.hero_image_url} alt="" className="w-40 aspect-[4/5] object-cover border border-border" />
+              <label className="cursor-pointer inline-flex w-fit items-center gap-2 text-sm border border-border px-4 py-2 hover:bg-accent transition-colors">
+                <Plus className="w-4 h-4" /> {uploading === "hero_image_url" ? "Uploading..." : "Change photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading !== null}
+                  onChange={(e) => e.target.files?.[0] && uploadSiteFile("hero_image_url", e.target.files[0])}
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">Use a tall (portrait) photo, at least 1300 pixels wide.</p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h2 className="text-nav text-foreground">About text</h2>
+              <textarea
+                value={site.about_text}
+                onChange={(e) => setSite({ ...site, about_text: e.target.value })}
+                rows={7}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h2 className="text-nav text-foreground">Video</h2>
+              <video key={site.video_url} src={site.video_url} controls playsInline className="w-full max-w-md aspect-video bg-black" />
+              <label className="cursor-pointer inline-flex w-fit items-center gap-2 text-sm border border-border px-4 py-2 hover:bg-accent transition-colors">
+                <Plus className="w-4 h-4" /> {uploading === "video_url" ? "Uploading... (keep this page open)" : "Change video"}
+                <input
+                  type="file"
+                  accept="video/mp4,video/quicktime,video/*"
+                  className="hidden"
+                  disabled={uploading !== null}
+                  onChange={(e) => e.target.files?.[0] && uploadSiteFile("video_url", e.target.files[0])}
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">MP4 works best. Keep it under 50 MB.</p>
+              <label className="text-xs text-muted-foreground">Caption under the video</label>
+              <Input value={site.video_caption} onChange={(e) => setSite({ ...site, video_caption: e.target.value })} />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h2 className="text-nav text-foreground">Contact</h2>
+              <label className="text-xs text-muted-foreground">Email</label>
+              <Input type="email" value={site.email} onChange={(e) => setSite({ ...site, email: e.target.value })} />
+              <label className="text-xs text-muted-foreground">Instagram username (without @)</label>
+              <Input value={site.instagram} onChange={(e) => setSite({ ...site, instagram: e.target.value })} />
+              <label className="text-xs text-muted-foreground">WhatsApp number (with country code)</label>
+              <Input type="tel" value={site.whatsapp} onChange={(e) => setSite({ ...site, whatsapp: e.target.value })} />
+            </div>
+
+            <Button onClick={saveSiteText} disabled={saving} className="w-full md:w-fit">
+              <Save className="w-4 h-4 mr-2" /> Save text and contact
+            </Button>
+          </div>
+        )}
 
         {tab === "gallery" && (
           <div>
@@ -237,9 +341,10 @@ const Admin = () => {
                   </div>
                   <button
                     onClick={() => deleteGalleryImage(g.id)}
-                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Delete photo"
+                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -299,7 +404,7 @@ const Admin = () => {
             </Button>
             <div className="flex flex-col gap-4">
               {details.map((d, i) => (
-                <div key={d.id} className="flex items-center gap-3 border border-border p-3">
+                <div key={d.id} className="flex flex-wrap md:flex-nowrap items-center gap-3 border border-border p-3">
                   <Input
                     placeholder="Label (e.g. Height)"
                     value={d.label}
