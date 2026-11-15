@@ -4,6 +4,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import Brands from "@/pages/Brands";
 import { supabase } from "@/lib/supabase";
 import { defaultDetails, defaultGallery, heroImage } from "@/lib/content";
+import video from "@/assets/video.mp4";
 
 const Index = () => {
   const [preview, setPreview] = useState<string | null>(null);
@@ -59,6 +60,22 @@ const Index = () => {
               to every project. His portfolio spans collaborations with leading fashion houses and photographers
               across the region.
             </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Video */}
+      <section className="pb-24 md:pb-32 px-6 md:px-12">
+        <div className="max-w-4xl mx-auto text-center">
+          <ScrollReveal>
+            <div className="aspect-video bg-secondary border border-border overflow-hidden rounded-sm">
+              <video src={video} controls className="w-full h-full object-cover" playsInline>
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal>
+            <p className="text-muted-foreground text-sm mt-8 tracking-wide">Georges Hobeika - Fashion Show.</p>
           </ScrollReveal>
         </div>
       </section>

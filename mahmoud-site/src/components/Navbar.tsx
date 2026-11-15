@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 
 const links = [
   { to: "/", label: "Home" },
-  { to: "/video", label: "Video" },
 ];
 
 const Navbar = () => {
