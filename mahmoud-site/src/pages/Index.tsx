@@ -29,20 +29,20 @@ const Index = () => {
         <img
           src={heroImage}
           alt="Mahmoud Haidar - Professional Model"
-          className="absolute inset-0 w-full h-full pt-10 object-cover object-[32%_55%] md:object-[50%_18%]"
+          className="absolute inset-0 w-full h-full pt-10 object-cover object-[32%_55%] md:object-[50%_30%]"
         />
-        {/* White wash over the photo: 40% on phones, lighter on laptops. */}
-        <div className="absolute inset-0 bg-background/40 md:bg-background/[0.12]" />
+        {/* Light dark wash so the white name stays readable on the photo. */}
+        <div className="absolute inset-0 bg-black/25" />
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 pt-40">
-          <h1 className="text-hero text-foreground animate-fade-up">
+          <h1 className="text-hero text-white animate-fade-up">
             Mahmoud
             <br />
             Haidar
           </h1>
-          <p className="text-nav text-foreground/60 mt-6 animate-fade-up-delay-1">Professional Model</p>
+          <p className="text-nav text-white/80 mt-6 animate-fade-up-delay-1">Professional Model</p>
         </div>
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 scroll-indicator">
-          <ChevronDown className="w-5 h-5 text-foreground/50" />
+          <ChevronDown className="w-5 h-5 text-white/70" />
         </div>
       </section>
 
