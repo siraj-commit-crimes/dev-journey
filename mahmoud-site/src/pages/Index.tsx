@@ -33,8 +33,9 @@ const Index = () => {
         />
         {/* Light dark wash so the white name stays readable on the photo. */}
         <div className="absolute inset-0 bg-black/25" />
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 pt-40">
-          <h1 className="text-hero text-white animate-fade-up">
+        {/* Phones: name centred. Laptops (md+): name middle-left, beside the face. */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 pt-40 md:items-start md:text-left md:pt-16 md:pl-[6vw]">
+          <h1 className="text-hero text-white animate-fade-up md:text-[clamp(3rem,5.2vw,6.5rem)]">
             Mahmoud
             <br />
             Haidar
