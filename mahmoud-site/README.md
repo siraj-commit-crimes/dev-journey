@@ -20,10 +20,12 @@ npm run dev
 ```
 
 ## Deploy
-Hosted on Cloudflare Pages (project `mahmoud-haidar`, https://mahmoud-haidar.pages.dev).
-Run `npm run build`, then in Cloudflare: Workers & Pages → mahmoud-haidar → Create deployment →
-upload the `dist` folder. Cloudflare serves `index.html` for every page address
-automatically (no `404.html`), so `/admin`, `/login` and `/brands` work on refresh.
+Hosted on Cloudflare Workers (static assets), worker `www` on the `mahmoudhaidar`
+workers.dev subdomain: https://www.mahmoudhaidar.workers.dev
+Run `npm run build`, then in Cloudflare: Workers & Pages → www → upload a new version
+with the `dist` folder. The build copies `index.html` into `admin/`, `login/`, `brands/`
+and `video/` (scripts/route-pages.mjs) because dashboard uploads have no single-page-app
+fallback; add a folder there for any new page address.
 
 If the site address ever changes, update the `og:url` / `og:image` addresses in `index.html`
 so link previews keep working.
