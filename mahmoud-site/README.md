@@ -20,5 +20,10 @@ npm run dev
 ```
 
 ## Deploy
-Netlify: connect this repo; `netlify.toml` sets the build (`npm run build`, publish `dist`).
-`public/_redirects` makes `/video`, `/brands`, `/admin` work on refresh.
+Hosted on Cloudflare Pages (project `mahmoud-haidar`, https://mahmoud-haidar.pages.dev).
+Run `npm run build`, then in Cloudflare: Workers & Pages → mahmoud-haidar → Create deployment →
+upload the `dist` folder. Cloudflare serves `index.html` for every page address
+automatically (no `404.html`), so `/admin`, `/login` and `/brands` work on refresh.
+
+If the site address ever changes, update the `og:url` / `og:image` addresses in `index.html`
+so link previews keep working.
