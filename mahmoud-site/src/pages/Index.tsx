@@ -4,7 +4,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import Brands from "@/pages/Brands";
 import { supabase } from "@/lib/supabase";
 import { defaultDetails, defaultGallery } from "@/lib/content";
-import { instagramUrl, useSiteSettings, whatsappUrl } from "@/lib/settings";
+import { instagramUrl, useSiteSettings, videoPoster, videoSrc, whatsappUrl } from "@/lib/settings";
 
 const Index = () => {
   const [preview, setPreview] = useState<string | null>(null);
@@ -66,8 +66,16 @@ const Index = () => {
       <section className="pb-24 md:pb-32 px-6 md:px-12">
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
-            <div className="aspect-video bg-secondary border border-border overflow-hidden rounded-sm">
-              <video key={site.video_url} src={site.video_url} controls className="w-full h-full object-cover" playsInline>
+            <div className="aspect-video bg-black border border-border overflow-hidden rounded-sm">
+              <video
+                key={site.video_url}
+                src={videoSrc(site.video_url)}
+                poster={videoPoster(site.video_url)}
+                preload="metadata"
+                controls
+                playsInline
+                className="w-full h-full object-cover"
+              >
                 Your browser does not support the video tag.
               </video>
             </div>
