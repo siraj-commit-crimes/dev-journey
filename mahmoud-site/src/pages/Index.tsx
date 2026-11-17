@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react";
+
+// Browsers only allow autoplay when the video is muted. React does not reliably
+// set the `muted` attribute, so set it on the element directly and start playback.
+const startMuted = (v: HTMLVideoElement | null) => {
+  if (!v) return;
+  v.muted = true;
+  v.defaultMuted = true;
+  v.play().catch(() => {});
+};
 import { ChevronDown, Instagram, Mail, MessageCircle, X } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import Brands from "@/pages/Brands";
@@ -71,9 +80,13 @@ const Index = () => {
                 key={site.video_url}
                 src={videoSrc(site.video_url)}
                 poster={videoPoster(site.video_url)}
-                preload="metadata"
-                controls
+                ref={startMuted}
+                autoPlay
+                muted
+                loop
                 playsInline
+                preload="auto"
+                controls
                 className="w-full h-full object-cover"
               >
                 Your browser does not support the video tag.
