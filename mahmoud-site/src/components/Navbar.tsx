@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const links = [
   { id: "portfolio", label: "Portfolio" },
+  { id: "brands", label: "Brands" },
   { id: "video", label: "Video" },
   { id: "contact", label: "Contact" },
 ];
