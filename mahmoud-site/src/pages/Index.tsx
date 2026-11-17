@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { defaultBrands, defaultDetails, defaultGallery, type Brand } from "@/lib/content";
 import { instagramUrl, useSiteSettings, videoPoster, videoSrc, whatsappUrl } from "@/lib/settings";
 import { downloadCompCard } from "@/lib/compCard";
+import BookingForm from "@/components/BookingForm";
 
 // Browsers only allow autoplay when the video is muted. React does not reliably
 // set the `muted` attribute, so set it on the element directly and start playback.
@@ -226,7 +227,11 @@ const Index = () => {
       <section id="contact" className="scroll-mt-20 border-t border-border py-14 md:py-24 px-6 md:px-12">
         <ScrollReveal className="max-w-5xl mx-auto">
           <SectionTitle>Contact</SectionTitle>
-          <div className="mt-8 md:mt-10 grid md:grid-cols-3 gap-2.5 md:gap-3.5">
+          <p className="mt-4 text-foreground/70 text-sm md:text-base">Send a booking request on WhatsApp or by email, or reach Mahmoud directly below.</p>
+          <div className="mt-8 md:mt-10">
+            <BookingForm email={site.email} whatsapp={site.whatsapp} />
+          </div>
+          <div className="mt-10 md:mt-12 grid md:grid-cols-3 gap-2.5 md:gap-3.5">
             {contacts.map(({ label, value, href, Icon }) => (
               <a
                 key={label}
