@@ -138,18 +138,6 @@ const Index = () => {
         </ScrollReveal>
       </section>
 
-      {/* Brands */}
-      <section className="border-t border-border py-14 md:py-24 px-6 md:px-12">
-        <ScrollReveal className="max-w-5xl mx-auto">
-          <SectionTitle>Brands</SectionTitle>
-          <div className="mt-8 md:mt-10 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 md:gap-3.5">
-            {brands.map((b, i) => (
-              <img key={i} src={b.logo} alt={b.name || "Brand logo"} className="w-full aspect-[3/2] object-contain bg-white p-1" loading="lazy" />
-            ))}
-          </div>
-        </ScrollReveal>
-      </section>
-
       {/* Portfolio */}
       <section id="portfolio" className="scroll-mt-20 border-t border-border py-14 md:py-24 px-6 md:px-12">
         <div className="max-w-5xl mx-auto">
@@ -171,6 +159,37 @@ const Index = () => {
                   loading="lazy"
                 />
               </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Brands: each brand's campaign photo with its logo */}
+      <section id="brands" className="scroll-mt-20 border-t border-border py-14 md:py-24 px-6 md:px-12">
+        <div className="max-w-5xl mx-auto">
+          <ScrollReveal>
+            <SectionTitle>Brands</SectionTitle>
+          </ScrollReveal>
+          <div className="mt-8 md:mt-10 flex flex-wrap justify-center gap-2.5 md:gap-3.5">
+            {brands.map((b, i) => (
+              <figure
+                key={i}
+                className="m-0 w-[calc(50%-5px)] md:w-[calc((100%-28px)/3)] lg:w-[calc((100%-42px)/4)] bg-white flex flex-col"
+              >
+                {b.activityImage && (
+                  <button type="button" onClick={() => setPreview(b.activityImage)} className="block w-full aspect-[4/5] overflow-hidden">
+                    <img
+                      src={b.activityImage}
+                      alt={b.name ? `Mahmoud Haidar for ${b.name}` : "Mahmoud Haidar brand campaign"}
+                      className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+                      loading="lazy"
+                    />
+                  </button>
+                )}
+                <figcaption className="h-16 md:h-20 flex items-center justify-center p-2.5">
+                  <img src={b.logo} alt={b.name || "Brand logo"} className="max-h-full max-w-[80%] object-contain" loading="lazy" />
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
