@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Station | المحطة</title>
+  <meta name="description" content="Station Resto-Café, since 1993. Shawarma, mashawi, saj and more from 10 stations across Lebanon. Pick your station and order on WhatsApp." />
+  <!-- Private pitch demo: keep it out of search engines -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0f0e0c" />
+  <link rel="icon" href="img/logo.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,800&family=Space+Mono:wght@400;700&family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip" href="#menu" data-i18n="skip">Skip to menu</a>
+
+  <!-- ===== Top bar ===== -->
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#top" aria-label="Station home">
+      <img src="img/logo.webp" alt="" width="44" height="44" />
+      <span class="brand-text"><b>STATION</b><small>المحطة</small></span>
+    </a>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#stations" data-i18n="navStations">Stations</a>
+      <a href="#menu" data-i18n="navMenu">Menu</a>
+      <a href="#about" data-i18n="navAbout">Since 1993</a>
+    </nav>
+    <div class="top-actions">
+      <button class="lang-btn" id="langBtn" type="button" aria-label="العربية">ع</button>
+      <button class="station-chip" id="stationChip" type="button" aria-haspopup="dialog">
+        <span class="chip-dot" id="chipDot"></span>
+        <span><small data-i18n="yourStation">Your station</small><strong id="chipName" data-i18n="choose">Choose</strong></span>
+      </button>
+      <button class="ticket-btn" id="ticketBtn" type="button" aria-label="Open your ticket">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-3a2 2 0 0 0 0-4Z"/><path d="M14 5v14" stroke-dasharray="2 2.4"/></svg>
+        <span class="ticket-count" id="ticketCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===== Hero: departure board ===== -->
+    <section class="hero" id="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <img src="img/hero-grill.webp" srcset="img/hero-grill-sm.webp 900w, img/hero-grill.webp 1600w" sizes="100vw" alt="" />
+      </div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="since"><span>EST.</span> 1993 <span class="sep">·</span> <span data-i18n="tenStations">10 stations across Lebanon</span></p>
+          <h1 class="hero-title">
+            <span class="ht-line" data-i18n="heroL1">All aboard</span>
+            <span class="ht-line gold" data-i18n="heroL2">the flavour line</span>
+          </h1>
+          <p class="hero-sub" data-i18n="heroSub">Shawarma off the spit, mashawi off the charcoal, saj off the dome. Pick your station and we'll have it rolling to your door.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-brass" href="#stations" data-i18n="ctaStation">Choose your station</a>
+            <a class="btn btn-ghost" href="#menu" data-i18n="ctaMenu">See the menu</a>
+          </div>
+        </div>
+
+        <div class="board" id="board" role="region" aria-label="Departures">
+          <div class="board-head">
+            <span class="board-title"><b data-i18n="departures">Departures</b> <i data-i18n="departuresAlt">المغادرة</i></span>
+            <span class="board-clock" id="boardClock">--:--</span>
+          </div>
+          <div class="board-cols" aria-hidden="true">
+            <span data-i18n="colTime">Time</span><span data-i18n="colDish">Destination</span><span data-i18n="colPrice">Fare</span><span data-i18n="colStatus">Status</span>
+          </div>
+          <ol class="board-rows" id="boardRows"></ol>
+          <p class="board-foot" id="boardFoot"></p>
+        </div>
+      </div>
+
+      <!-- the train that rolls across the bottom -->
+      <div class="track" aria-hidden="true">
+        <div class="train" id="train">
+          <span class="car loco"><i class="smoke"></i><i class="smoke s2"></i><i class="smoke s3"></i><b>STATION</b></span>
+          <span class="car c1">🌯</span><span class="car c2">🍢</span><span class="car c3">🥙</span><span class="car c4">🧆</span>
+        </div>
+        <div class="rails"></div>
+      </div>
+    </section>
+
+    <!-- ===== Route map / branch picker ===== -->
+    <section class="stations" id="stations">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="stationsEyebrow">The network</p>
+        <h2 data-i18n="stationsTitle">Choose your station</h2>
+        <p class="lede" data-i18n="stationsLede">Every station has its own kitchen, menu and prices. Tap yours.</p>
+      </div>
+      <div class="route-map reveal" id="routeMap"></div>
+      <div class="arrival" id="arrival" aria-live="polite"></div>
+    </section>
+
+    <!-- ===== Menu / timetable ===== -->
+    <section class="menu" id="menu">
+      <div class="section-head reveal">
+        <p class="eyebrow" data-i18n="menuEyebrow">Timetable</p>
+        <h2><span data-i18n="menuTitle">The menu</span> <span class="menu-at" id="menuAt"></span></h2>
+        <p class="lede" id="menuNote"></p>
+      </div>
+
+      <div class="menu-tools" id="menuTools" hidden>
+        <div class="platforms" id="platforms" role="tablist" aria-label="Menu categories"></div>
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="search" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Search shawarma, tawook, hummus…" />
+          </label>
+          <div class="quick" id="quick"></div>
+        </div>
+      </div>
+
+      <div class="express" id="express" hidden>
+        <div class="express-head"><span class="express-badge" data-i18n="express">Express line</span><h3 id="expressTitle"></h3></div>
+        <div class="express-track" id="expressTrack"></div>
+      </div>
+
+      <div class="menu-body" id="menuBody" aria-live="polite"></div>
+      <p class="empty" id="emptyState" hidden data-i18n="noMatch">No dish on this line. Try “shawarma” or “tawook”.</p>
+    </section>
+
+    <!-- ===== About / stats ===== -->
+    <section class="about" id="about">
+      <div class="about-inner">
+        <div class="about-photo reveal"><img src="img/hero-table-sm.webp" alt="Station platters with wedges, coleslaw and garlic sauce" loading="lazy" /></div>
+        <div class="about-copy reveal">
+          <p class="eyebrow" data-i18n="aboutEyebrow">Since 1993</p>
+          <h2 data-i18n="aboutTitle">Thirty years on the same line</h2>
+          <p data-i18n="aboutText">Fresh ingredients from local farmers, traditional recipes with a modern touch, and a menu that runs from breakfast saj to midnight shawarma.</p>
+          <div class="stats">
+            <div class="stat"><b class="flapnum" data-to="20" data-suffix="+">0</b><span data-i18n="statYears">years of experience</span></div>
+            <div class="stat"><b class="flapnum" data-to="10">0</b><span data-i18n="statBranches">stations in Lebanon</span></div>
+            <div class="stat"><b class="flapnum" data-to="85" data-suffix="k">0</b><span data-i18n="statOrders">orders delivered</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="sign">
+      <img src="img/logo.webp" alt="" width="84" height="84" />
+      <div><b>STATION</b><span>المحطة · RESTO-CAFÉ</span></div>
+    </div>
+    <div class="socials">
+      <a href="https://www.instagram.com/station.restaurants/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.facebook.com/station.restaurants" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://www.tiktok.com/@station.restaurants" target="_blank" rel="noopener">TikTok</a>
+    </div>
+    <p class="fine" id="footFine"></p>
+  </footer>
+
+  <!-- Floating ticket bar (phones) -->
+  <button class="ticket-bar" id="ticketBar" type="button" hidden>
+    <span class="tb-count" id="tbCount">0</span>
+    <span data-i18n="viewTicket">View ticket</span>
+    <strong id="tbTotal">$0</strong>
+  </button>
+
+  <!-- Station picker -->
+  <dialog class="sheet small" id="pickSheet" aria-labelledby="pickTitle">
+    <div class="sheet-inner pad">
+      <button class="x" data-close aria-label="Close">×</button>
+      <h3 id="pickTitle" data-i18n="pickTitle">Where are you ordering from?</h3>
+      <div class="pick-list" id="pickList"></div>
+    </div>
+  </dialog>
+
+  <!-- Dish -->
+  <dialog class="sheet" id="itemSheet" aria-labelledby="itemTitle">
+    <form method="dialog" class="sheet-inner" id="itemForm">
+      <button class="x" type="button" data-close aria-label="Close">×</button>
+      <div class="sheet-media" id="itemMedia"></div>
+      <div class="sheet-body">
+        <h3 id="itemTitle"></h3>
+        <p class="alt-name" id="itemAlt"></p>
+        <p class="sheet-price" id="itemPrice"></p>
+        <p class="sheet-desc" id="itemDesc"></p>
+        <div id="itemOptions"></div>
+        <label class="field">
+          <span data-i18n="notes">Notes for the kitchen</span>
+          <textarea id="itemNotes" rows="2" maxlength="200" data-i18n-ph="notesPh" placeholder="Extra garlic, no pickles…"></textarea>
+        </label>
+      </div>
+      <div class="sheet-foot">
+        <div class="stepper"><button type="button" id="qtyMinus" aria-label="Fewer">−</button><output id="qtyOut">1</output><button type="button" id="qtyPlus" aria-label="More">+</button></div>
+        <button type="submit" class="btn btn-brass grow" id="addBtn"><span data-i18n="addTicket">Add to ticket</span> · <span id="addTotal"></span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Ticket (cart) -->
+  <dialog class="drawer" id="ticketDrawer" aria-labelledby="ticketTitle">
+    <div class="drawer-inner">
+      <button class="x" data-close aria-label="Close">×</button>
+      <div class="ticket" id="ticket">
+        <div class="ticket-top">
+          <div class="tt-brand"><b>STATION</b><span>المحطة</span></div>
+          <div class="tt-kind" id="ticketTitle"><span data-i18n="ticket">Ticket</span><i>تذكرة</i></div>
+        </div>
+        <div class="route-line">
+          <div><small data-i18n="from">From</small><b id="ticketFrom">—</b></div>
+          <span class="route-arrow" aria-hidden="true">→</span>
+          <div><small data-i18n="to">To</small><b data-i18n="yourDoor">Your door</b></div>
+        </div>
+        <div class="punches" id="punches" aria-hidden="true"></div>
+        <div class="ticket-lines" id="ticketLines"></div>
+        <div class="ticket-foot" id="ticketFoot">
+          <p class="total-line"><span data-i18n="total">Total fare</span><strong id="ticketTotal">$0</strong></p>
+          <label class="field"><span data-i18n="name">Your name</span><input id="custName" autocomplete="name" /></label>
+          <label class="field"><span data-i18n="address">Delivery address</span><input id="custAddress" autocomplete="street-address" data-i18n-ph="addressPh" placeholder="Building, street, floor" /></label>
+          <button class="btn btn-wa" id="sendBtn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/></svg>
+            <span id="sendLabel"></span>
+          </button>
+          <p class="fine" data-i18n="sendFine">You'll check the message in WhatsApp before it's sent.</p>
+        </div>
+        <div class="stamp" id="stamp" aria-hidden="true">BOARDED · تم</div>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

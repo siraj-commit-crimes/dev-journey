@@ -5,6 +5,7 @@ Interactive restaurant websites. Each restaurant lives in its own folder and dep
 | Restaurant | Folder | Status |
 |---|---|---|
 | Blaze (Nashville hot chicken, Beirut) | `blaze/` | Redesign pitch demo |
+| Station / المحطة (Lebanese resto-café, 10 branches) | `station/` | Redesign pitch demo |
 
 ## Blaze
 
@@ -22,3 +23,16 @@ Preview locally with any static server that proxies `/api/*` to `https://blaze-m
 - **How many people The Blaze Takeover feeds:** currently a placeholder of 4 (`FEEDS_GUESS` in `blaze/app.js`).
 - **Instagram handle** in the footer: `@blaze.hotchicken`.
 - **Higher-resolution photos:** the dish photos are 300px wide and look soft in the large photo strip.
+
+## Station
+
+Plain HTML/CSS/JS, no build step. Train-station theme: departure-board hero, the 10 branches as stops on three metro lines, a timetable menu, and the cart as a train ticket. English / Arabic switch (Arabic is right-to-left).
+
+- **Menus per branch:** `data/menus/<branch>.json`, saved from each branch's ordering page. Refresh with `node tools/update-menus.js` (run from `station/`, needs Playwright). Five branches have readable online menus: Hadath, Mazraa, Moawad, Khaldeh, Saida. Nabatieh, Bar Elias, Mekseh, Ferzol and Baalbek show "menu coming soon" with a call button: their menu links don't load (Nabatieh has none).
+- **Photos:** loaded from the ordering platform's image server (fbgcdn.com). Hadath's own photos are tiny placeholders, so the script reuses the same dish's photo from another branch (177 of 214 matched).
+- **Ordering:** ticket → WhatsApp to the chosen branch, message includes English + Arabic dish names.
+
+### Things to confirm with Station before going live
+- **WhatsApp numbers:** taken from each branch's ordering page (`wa` in `BRANCHES` in `station/app.js`). The Contact page lists different (landline) numbers, used for the Call button.
+- **Hadath's opening hours:** not in its menu data, so the site says "Call for opening hours".
+- **The about-section numbers** (20+ years, 10 branches, 85k orders) come from their current About page.
