@@ -328,6 +328,8 @@
     renderMenu();
     renderCombos();
     renderGallery();
+    renderFloats();
+    renderSlides();
     pruneCart();
     renderCart();
   }
@@ -701,10 +703,7 @@
     if (!reduceMotion) document.documentElement.style.setProperty("--drift", (-y * 0.12).toFixed(1));
     const tools = $("#menuTools");
     tools.classList.toggle("stuck", tools.getBoundingClientRect().top <= 80);
-    if (!reduceMotion && y < innerHeight * 1.2) {
-      const img = $("#heroVisual img");
-      if (img) img.style.transform = `rotate(${3 - y * 0.006}deg) translateY(${y * 0.12}px)`;
-    }
+    if (!reduceMotion && y < innerHeight * 1.2) $("#heroVisual").style.translate = `0 ${(y * 0.12).toFixed(1)}px`;
   }
   addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });
   addEventListener("resize", () => requestAnimationFrame(moveInk));
@@ -725,7 +724,7 @@
     const c = $("#embers");
     if (reduceMotion || !c.getContext) return;
     const ctx = c.getContext("2d");
-    let w, h, dpr, parts = [], visible = true;
+    let w, h, dpr, parts = [], visible = true, running = false;
     const resize = () => {
       dpr = Math.min(devicePixelRatio || 1, 2);
       w = c.clientWidth; h = c.clientHeight;
@@ -735,13 +734,24 @@
     resize();
     const n = Math.round(Math.min(70, w / 18));
     for (let i = 0; i < n; i++) parts.push(spawn(true));
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) requestAnimationFrame(tick); }).observe(c);
+    const start = () => { if (!running && visible) { running = true; requestAnimationFrame(tick); } };
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }).observe(c);
     addEventListener("resize", resize);
     function tick() {
-      if (!visible) return;
+      if (!visible) { running = false; return; }
       ctx.clearRect(0, 0, w, h);
+      const ptr = heroPointer;
       for (const p of parts) {
         p.y -= p.vy; p.life += 0.03; p.x += p.vx + Math.sin(p.life) * 0.3;
+        // Embers swirl around the cursor
+        if (ptr.active) {
+          const dx = ptr.x - p.x, dy = ptr.y - p.y, dist = Math.hypot(dx, dy);
+          if (dist < 240 && dist > 1) {
+            const f = (1 - dist / 240) * 2.2;
+            p.x += (-dy / dist) * f + (dx / dist) * f * 0.35;
+            p.y += (dx / dist) * f + (dy / dist) * f * 0.35;
+          }
+        }
         if (p.y < -10) Object.assign(p, spawn(false));
         const a = Math.max(0, Math.min(1, p.y / h)) * 0.9;
         ctx.beginPath();
@@ -753,8 +763,130 @@
       }
       requestAnimationFrame(tick);
     }
-    requestAnimationFrame(tick);
+    start();
   }
+
+  // ---------- Hero extras ----------
+  const heroPointer = { x: 0, y: 0, active: false };
+  const hero = $("#hero");
+
+  // Split NASHVILLE and MADE. into letters that wave once, then jiggle on hover.
+  function splitHeadline() {
+    $$(".hero-title .word:not(.hot):not(.outline)").forEach((w) => {
+      w.innerHTML = [...w.textContent].map((ch, i) => `<span class="ch" style="--i:${i}">${esc(ch)}</span>`).join("");
+    });
+    // Once the words have risen, let letters jump out of their line.
+    setTimeout(() => $(".hero-title").classList.add("risen"), 1300);
+  }
+
+  // Cursor spotlight, embers attraction, 3D tilt and float parallax.
+  function heroPointerFx() {
+    if (reduceMotion) return;
+    const spot = $("#spotlight");
+    let tx = 0, ty = 0, sx = 0, sy = 0, px = 0, py = 0, tpx = 0, tpy = 0, raf = 0;
+    const loop = () => {
+      sx += (tx - sx) * 0.12; sy += (ty - sy) * 0.12;
+      px += (tpx - px) * 0.08; py += (tpy - py) * 0.08;
+      spot.style.transform = `translate(${sx}px, ${sy}px)`;
+      hero.style.setProperty("--px", px.toFixed(3));
+      hero.style.setProperty("--py", py.toFixed(3));
+      raf = Math.abs(tx - sx) + Math.abs(ty - sy) + Math.abs(tpx - px) + Math.abs(tpy - py) > 0.2 ? requestAnimationFrame(loop) : 0;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+    if (finePointer) {
+      hero.classList.add("has-pointer");
+      hero.addEventListener("pointermove", (e) => {
+        const r = hero.getBoundingClientRect();
+        tx = e.clientX - r.left; ty = e.clientY - r.top;
+        tpx = (tx / r.width) * 2 - 1; tpy = (ty / r.height) * 2 - 1;
+        Object.assign(heroPointer, { x: tx, y: ty, active: true });
+        kick();
+      });
+      hero.addEventListener("pointerleave", () => { heroPointer.active = false; tpx = tpy = 0; kick(); });
+    } else {
+      // Phones: tilt the device to move the floating food (where the browser allows it).
+      addEventListener("deviceorientation", (e) => {
+        if (e.gamma == null) return;
+        tpx = Math.max(-1, Math.min(1, e.gamma / 30));
+        tpy = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+        kick();
+      });
+    }
+  }
+
+  // Floating dish bubbles around the photo; tap one to open it.
+  const FLOAT_SPOTS = [
+    { x: 4, y: -10, s: 118, depth: 26, dur: 6.5 },
+    { x: 94, y: -14, s: 96, depth: -18, dur: 5.2 },
+    { x: 100, y: 74, s: 128, depth: 34, dur: 7.1 },
+    { x: 30, y: 106, s: 92, depth: -26, dur: 5.8 },
+  ];
+  const FLOAT_PICKS = ["asset:glazedDonut", "asset:hotHoneyTenders", "asset:loadedNashvilleMac", "asset:mozzarellaSticks", "asset:blazeTakeover", "asset:rulzCookie"];
+  function renderFloats() {
+    const pool = [...state.items.values()].filter((i) => isAvailable(i) && i.image);
+    const picks = FLOAT_PICKS.map((img) => pool.find((i) => i.image === img)).filter(Boolean);
+    for (const i of pool) if (picks.length < FLOAT_SPOTS.length && !picks.includes(i)) picks.push(i);
+    $("#floats").innerHTML = picks.slice(0, FLOAT_SPOTS.length).map((item, n) => {
+      const p = FLOAT_SPOTS[n];
+      return `<button type="button" class="float" data-float="${esc(item.id)}" aria-label="${esc(item.name)}"
+        style="--x:${p.x}%;top:${p.y}%;--s:${p.s}px;--depth:${p.depth};--dur:${p.dur}s;--delay:${0.9 + n * 0.15}s;--rot:${n % 2 ? 7 : -7}deg">
+        <span class="bob"><img src="${imageUrl(item.image)}" alt="" /></span>
+        <span class="float-tip">${esc(item.name)} · ${money(unitPrice(item))}</span>
+      </button>`;
+    }).join("");
+  }
+
+  // Slideshow: hero photo + best meals, circular wipe + slow zoom.
+  let slideTimer, slideIdx = 0, slides = [];
+  function renderSlides() {
+    const frame = $("#heroFrame");
+    $$(".slide.dish", frame).forEach((el) => el.remove());
+    const meals = [...state.items.values()].filter((i) => isAvailable(i) && i.isMeal && i.image && i.image !== "asset:glazedDonut");
+    meals.sort((a, b) => (Number(b.basePrice) - unitPrice(b)) - (Number(a.basePrice) - unitPrice(a)));
+    slides = [{ el: $(".slide", frame), item: null }];
+    meals.slice(0, 4).forEach((item) => {
+      const d = document.createElement("div");
+      d.className = "slide dish";
+      d.innerHTML = `<img src="${imageUrl(item.image)}" alt="${esc(item.name)}" loading="lazy" />`;
+      frame.insertBefore(d, $("#slideCap"));
+      slides.push({ el: d, item });
+    });
+    $("#slideDots").innerHTML = slides.map((_, i) => `<button type="button" data-slide="${i}" aria-label="Photo ${i + 1}" class="${i === slideIdx ? "on" : ""}"></button>`).join("");
+    if (slideIdx >= slides.length) slideIdx = 0;
+    showSlide(slideIdx, true);
+    restartSlides();
+  }
+  function showSlide(i, instant = false) {
+    if (!slides.length) return;
+    const prev = slides[slideIdx];
+    slideIdx = (i + slides.length) % slides.length;
+    const cur = slides[slideIdx];
+    slides.forEach((s) => s.el.classList.remove("active", "prev"));
+    if (prev && prev !== cur && !instant) prev.el.classList.add("prev");
+    cur.el.classList.add("active");
+    $$("#slideDots button").forEach((b, n) => b.classList.toggle("on", n === slideIdx));
+    const cap = $("#slideCap");
+    cap.classList.remove("show");
+    if (cur.item) {
+      cap.dataset.id = cur.item.id;
+      $("#slideName").textContent = cur.item.name;
+      $("#slidePrice").textContent = money(unitPrice(cur.item));
+      requestAnimationFrame(() => cap.classList.add("show"));
+    }
+  }
+  let heroVisible = true;
+  function restartSlides() {
+    clearInterval(slideTimer);
+    if (reduceMotion || slides.length < 2) return;
+    slideTimer = setInterval(() => { if (heroVisible && !document.hidden) showSlide(slideIdx + 1); }, 4200);
+  }
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
+  $("#slideDots").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-slide]");
+    if (b) { showSlide(+b.dataset.slide); restartSlides(); }
+  });
+  $("#slideCap").addEventListener("click", (e) => openItem(e.currentTarget.dataset.id));
+  $("#floats").addEventListener("click", (e) => { const f = e.target.closest("[data-float]"); if (f) openItem(f.dataset.float); });
 
   // Toast
   let toastT;
@@ -773,6 +905,8 @@
     $("#cartName").value = cust.name || "";
     $("#cartAddress").value = cust.address || "";
     setHeat(1);
+    splitHeadline();
+    heroPointerFx();
     embers();
     observeReveals(document);
     onScroll();

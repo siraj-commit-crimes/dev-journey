@@ -41,7 +41,18 @@
 
   <main id="top">
     <!-- Hero -->
-    <section class="hero">
+    <section class="hero" id="hero">
+      <!-- Heat haze: wobbles the doodle layer (desktop only, see styles.css) -->
+      <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+        <filter id="haze" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.010 0.028" numOctaves="2" seed="4">
+            <animate attributeName="baseFrequency" dur="9s" values="0.010 0.028;0.014 0.040;0.010 0.028" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" scale="16" />
+        </filter>
+      </svg>
+      <div class="hero-haze" aria-hidden="true"><div class="hero-doodles"></div></div>
+      <div class="spotlight" id="spotlight" aria-hidden="true"></div>
       <canvas class="embers" id="embers" aria-hidden="true"></canvas>
       <div class="hero-copy">
         <p class="live-badge" id="liveBadge"><span class="dot"></span><span id="liveText">Checking hours…</span></p>
@@ -57,10 +68,18 @@
         </div>
       </div>
       <div class="hero-visual" id="heroVisual">
-        <picture>
-          <source media="(max-width: 700px)" srcset="img/hero-mobile.webp" />
-          <img src="img/hero.webp" alt="Blaze Nashville tender on toast, slider and fries" width="1000" height="617" />
-        </picture>
+        <div class="hero-frame" id="heroFrame">
+          <div class="slide active">
+            <picture>
+              <source media="(max-width: 700px)" srcset="img/hero-mobile.webp" />
+              <img src="img/hero.webp" alt="Blaze Nashville tender on toast, slider and fries" width="1000" height="617" />
+            </picture>
+          </div>
+          <!-- dish slides are added by app.js from the live menu -->
+          <button class="slide-cap" id="slideCap" type="button"><span id="slideName"></span><strong id="slidePrice"></strong></button>
+          <div class="slide-dots" id="slideDots"></div>
+        </div>
+        <div class="floats" id="floats"></div>
         <div class="sticker" id="discountSticker" aria-hidden="true">
           <svg viewBox="0 0 120 120"><defs><path id="circ" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/></defs><text textLength="272" lengthAdjust="spacing"><textPath href="#circ" textLength="272" lengthAdjust="spacing">OFF ALL MEALS • OFF ALL MEALS • </textPath></text></svg>
           <strong id="discountValue">10%</strong>
