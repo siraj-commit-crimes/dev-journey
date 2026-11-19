@@ -16,3 +16,9 @@ Plain HTML/CSS/JS, no build step.
 - **Private demo:** `noindex` meta tag and `X-Robots-Tag` header keep it out of search engines.
 
 Preview locally with any static server that proxies `/api/*` to `https://blaze-menu.com` (without the proxy it falls back to the snapshot).
+
+### Things to confirm with Blaze before going live
+- **Opening hours:** their system has the default 00:00–00:00 for every day, so the site shows no hours or open/closed status. Fill them in on their `/staff` page, or set `HOURS_OVERRIDE` in `blaze/app.js`.
+- **How many people The Blaze Takeover feeds:** currently a placeholder of 4 (`FEEDS_GUESS` in `blaze/app.js`).
+- **Instagram handle** in the footer: `@blaze.hotchicken`.
+- **Higher-resolution photos:** the dish photos are 300px wide and look soft in the large photo strip.

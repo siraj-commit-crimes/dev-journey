@@ -127,8 +127,21 @@
   const toMins = (t) => { const [h, m] = String(t || "0:0").split(":").map(Number); return h * 60 + m; };
   const allDay = (h) => h && h.enabled && h.open === h.close;
 
+  // Blaze's system currently has the default 00:00–00:00 for every day, which
+  // looks like "never filled in", so we don't show hours or open/closed until
+  // they're real. Once the owner confirms, either fill them in on their /staff
+  // page or set them here, e.g. Array(7).fill({ enabled: true, open: "12:00", close: "00:00" }).
+  const HOURS_OVERRIDE = null;
+  function knownHours() {
+    if (HOURS_OVERRIDE) return HOURS_OVERRIDE;
+    const h = state.settings.hours;
+    if (!Array.isArray(h) || h.length !== 7) return null;
+    if (h.every((d) => d && d.enabled && d.open === "00:00" && d.close === "00:00")) return null;
+    return h;
+  }
+
   function openState() {
-    const hours = state.settings.hours;
+    const hours = knownHours();
     if (!Array.isArray(hours) || hours.length !== 7) return { open: true, label: "Open now" };
     if (hours.every(allDay)) return { open: true, label: "Open now · 24/7" };
     const { day, mins } = beirutNow();
@@ -152,11 +165,17 @@
   }
 
   function renderHours() {
-    const s = openState();
+    const hours = knownHours();
+    const s = hours ? openState() : null;
     const badge = $("#liveBadge");
-    badge.classList.toggle("closed", !s.open);
-    $("#liveText").textContent = state.settings.paused ? "Taking a short break" : s.label;
-    const hours = state.settings.hours || [];
+    badge.classList.toggle("closed", !!s && !s.open);
+    badge.classList.toggle("info", !s);
+    const where = areas().filter((a) => a.available !== false).map(shortArea).join(" & ");
+    $("#liveText").textContent = state.settings.paused ? "Taking a short break" : s ? s.label : `Delivering in ${where}`;
+    $("#findStatus").textContent = s ? s.label : "Order on WhatsApp and we'll confirm your delivery time.";
+    $("#findStatus").classList.toggle("open", !!s && s.open);
+    $("#hoursWrap").hidden = !hours;
+    if (!hours) return;
     const { day } = beirutNow();
     $("#hoursList").innerHTML = DAYS.map((d, i) => {
       const h = hours[i];
@@ -175,14 +194,46 @@
       <button type="button" class="area ${state.area === a.id ? "sel" : ""}" data-area="${esc(a.id)}" ${a.available === false ? "disabled" : ""}>
         ${pin}<span><strong>${esc(a.name)}</strong><small>${a.available === false ? "Currently unavailable" : state.area === a.id ? "Your area ✓" : "Deliver here"}</small></span>
       </button>`).join("");
-    $("#areaList").innerHTML = html;
     $("#areaPicker").innerHTML = html;
+    renderLocations();
     const sel = areaById(state.area);
     $("#areaChipName").textContent = sel ? sel.name.split("/")[0].trim() : "Choose area";
     $("#cartArea").innerHTML = `<option value="">Choose your area</option>` + areas().filter((a) => a.available !== false).map((a) => `<option value="${esc(a.id)}" ${state.area === a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("");
     const phone = (sel || areas()[0] || {}).phone || state.settings.whatsapp;
     $("#waContact").href = phone ? `https://wa.me/${String(phone).replace(/\D/g, "")}?text=${encodeURIComponent("Hi Blaze!")}` : "#";
   }
+
+  const shortArea = (a) => a.name.split("/")[0].trim().split(/\s+/)[0];
+  function phoneLabel(digits) {
+    const d = String(digits).replace(/\D/g, "");
+    if (d.startsWith("961") && d.length === 11) return `+961 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8)}`;
+    return "+" + d;
+  }
+  function renderLocations() {
+    const grid = $("#locGrid");
+    if (!grid) return;
+    grid.innerHTML = areas().map((a, i) => {
+      const digits = String(a.phone || state.settings.whatsapp || "").replace(/\D/g, "");
+      const off = a.available === false;
+      return `<article class="loc reveal ${state.area === a.id ? "sel" : ""}" style="--d:${i * 0.12}s">
+        <div class="loc-head"><h3>${esc(shortArea(a))}</h3><span class="loc-tag">${off ? "Unavailable right now" : "Delivery"}</span></div>
+        <p class="loc-areas">${a.name.split("/").map((x) => esc(x.trim())).join(" · ")}</p>
+        ${digits ? `<a class="loc-phone" href="tel:+${digits}">${phoneLabel(digits)}</a>` : ""}
+        <div class="loc-actions">
+          <button type="button" class="btn btn-fire" data-order-area="${esc(a.id)}" ${off ? "disabled" : ""}>${state.area === a.id ? "Ordering here ✓" : `Order to ${esc(shortArea(a))}`}</button>
+          ${digits ? `<a class="btn btn-line" href="https://wa.me/${digits}?text=${encodeURIComponent("Hi Blaze!")}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+        </div>
+      </article>`;
+    }).join("");
+    observeReveals(grid);
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-order-area]");
+    if (!b) return;
+    setArea(b.dataset.orderArea);
+    toast(`Delivering to ${shortArea(areaById(b.dataset.orderArea))} 🛵 Pick your food!`);
+    $("#menu").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  });
 
   function setArea(id) {
     state.area = id || null;
@@ -380,12 +431,37 @@
     cards.forEach((c) => comboObs.observe(c));
   }
 
-  function renderGallery() {
-    const imgs = ["img/hero.webp", ...[...state.items.values()].filter((i) => i.isMeal || /combo/i.test(i.category)).map((i) => imageUrl(i.image))];
-    const uniq = [...new Set(imgs)].slice(0, 10);
-    const html = uniq.map((src) => `<figure><img src="${src}" alt="" loading="lazy" /></figure>`).join("");
-    $("#galleryTrack").innerHTML = html + html; // doubled for seamless loop
+  // Tilted photo strip under the hero: drifts sideways, speeds up while you scroll,
+  // pauses on hover. Tap a dish photo to order it.
+  function renderStrip() {
+    const seen = new Set();
+    const dishes = [...state.items.values()].filter((i) => isAvailable(i) && i.image && (i.isMeal || /combo/i.test(i.category)) && !seen.has(i.image) && seen.add(i.image)).slice(0, 9);
+    const shots = [{ src: "img/hero.webp", wide: true }, ...dishes.map((item) => ({ src: imageUrl(item.image), item }))];
+    const html = shots.map((s, n) => `<button type="button" class="shot ${s.wide ? "wide" : ""}" ${s.item ? `data-shot="${esc(s.item.id)}"` : "tabindex=\"-1\""} style="--r:${n % 2 ? 2 : -2}deg">
+        <img src="${s.src}" alt="${s.item ? esc(s.item.name) : "Blaze tenders, slider and fries"}" loading="lazy" />
+        ${s.item ? `<span class="shot-cap">${esc(s.item.name)} <b>${money(unitPrice(s.item))}</b></span>` : ""}
+      </button>`).join("");
+    $("#stripTrack").innerHTML = html + html.replace(/<button /g, '<button aria-hidden="true" tabindex="-1" '); // doubled for a seamless loop
+    stripX = 0;
   }
+  let stripX = 0, stripBoost = 0, stripHover = false, stripVisible = false, stripRunning = false;
+  function stripLoop() {
+    const track = $("#stripTrack");
+    if (!stripVisible || reduceMotion) { stripRunning = false; return; }
+    stripBoost *= 0.92;
+    if (!stripHover) stripX -= 0.6 + stripBoost;
+    const half = track.scrollWidth / 2;
+    if (half > 0 && -stripX >= half) stripX += half;
+    track.style.transform = `translate3d(${stripX}px,0,0)`;
+    requestAnimationFrame(stripLoop);
+  }
+  new IntersectionObserver(([e]) => {
+    stripVisible = e.isIntersecting;
+    if (stripVisible && !stripRunning) { stripRunning = true; requestAnimationFrame(stripLoop); }
+  }).observe($(".strip"));
+  $(".strip").addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") stripHover = true; });
+  $(".strip").addEventListener("pointerleave", () => { stripHover = false; });
+  $("#stripTrack").addEventListener("click", (e) => { const s = e.target.closest("[data-shot]"); if (s) openItem(s.dataset.shot); });
 
   function renderAll() {
     const d = state.settings.discount;
@@ -394,9 +470,8 @@
     renderAreas();
     renderMenu();
     renderCombos();
-    renderGallery();
+    renderStrip();
     renderFloats();
-    renderSlides();
     pruneCart();
     renderCart();
   }
@@ -766,6 +841,7 @@
     const hide = y > 500 && y > lastY + 4 && !document.querySelector("dialog[open]");
     if (hide) { topbar.classList.add("hide"); document.body.classList.add("nav-hidden"); }
     else if (y < lastY - 4 || y < 500) { topbar.classList.remove("hide"); document.body.classList.remove("nav-hidden"); }
+    stripBoost = Math.min(14, stripBoost + Math.abs(y - lastY) * 0.06);
     lastY = y;
     if (!reduceMotion) document.documentElement.style.setProperty("--drift", (-y * 0.12).toFixed(1));
     const tools = $("#menuTools");
@@ -883,10 +959,10 @@
 
   // Floating dish bubbles around the photo; tap one to open it.
   const FLOAT_SPOTS = [
-    { x: 4, y: -10, s: 118, depth: 26, dur: 6.5 },
-    { x: 94, y: -14, s: 96, depth: -18, dur: 5.2 },
-    { x: 100, y: 74, s: 128, depth: 34, dur: 7.1 },
-    { x: 30, y: 106, s: 92, depth: -26, dur: 5.8 },
+    { x: 10, y: 14, s: 112, depth: 26, dur: 6.5 },
+    { x: 94, y: 8, s: 92, depth: -18, dur: 5.2 },
+    { x: 4, y: 72, s: 124, depth: 34, dur: 7.1 },
+    { x: 62, y: 98, s: 90, depth: -26, dur: 5.8 },
   ];
   const FLOAT_PICKS = ["asset:glazedDonut", "asset:hotHoneyTenders", "asset:loadedNashvilleMac", "asset:mozzarellaSticks", "asset:blazeTakeover", "asset:rulzCookie"];
   function renderFloats() {
@@ -903,56 +979,17 @@
     }).join("");
   }
 
-  // Slideshow: hero photo + best meals, circular wipe + slow zoom.
-  let slideTimer, slideIdx = 0, slides = [];
-  function renderSlides() {
-    const frame = $("#heroFrame");
-    $$(".slide.dish", frame).forEach((el) => el.remove());
-    const meals = [...state.items.values()].filter((i) => isAvailable(i) && i.isMeal && i.image && i.image !== "asset:glazedDonut");
-    meals.sort((a, b) => (Number(b.basePrice) - unitPrice(b)) - (Number(a.basePrice) - unitPrice(a)));
-    slides = [{ el: $(".slide", frame), item: null }];
-    meals.slice(0, 4).forEach((item) => {
-      const d = document.createElement("div");
-      d.className = "slide dish";
-      d.innerHTML = `<img src="${imageUrl(item.image)}" alt="${esc(item.name)}" loading="lazy" />`;
-      frame.insertBefore(d, $("#slideCap"));
-      slides.push({ el: d, item });
-    });
-    $("#slideDots").innerHTML = slides.map((_, i) => `<button type="button" data-slide="${i}" aria-label="Photo ${i + 1}" class="${i === slideIdx ? "on" : ""}"></button>`).join("");
-    if (slideIdx >= slides.length) slideIdx = 0;
-    showSlide(slideIdx, true);
-    restartSlides();
-  }
-  function showSlide(i, instant = false) {
-    if (!slides.length) return;
-    const prev = slides[slideIdx];
-    slideIdx = (i + slides.length) % slides.length;
-    const cur = slides[slideIdx];
-    slides.forEach((s) => s.el.classList.remove("active", "prev"));
-    if (prev && prev !== cur && !instant) prev.el.classList.add("prev");
-    cur.el.classList.add("active");
-    $$("#slideDots button").forEach((b, n) => b.classList.toggle("on", n === slideIdx));
-    const cap = $("#slideCap");
-    cap.classList.remove("show");
-    if (cur.item) {
-      cap.dataset.id = cur.item.id;
-      $("#slideName").textContent = cur.item.name;
-      $("#slidePrice").textContent = money(unitPrice(cur.item));
-      requestAnimationFrame(() => cap.classList.add("show"));
-    }
-  }
-  let heroVisible = true;
-  function restartSlides() {
-    clearInterval(slideTimer);
-    if (reduceMotion || slides.length < 2) return;
-    slideTimer = setInterval(() => { if (heroVisible && !document.hidden) showSlide(slideIdx + 1); }, 4200);
-  }
-  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
-  $("#slideDots").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-slide]");
-    if (b) { showSlide(+b.dataset.slide); restartSlides(); }
+  // The rooster: sways, leans with the cursor, squawks (shake + sparks) when tapped.
+  $("#mascot").addEventListener("click", (e) => {
+    const m = e.currentTarget;
+    m.classList.remove("squawk"); void m.offsetWidth; m.classList.add("squawk");
+    const r = m.getBoundingClientRect();
+    if (!reduceMotion) burst(r.left + r.width * 0.42, r.top + r.height * 0.45);
   });
-  $("#slideCap").addEventListener("click", (e) => openItem(e.currentTarget.dataset.id));
+
+  // Giant BLAZE footer letters slam up when the footer scrolls into view.
+  new IntersectionObserver(([e], o) => { if (e.isIntersecting) { $("#footer").classList.add("in"); o.disconnect(); } }, { threshold: 0.25 }).observe($("#footer"));
+
   $("#floats").addEventListener("click", (e) => { const f = e.target.closest("[data-float]"); if (f) openItem(f.dataset.float); });
 
   // Toast

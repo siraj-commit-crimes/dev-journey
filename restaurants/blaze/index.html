@@ -55,11 +55,11 @@
       <div class="spotlight" id="spotlight" aria-hidden="true"></div>
       <canvas class="embers" id="embers" aria-hidden="true"></canvas>
       <div class="hero-copy">
-        <p class="live-badge" id="liveBadge"><span class="dot"></span><span id="liveText">Checking hours…</span></p>
-        <h1 class="hero-title" aria-label="Nashville hot. Beirut made.">
-          <span class="line"><span class="word">NASHVILLE</span></span>
-          <span class="line"><span class="word hot">HOT.</span></span>
-          <span class="line"><span class="word outline">BEIRUT</span> <span class="word">MADE.</span></span>
+        <p class="live-badge" id="liveBadge"><span class="dot"></span><span id="liveText">Nashville hot chicken · Beirut</span></p>
+        <h1 class="hero-title" aria-label="Can you handle it?">
+          <span class="line"><span class="word">CAN</span> <span class="word">YOU</span></span>
+          <span class="line"><span class="word hot">HANDLE</span></span>
+          <span class="line"><span class="word outline">IT?</span></span>
         </h1>
         <p class="hero-sub">Mega sliders, crunchy tenders and loaded mac, dipped in Blaze sauce and built for people who like it loud.</p>
         <div class="hero-ctas">
@@ -68,16 +68,8 @@
         </div>
       </div>
       <div class="hero-visual" id="heroVisual">
-        <div class="hero-frame" id="heroFrame">
-          <div class="slide active">
-            <picture>
-              <source media="(max-width: 700px)" srcset="img/hero-mobile.webp" />
-              <img src="img/hero.webp" alt="Blaze Nashville tender on toast, slider and fries" width="1000" height="617" />
-            </picture>
-          </div>
-          <!-- dish slides are added by app.js from the live menu -->
-          <button class="slide-cap" id="slideCap" type="button"><span id="slideName"></span><strong id="slidePrice"></strong></button>
-          <div class="slide-dots" id="slideDots"></div>
+        <div class="mascot-wrap" id="mascot">
+          <img class="mascot" src="img/mascot.webp" alt="The Blaze rooster" width="620" height="746" />
         </div>
         <div class="floats" id="floats"></div>
         <div class="sticker" id="discountSticker" aria-hidden="true">
@@ -85,6 +77,11 @@
           <strong id="discountValue">10%</strong>
         </div>
       </div>
+    </section>
+
+    <!-- Tilted photo strip (photos added by app.js; tap one to order it) -->
+    <section class="strip" aria-label="Blaze photos">
+      <div class="strip-track" id="stripTrack"></div>
     </section>
 
     <!-- Marquee -->
@@ -150,38 +147,29 @@
       <div class="combo-grid" id="comboGrid"></div>
     </section>
 
-    <!-- Gallery -->
-    <section class="gallery" aria-label="Photo gallery">
-      <div class="gallery-track" id="galleryTrack"></div>
-    </section>
-
     <!-- Find us / delivery -->
     <section class="find" id="find">
       <div class="section-head reveal">
-        <p class="eyebrow">Where we deliver</p>
-        <h2>Straight to your door.</h2>
+        <p class="eyebrow">Two kitchens, one heat level: high</p>
+        <h2>Find us</h2>
+        <p class="find-status" id="findStatus"></p>
       </div>
-      <div class="find-grid">
-        <div class="find-card reveal" id="areasCard">
-          <h3>Delivery areas</h3>
-          <div id="areaList" class="area-list"></div>
-        </div>
-        <div class="find-card reveal">
-          <h3>Hours</h3>
-          <ul class="hours" id="hoursList"></ul>
-        </div>
-        <div class="find-card find-cta reveal">
-          <h3>Questions?</h3>
-          <p>Message us on WhatsApp and a real human will answer.</p>
-          <a class="btn btn-fire" id="waContact" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
-        </div>
+      <div class="loc-grid" id="locGrid"></div>
+      <div class="hours-wrap reveal" id="hoursWrap" hidden>
+        <h3>Hours</h3>
+        <ul class="hours" id="hoursList"></ul>
+      </div>
+      <div class="find-cta reveal">
+        <p><strong>Questions?</strong> Message us on WhatsApp and a real human will answer.</p>
+        <a class="btn btn-fire" id="waContact" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <img src="img/logo.webp" alt="" width="64" height="48" />
-    <p>© <span id="year"></span> Blaze. Nashville hot chicken.</p>
+  <footer class="footer" id="footer">
+    <a class="ig" href="https://www.instagram.com/blaze.hotchicken/" target="_blank" rel="noopener">@blaze.hotchicken</a>
+    <div class="bigword" aria-hidden="true"><span style="--i:0">B</span><span style="--i:1">L</span><span style="--i:2">A</span><span style="--i:3">Z</span><span style="--i:4">E</span></div>
+    <p class="fine-print">© <span id="year"></span> Blaze · Nashville hot chicken · Beirut</p>
   </footer>
 
   <!-- Floating cart bar (mobile) -->
