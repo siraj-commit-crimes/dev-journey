@@ -193,23 +193,24 @@
   // ---------- Menu rendering ----------
   function priceHtml(item) {
     const now = unitPrice(item), was = Number(item.basePrice || 0);
-    return `<strong>${money(now)}</strong>${now < was ? `<s>${money(was)}</s>` : ""}`;
+    return `<strong data-v="${now}">${money(now)}</strong>${now < was ? `<s>${money(was)}</s>` : ""}`;
   }
   function badgeHtml(item) {
     if (!isAvailable(item)) return "";
     const now = unitPrice(item), was = Number(item.basePrice || 0);
     if (!(now < was)) return "";
     const pct = Math.round((1 - now / was) * 100);
-    return item.salePrice != null ? `<span class="badge hot">-${pct}% DEAL</span>` : `<span class="badge">-${pct}%</span>`;
+    const delay = `style="--wd:${(Math.random() * 4).toFixed(2)}s"`;
+    return item.salePrice != null ? `<span class="badge hot" ${delay}>-${pct}% DEAL</span>` : `<span class="badge" ${delay}>-${pct}%</span>`;
   }
   function cardHtml(item, i) {
     const avail = isAvailable(item);
     const label = status(item) === "stock" ? "Sold out" : "Unavailable";
     return `
-      <article class="card reveal ${avail ? "" : "sold"}" data-id="${esc(item.id)}" tabindex="${avail ? 0 : -1}" style="--d:${(i % 4) * 0.07}s" aria-label="${esc(item.name)}">
+      <article class="card pop ${avail ? "" : "sold"}" data-id="${esc(item.id)}" tabindex="${avail ? 0 : -1}" style="--d:${(i % 4) * 0.09}s;--r:${i % 2 ? 4 : -4}deg" aria-label="${esc(item.name)}">
         <div class="card-media"><img src="${imageUrl(item.image)}" alt="" loading="lazy" />${badgeHtml(item)}</div>
         <div class="card-body">
-          <h4>${esc(item.name)}</h4>
+          <h4>${esc(item.name)}${hasSpice(item) && avail ? ` <span class="spicy" title="Pick your heat" aria-hidden="true">🔥</span>` : ""}</h4>
           ${item.description ? `<p>${esc(item.description)}</p>` : ""}
           <div class="card-foot">
             <div class="price">${priceHtml(item)}</div>
@@ -247,6 +248,7 @@
     $("#emptyState").hidden = shown > 0;
     renderTabs();
     observeReveals(body);
+    observePops(body);
     attachTilt(body);
     observeCats();
   }
@@ -427,6 +429,7 @@
     save("blaze.cart", state.cart);
     flyToCart(fromEl, imageUrl(item.image));
     renderCart(true);
+    celebrate(item.id);
     toast(`${item.name} added ${sel.spice ? "· " + sel.spice : ""}`);
   }
 
@@ -436,9 +439,6 @@
     // Items with choices (heat, options) open the sheet; simple items go straight in.
     if (hasSpice(item) || groupsOf(item).some((g) => g.choices?.length)) return openItem(id);
     addToCart(item, 1, { opts: [], spice: "", notes: "" }, btn.closest(".card, .combo")?.querySelector("img"));
-    btn.closest(".card, .combo")?.classList.remove("added");
-    void btn.offsetWidth;
-    btn.closest(".card, .combo")?.classList.add("added");
   }
 
   function lineCalc(l) {
@@ -595,10 +595,74 @@
     $$(".reveal:not(.in)", root).forEach((el) => revealObs.observe(el));
   }
 
+  // Cards slap in with a bounce, then their price counts up.
+  let popObs;
+  function landCard(card) {
+    card.classList.add("in");
+    const done = () => card.classList.add("landed");
+    if (reduceMotion) { done(); return; }
+    card.addEventListener("animationend", (e) => { if (e.animationName === "slap") done(); });
+    setTimeout(done, 1600);
+    const price = card.querySelector(".price strong[data-v]");
+    if (price) countUp(price, Number(price.dataset.v), (parseFloat(getComputedStyle(card).getPropertyValue("--d")) || 0) * 1000 + 250);
+  }
+  function observePops(root) {
+    const cards = $$(".card.pop:not(.in)", root);
+    if (reduceMotion || !("IntersectionObserver" in window)) { cards.forEach(landCard); return; }
+    popObs ||= new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { popObs.unobserve(e.target); landCard(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
+    cards.forEach((c) => popObs.observe(c));
+  }
+  function countUp(el, value, delay = 0) {
+    const dur = 700, start = performance.now() + delay;
+    el.textContent = money(0);
+    const step = (t) => {
+      if (!el.isConnected) return;
+      const k = Math.min(1, Math.max(0, (t - start) / dur));
+      const eased = 1 - Math.pow(1 - k, 3);
+      el.textContent = money(k < 1 ? Math.round(value * eased * 100) / 100 : value);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Add-to-cart celebration: squish the card, + becomes a tick, sparks burst out.
+  function celebrate(id) {
+    $$(`.card[data-id="${CSS.escape(id)}"], .combo[data-id="${CSS.escape(id)}"]`).forEach((card) => {
+      card.classList.remove("added"); void card.offsetWidth; card.classList.add("added");
+      const btn = card.querySelector(".quick-add");
+      if (!btn) return;
+      btn.classList.add("done");
+      btn.textContent = "✓";
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { btn.classList.remove("done"); btn.textContent = "+"; }, 1300);
+      const r = btn.getBoundingClientRect();
+      if (!reduceMotion && r.width && r.top < innerHeight && r.bottom > 0) burst(r.left + r.width / 2, r.top + r.height / 2);
+    });
+  }
+  function burst(x, y) {
+    const bits = ["🔥", "✦", "🔥", "✦", "●", "🔥", "✦", "●", "🔥", "✦", "●", "✦"];
+    bits.forEach((ch, i) => {
+      const sp = document.createElement("span");
+      sp.className = "spark";
+      sp.textContent = ch;
+      sp.style.left = x + "px"; sp.style.top = y + "px";
+      sp.style.color = ["#ffb444", "#ff6a2b", "#dc362e"][i % 3];
+      document.body.appendChild(sp);
+      const a = (i / bits.length) * Math.PI * 2 + Math.random() * 0.4;
+      const d = 50 + Math.random() * 45;
+      sp.animate([
+        { transform: "translate(-50%,-50%) scale(0.4)", opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d - 20}px)) scale(1.1) rotate(${Math.random() * 180}deg)`, opacity: 1, offset: 0.6 },
+        { transform: `translate(calc(-50% + ${Math.cos(a) * d * 1.2}px), calc(-50% + ${Math.sin(a) * d + 10}px)) scale(0.6)`, opacity: 0 },
+      ], { duration: 700 + Math.random() * 250, easing: "cubic-bezier(.2,.8,.3,1)" }).onfinish = () => sp.remove();
+    });
+  }
+
   function attachTilt(root) {
     if (!finePointer || reduceMotion) return;
     $$(".card", root).forEach((card) => {
       card.addEventListener("pointermove", (e) => {
+        if (!card.classList.contains("landed")) return;
         const r = card.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
         card.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-4px)`;

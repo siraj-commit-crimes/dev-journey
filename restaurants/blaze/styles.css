@@ -602,3 +602,62 @@ dialog[open] { animation: none; }
   .hero, .heat, .menu, .find { --tile: 300px; }
   .combos { --tile: 340px; }
 }
+
+/* ---------- Animated menu cards ---------- */
+/* 1. Bouncy "sticker slap" entrance (class .in added when the card scrolls into view) */
+.card.pop { opacity: 0; }
+.card.pop.in { opacity: 1; animation: slap 0.85s var(--d, 0s) cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.card.pop.in .card-media img { animation: imgIn 1.1s var(--d, 0s) var(--ease-out) backwards; }
+.card.landed { transition: transform 0.2s ease-out, box-shadow 0.45s var(--ease-out); }
+@keyframes slap {
+  0%   { opacity: 0; transform: translateY(80px) scale(0.72) rotate(var(--r, 0deg)); }
+  55%  { opacity: 1; transform: translateY(-10px) scale(1.04) rotate(calc(var(--r, 0deg) * -0.5)); }
+  75%  { transform: translateY(4px) scale(0.98) rotate(calc(var(--r, 0deg) * 0.2)); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes imgIn { from { transform: scale(1.35); filter: saturate(1.6) brightness(1.15); } }
+.price strong { font-variant-numeric: tabular-nums; }
+
+/* 2. Hover: light sweep over the photo, fiery glow, pulsing + button */
+.card-media::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.55) 48%, transparent 62%);
+  transform: translateX(-120%);
+}
+@media (hover: hover) {
+  .card:not(.sold):hover .card-media::after,
+  .combo:hover .card-media::after { transform: translateX(120%); transition: transform 0.9s var(--ease-out); }
+  .card:not(.sold):hover { box-shadow: 0 0 0 2px rgba(255, 106, 43, 0.5), 0 30px 60px -20px rgba(255, 90, 30, 0.7); }
+  .combo:hover { box-shadow: 0 0 0 2px rgba(255, 180, 68, 0.5), 0 30px 70px -24px rgba(255, 106, 43, 0.7); }
+  .card:not(.sold):hover h4 { color: var(--red); }
+  .card:not(.sold):hover .quick-add, .combo:hover .quick-add { background: var(--red); animation: ring 1.2s infinite; }
+}
+.card-body h4 { transition: color 0.3s; }
+@keyframes ring { from { box-shadow: 0 0 0 0 rgba(220, 54, 46, 0.6); } to { box-shadow: 0 0 0 14px rgba(220, 54, 46, 0); } }
+
+/* 3. Add-to-cart celebration: squish + tick + sparks */
+.card.pop.in.added, .combo.added { animation: squish 0.55s var(--ease-spring); }
+@keyframes squish {
+  25% { transform: scale(0.95, 0.9); }
+  55% { transform: scale(1.03, 1.05); }
+  80% { transform: scale(0.99, 0.98); }
+}
+.quick-add.done {
+  background: var(--wa) !important; font-size: 1.15rem; animation: none !important;
+  transform: scale(1.15) rotate(360deg); transition: transform 0.5s var(--ease-spring), background 0.2s;
+}
+.spark { position: fixed; z-index: 110; pointer-events: none; font-size: 21px; line-height: 1; will-change: transform, opacity; }
+
+/* 4. Idle life: wiggling deal badges, flickering flame on spicy meals */
+.card .badge, .combo .badge { animation: wiggle 5s var(--wd, 0s) infinite; transform-origin: 15% 50%; }
+@keyframes wiggle {
+  0%, 86%, 100% { transform: none; }
+  89% { transform: rotate(-9deg) scale(1.12); }
+  92% { transform: rotate(7deg) scale(1.12); }
+  95% { transform: rotate(-4deg) scale(1.05); }
+}
+.spicy { display: inline-block; font-size: 0.85em; transform-origin: 50% 100%; animation: flick 1.1s ease-in-out infinite alternate; }
+@keyframes flick {
+  from { transform: scale(1) rotate(-6deg); filter: drop-shadow(0 0 0 rgba(255, 106, 43, 0)); }
+  to   { transform: scale(1.2) rotate(6deg) translateY(-1px); filter: drop-shadow(0 0 6px rgba(255, 106, 43, 0.9)); }
+}
