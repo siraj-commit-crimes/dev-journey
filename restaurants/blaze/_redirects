@@ -1,0 +1,2 @@
+# Read Blaze's live menu from their existing system (keeps their /staff editor working).
+/api/menu  https://blaze-menu.com/api/menu  200
