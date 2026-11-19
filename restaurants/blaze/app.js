@@ -300,17 +300,84 @@
     const cat = state.categories.find((c) => /combo|shar/i.test(c.name));
     const items = cat ? cat.items.map((i) => state.items.get(i.id)) : [];
     $("#combos").hidden = !items.length;
-    $("#comboGrid").innerHTML = items.map((item, i) => `
-      <article class="combo reveal ${isAvailable(item) ? "" : "sold"}" data-id="${esc(item.id)}" tabindex="0" style="--d:${i * 0.1}s">
-        <div class="card-media"><img src="${imageUrl(item.image)}" alt="" loading="lazy" />${badgeHtml(item)}</div>
+    $("#comboGrid").innerHTML = items.map((item, i) => {
+      const now = unitPrice(item), was = Number(item.basePrice || 0), saved = Math.round((was - now) * 100) / 100;
+      const contents = comboContents(item.description);
+      const feeds = feedsOf(item);
+      return `
+      <article class="combo reveal ${isAvailable(item) ? "" : "sold"}" data-id="${esc(item.id)}" tabindex="0" style="--d:${i * 0.18}s">
+        <div class="card-media box">
+          <img src="${imageUrl(item.image)}" alt="" loading="lazy" />${badgeHtml(item)}
+          <div class="box-door l" aria-hidden="true"><span>BLAZE</span></div>
+          <div class="box-door r" aria-hidden="true"><span>BLAZE</span></div>
+        </div>
         <div class="combo-body">
           <h4>${esc(item.name)}</h4>
-          ${item.description ? `<p>${esc(item.description)}</p>` : ""}
-          <div class="card-foot"><div class="price">${priceHtml(item)}</div>
-          ${isAvailable(item) ? `<button class="quick-add" type="button" aria-label="Add ${esc(item.name)}" data-add="${esc(item.id)}">+</button>` : ""}</div>
+          ${contents.length >= 3
+            ? `<ul class="contents" aria-label="What's inside">${contents.map((c, j) => `<li style="--j:${j}">${esc(c)}</li>`).join("")}</ul>`
+            : item.description ? `<p>${esc(item.description)}</p>` : ""}
+          ${feeds ? `<div class="feeds" aria-label="Feeds ${feeds}">
+              <span class="feeds-label">Feeds <b data-feeds="${feeds}">${feeds}</b></span>
+              <span class="people" aria-hidden="true">${Array.from({ length: feeds }, (_, k) => `<i style="--k:${k}"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4.5"/><path d="M3.5 23c0-5.5 3.8-9 8.5-9s8.5 3.5 8.5 9Z"/></svg></i>`).join("")}</span>
+            </div>` : ""}
+          ${saved > 0.009 ? `<div class="save-meter" style="--pay:${((now / was) * 100).toFixed(1)}%">
+              <div class="bar"><span class="pay"></span></div>
+              <p><span>You pay ${money(now)}</span><span class="saved">You save <b data-save="${saved}">${money(saved)}</b></span></p>
+            </div>` : ""}
+          <div class="card-foot">
+            <div class="price"><strong class="slam">${money(now)}</strong>${saved > 0.009 ? `<span class="was">${money(was)}<i></i></span>` : ""}</div>
+            ${isAvailable(item) ? `<button class="quick-add" type="button" aria-label="Add ${esc(item.name)}" data-add="${esc(item.id)}">+</button>` : ""}
+          </div>
         </div>
-      </article>`).join("");
+      </article>`;
+    }).join("");
     observeReveals($("#comboGrid"));
+    observeCombos();
+  }
+
+  // "8 Huge Nashville Tenders, 8 Toasts, 4 Blaze Sauce, …" → list items
+  function comboContents(desc) {
+    if (!desc) return [];
+    return desc.split(/,\s*(?:and\s+)?|\s+and\s+|\s*\+\s*/i).map((s) => s.replace(/\.$/, "").trim()).filter(Boolean).slice(0, 10);
+  }
+  // How many people a combo feeds: from the name, e.g. "Blaze Duo (2 people)", else from this list.
+  const FEEDS_GUESS = {
+    item_blaze_takeover: 4, // PLACEHOLDER: not in Blaze's menu data. Confirm with the owner.
+  };
+  function feedsOf(item) {
+    const m = /\((\d+)\s*(people|persons|pax|ppl)\)/i.exec(item.name || "");
+    const n = m ? Number(m[1]) : FEEDS_GUESS[item.id];
+    return n > 0 && n <= 12 ? n : 0;
+  }
+
+  // Counters start when a combo scrolls into view; timings match the CSS sequence.
+  let comboObs;
+  function observeCombos() {
+    const cards = $$("#comboGrid .combo");
+    cards.forEach((card) => {
+      if (!finePointer || reduceMotion) return;
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--gx", e.clientX - r.left + "px");
+        card.style.setProperty("--gy", e.clientY - r.top + "px");
+      });
+    });
+    if (reduceMotion || !("IntersectionObserver" in window)) return;
+    comboObs?.disconnect();
+    comboObs = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      comboObs.unobserve(e.target);
+      const base = (parseFloat(e.target.style.getPropertyValue("--d")) || 0) * 1000;
+      const save = $("[data-save]", e.target);
+      if (save) countUp(save, Number(save.dataset.save), base + 1700);
+      const feeds = $("[data-feeds]", e.target);
+      if (feeds) {
+        const n = Number(feeds.dataset.feeds);
+        feeds.textContent = "0";
+        for (let k = 1; k <= n; k++) setTimeout(() => { if (feeds.isConnected) feeds.textContent = k; }, base + 1900 + (k - 1) * 140);
+      }
+    }), { rootMargin: "0px 0px -10% 0px" });
+    cards.forEach((c) => comboObs.observe(c));
   }
 
   function renderGallery() {
