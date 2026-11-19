@@ -462,8 +462,14 @@
   }
   function setPlatform(id) {
     $$(".platform").forEach((p) => p.classList.toggle("active", p.dataset.target === id));
-    const a = $(".platform.active");
-    if (a) a.scrollIntoView({ block: "nearest", inline: "center", behavior: reduceMotion ? "auto" : "smooth" });
+    // Scroll only the tab strip sideways. (scrollIntoView would also scroll the page
+    // and yank it back up while the visitor is scrolling down.)
+    const a = $(".platform.active"), bar = $("#platforms");
+    if (a && bar) {
+      const ar = a.getBoundingClientRect(), br = bar.getBoundingClientRect();
+      const delta = ar.left + ar.width / 2 - (br.left + br.width / 2); // works for left-to-right and Arabic
+      if (Math.abs(delta) > 4) bar.scrollBy({ left: delta, behavior: reduceMotion ? "auto" : "smooth" });
+    }
   }
   $("#platforms").addEventListener("click", (e) => {
     const p = e.target.closest(".platform"); if (!p) return;
