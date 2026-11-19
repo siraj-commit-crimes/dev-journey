@@ -564,3 +564,41 @@ dialog[open] { animation: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* ---------- Funky doodle background ----------
+   One line-art tile (img/doodles.svg) used as a mask, so each section can
+   tint it differently. It drifts with scroll (--drift is set in app.js). */
+.hero, .heat, .menu, .combos, .gallery, .find, .footer { position: relative; isolation: isolate; }
+.hero::before, .heat::before, .menu::before, .combos::before, .gallery::before, .find::before, .footer::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--doodle, var(--red));
+  opacity: var(--doodle-o, 0.1);
+  -webkit-mask: url("img/doodles.svg") repeat;
+  mask: url("img/doodles.svg") repeat;
+  -webkit-mask-size: var(--tile, 400px);
+  mask-size: var(--tile, 400px);
+  -webkit-mask-position: var(--tile-x, 0px) calc(var(--drift, 0) * var(--speed, 1) * 1px);
+  mask-position: var(--tile-x, 0px) calc(var(--drift, 0) * var(--speed, 1) * 1px);
+}
+.hero    { --doodle: #fff;        --doodle-o: 0.13; --speed: 1.4; }
+.heat    { --doodle: var(--red);  --doodle-o: 0.13; --speed: 0.8; --tile-x: 120px; }
+.menu    { --doodle: var(--red);  --doodle-o: 0.07; --speed: 0.5; --tile-x: 60px; }
+.combos  { --doodle: var(--gold); --doodle-o: 0.11; --speed: 1;   --tile-x: 200px; --tile: 460px; }
+.gallery { --doodle: #fff;        --doodle-o: 0.16; --speed: 1.6; --tile: 340px; }
+.find    { --doodle: var(--red);  --doodle-o: 0.09; --speed: 0.7; --tile-x: 260px; }
+.footer  { --doodle: var(--cream);--doodle-o: 0.07; --speed: 0.4; }
+.gallery figure { position: relative; z-index: 1; }
+
+/* Wavy dividers so sections melt into each other instead of hard edges */
+.combos::after, .find::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 26px; pointer-events: none;
+  background: var(--cream);
+  -webkit-mask: radial-gradient(14px 14px at 50% 0, #000 98%, transparent) 0 0 / 40px 26px repeat-x;
+  mask: radial-gradient(14px 14px at 50% 0, #000 98%, transparent) 0 0 / 40px 26px repeat-x;
+}
+.find::after { background: var(--red); }
+
+@media (max-width: 600px) {
+  .hero, .heat, .menu, .find { --tile: 300px; }
+  .combos { --tile: 340px; }
+}

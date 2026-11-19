@@ -634,6 +634,7 @@
     if (hide) { topbar.classList.add("hide"); document.body.classList.add("nav-hidden"); }
     else if (y < lastY - 4 || y < 500) { topbar.classList.remove("hide"); document.body.classList.remove("nav-hidden"); }
     lastY = y;
+    if (!reduceMotion) document.documentElement.style.setProperty("--drift", (-y * 0.12).toFixed(1));
     const tools = $("#menuTools");
     tools.classList.toggle("stuck", tools.getBoundingClientRect().top <= 80);
     if (!reduceMotion && y < innerHeight * 1.2) {
