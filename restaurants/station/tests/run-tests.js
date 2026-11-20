@@ -124,20 +124,26 @@ const money = (n) => { const v = Math.round(n * 100) / 100; return "$" + (Number
     eq(await page.getAttribute("html", "dir"), "ltr", "dir");
     eq((await page.textContent(".hero-sub")).trim(), "Shawarma spins, mashawi grills, saj flips. You pick the station, we’ll handle the delivery.", "hero subtitle");
   });
-  await test("departure board shows 5 dishes with prices", async () => {
-    await page.waitForFunction(() => document.querySelectorAll(".board-row").length === 5);
-    const prices = await page.$$eval(".board-row .price", (e) => e.map((x) => x.textContent));
-    expect(prices.every((p) => /^\$\d/.test(p)), "bad prices: " + prices);
+  await test("food train pulls in and stops at the platform", async () => {
+    await page.waitForFunction(() => document.querySelectorAll(".wagon").length >= 3, null, { timeout: 8000 });
+    await page.waitForTimeout(3600);
+    const box = await page.locator("#cargoTrain").boundingBox();
+    expect(box && box.x >= 0 && box.x + box.width <= 1441, "train is not fully on screen when stopped: " + JSON.stringify(box));
+    expect(!(await page.$eval("#scene", (s) => s.classList.contains("moving"))), "train should be stopped");
   });
-  await test("board clock ticks", async () => {
-    const a = await page.textContent("#boardClock"); await page.waitForTimeout(1300);
-    expect(a !== (await page.textContent("#boardClock")), "clock did not change");
-    expect(/^\d\d:\d\d:\d\d$/.test(a), "clock format " + a);
+  await test("every plate on the train is a real, different dish photo with a price", async () => {
+    const plates = await page.$$eval(".wagon", (ws) => ws.map((w) => ({ img: w.querySelector("img").getAttribute("src"), price: w.querySelector(".wtag i").textContent })));
+    expect(plates.every((p) => p.img && /^https:/.test(p.img)), "plate without a photo");
+    eq(new Set(plates.map((p) => p.img)).size, plates.length, "same photo on two plates");
+    expect(plates.every((p) => /^\$\d/.test(p.price)), "bad price tag");
   });
-  await test("board rolls a new dish in every few seconds", async () => {
-    const before = await page.$$eval(".board-row", (e) => e.map((r) => r.dataset.id).join());
-    await page.waitForTimeout(4800);
-    expect(before !== (await page.$$eval(".board-row", (e) => e.map((r) => r.dataset.id).join())), "board did not change");
+  await test("tapping a plate before choosing a station asks you to choose", async () => {
+    await page.locator(".wagon").first().click();
+    await page.waitForSelector("#pickSheet[open]");
+    await page.keyboard.press("Escape"); await page.waitForFunction(() => !document.querySelector("#pickSheet").open);
+  });
+  await test("no departure board or old train left over", async () => {
+    eq(await page.locator(".board, .track").count(), 0, "old elements");
   });
   await test("route map shows 10 stations on 3 lines", async () => {
     eq(await page.locator(".line").count(), 3, "lines");
@@ -181,6 +187,17 @@ const money = (n) => { const v = Math.round(n * 100) / 100; return "$" + (Number
       const hours = menuJson(id).hours;
       const status = await page.textContent(".arrival-info p:nth-child(2)");
       expect(hours.length ? /Open now|Closed/.test(status) : /Call for opening hours/.test(status), `opening status "${status}"`);
+    });
+    await test(`${id}: the train carries ${id}'s dishes and a plate opens its dish`, async () => {
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.waitForFunction(() => !document.querySelector("#scene").classList.contains("moving") && document.querySelectorAll(".wagon").length, null, { timeout: 15000 });
+      const ids = new Set(menuJson(id).categories.flatMap((c) => c.items.map((i) => i.id)));
+      const plates = await page.$$eval(".wagon", (ws) => ws.map((w) => w.dataset.dish));
+      expect(plates.every((p) => ids.has(p)), "plates from another branch");
+      eq(await page.textContent("#platformSign span"), id === "barelias" ? "Bar Elias" : id[0].toUpperCase() + id.slice(1), "platform sign");
+      await page.locator(".wagon").first().click({ timeout: 6000 });
+      await page.waitForSelector("#itemSheet[open]");
+      await page.keyboard.press("Escape"); await page.waitForFunction(() => !document.querySelector("#itemSheet").open);
     });
     await page.context().close();
   }

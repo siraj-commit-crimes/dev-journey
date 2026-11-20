@@ -61,26 +61,46 @@
           </div>
         </div>
 
-        <div class="board" id="board" role="region" aria-label="Departures">
-          <div class="board-head">
-            <span class="board-title"><b data-i18n="departures">Departures</b> <i data-i18n="departuresAlt">المغادرة</i></span>
-            <span class="board-clock" id="boardClock">--:--</span>
-          </div>
-          <div class="board-cols" aria-hidden="true">
-            <span data-i18n="colTime">Time</span><span data-i18n="colDish">Destination</span><span data-i18n="colPrice">Fare</span><span data-i18n="colStatus">Status</span>
-          </div>
-          <ol class="board-rows" id="boardRows"></ol>
-          <p class="board-foot" id="boardFoot"></p>
-        </div>
       </div>
-
-      <!-- the train that rolls across the bottom -->
-      <div class="track" aria-hidden="true">
-        <div class="train" id="train">
-          <span class="car loco"><i class="smoke"></i><i class="smoke s2"></i><i class="smoke s3"></i><b>STATION</b></span>
-          <span class="car c1">🌯</span><span class="car c2">🍢</span><span class="car c3">🥙</span><span class="car c4">🧆</span>
+      <!-- The star of the hero: a food train that pulls in at the platform -->
+      <div class="scene" id="scene">
+        <div class="cargo-train" id="cargoTrain">
+          <div class="train-body" id="trainBody">
+            <div class="wagons" id="wagons" style="display:flex;align-items:flex-end;gap:14px;margin-right:14px"></div>
+            <div class="loco" aria-hidden="true">
+              <span class="lamp-glow"></span>
+              <svg viewBox="0 0 300 200">
+                <rect x="8" y="26" width="116" height="16" rx="5" fill="#c8a45d"/>
+                <rect x="18" y="38" width="96" height="114" rx="8" fill="#5b1e17" stroke="#c8a45d" stroke-width="4"/>
+                <rect x="34" y="56" width="60" height="40" rx="8" fill="#ffbe2e" opacity=".92" stroke="#e6c98a" stroke-width="3"/>
+                <path d="M64 56v40" stroke="#8a6d34" stroke-width="3"/>
+                <text x="66" y="128" text-anchor="middle" font-family="Big Shoulders Display, sans-serif" font-weight="900" font-size="17" letter-spacing="2" fill="#e6c98a">STATION</text>
+                <rect x="104" y="76" width="170" height="72" rx="34" fill="#1b1712" stroke="#c8a45d" stroke-width="4"/>
+                <rect x="140" y="76" width="7" height="72" fill="#8a6d34"/>
+                <rect x="196" y="76" width="7" height="72" fill="#8a6d34"/>
+                <path d="M146 76 Q146 50 168 50 Q190 50 190 76 Z" fill="#c8a45d"/>
+                <path d="M203 76 L207 32 L190 14 H238 L222 32 L226 76 Z" fill="#1b1712" stroke="#c8a45d" stroke-width="3.5" stroke-linejoin="round"/>
+                <rect x="186" y="10" width="56" height="8" rx="3" fill="#c8a45d"/>
+                <circle cx="240" cy="112" r="15" fill="#c8a45d"/>
+                <text x="240" y="117" text-anchor="middle" font-family="Space Mono, monospace" font-weight="700" font-size="13" fill="#1b1712">93</text>
+                <rect x="260" y="54" width="28" height="24" rx="5" fill="#c8a45d"/>
+                <circle cx="290" cy="66" r="9" fill="#fff3c4"/>
+                <rect x="268" y="96" width="14" height="50" rx="3" fill="#8a6d34"/>
+                <rect x="10" y="146" width="272" height="10" rx="3" fill="#8a6d34"/>
+                <path d="M258 152 L300 196 H240 Z" fill="#c8a45d"/>
+                <path d="M266 160 L284 196 M256 166 L264 196" stroke="#8a6d34" stroke-width="3"/>
+              </svg>
+              <span id="chimney"></span>
+              <span class="dwheel rear"></span><span class="dwheel d1"></span><span class="dwheel d2"></span><span class="dwheel small"></span>
+              <span class="rod"></span>
+            </div>
+          </div>
         </div>
-        <div class="rails"></div>
+        <div class="ballast" aria-hidden="true"></div>
+        <div class="train-platform">
+          <span class="platform-sign" id="platformSign"></span>
+          <p class="platform-hint" id="platformHint"></p>
+        </div>
       </div>
     </section>
 

@@ -540,3 +540,146 @@ dialog[open]::backdrop { animation: fade 0.3s; }
   .reveal, .card.pop { opacity: 1; transform: none; }
   .train { display: none; }
 }
+
+/* =====================================================================
+   NEW HERO: bigger logo, no departure board, the big food train is the star,
+   and a station platform that blends into the next section.
+   ===================================================================== */
+/* Bigger logo that shrinks a little once you scroll */
+.brand img { width: 76px; height: 76px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); transition: width 0.35s var(--ease), height 0.35s var(--ease), transform 0.6s var(--spring); }
+.brand-text b { font-size: 1.9rem; }
+.brand-text small { font-size: 1.05rem; }
+.topbar.scrolled .brand img { width: 50px; height: 50px; }
+.topbar.scrolled .brand-text b { font-size: 1.5rem; }
+.brand-text b { transition: font-size 0.35s var(--ease); }
+
+/* Hero becomes one column on top, the train scene along the bottom */
+.hero { display: block; min-height: max(100svh, 760px); padding: 130px clamp(18px, 5vw, 64px) 0; }
+.hero-inner { display: block; max-width: 1300px; }
+.hero-copy { max-width: 680px; }
+.hero::after { /* fade the photo into the platform */
+  content: ""; position: absolute; inset: auto 0 0; height: 360px; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(15, 14, 12, 0.85) 70%, var(--ink));
+}
+.board, .track { display: none !important; }
+
+.scene { position: absolute; inset: auto 0 0; height: 330px; overflow: hidden; direction: ltr; }
+.cargo-train { position: absolute; left: 0; bottom: 86px; transform: translateX(-120%); will-change: transform; }
+.train-body { display: flex; align-items: flex-end; gap: 0; zoom: var(--z, 1); }
+
+/* Wagons: a flatcar carrying a plate */
+.wagon { position: relative; width: 210px; height: 200px; padding: 0; border: 0; background: none; cursor: pointer; display: block; }
+.wagon + .wagon::before, .wagon:last-child::after { /* couplers */ content: ""; position: absolute; bottom: 40px; width: 16px; height: 8px; border-radius: 3px; background: var(--brass-dk); }
+.wagon + .wagon::before { left: -10px; }
+.wagon:last-child::after { right: -10px; }
+.plate {
+  position: absolute; left: 50%; bottom: 66px; width: 168px; height: 168px; margin-left: -84px; border-radius: 50%; overflow: hidden;
+  box-shadow: 0 0 0 7px #f6efe0, 0 0 0 10px var(--brass), 0 18px 26px -8px rgba(0, 0, 0, 0.7);
+  transform-origin: 50% 100%; transition: transform 0.35s var(--spring);
+}
+.plate img { width: 100%; height: 100%; object-fit: cover; }
+.scene.moving .plate { animation: rattle 0.32s ease-in-out infinite alternate; }
+.wagon:nth-child(even) .plate { animation-delay: 0.16s; }
+@keyframes rattle { from { transform: rotate(-1.5deg) translateY(0); } to { transform: rotate(1.5deg) translateY(-2px); } }
+.wagon:hover .plate, .wagon:focus-visible .plate { transform: translateY(-10px) scale(1.05); }
+.wagon:focus-visible { outline: none; }
+.wagon:focus-visible .plate { box-shadow: 0 0 0 7px #f6efe0, 0 0 0 10px var(--amber), 0 18px 26px -8px rgba(0, 0, 0, 0.7); }
+.chassis {
+  position: absolute; left: 4px; right: 4px; bottom: 22px; height: 50px; border-radius: 8px;
+  background: linear-gradient(180deg, #3a2a1c, #22180f); box-shadow: inset 0 0 0 2px var(--brass-dk), inset 0 4px 0 var(--brass), 0 8px 14px rgba(0, 0, 0, 0.5);
+  display: grid; place-items: center; padding: 0 10px;
+}
+.wtag { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; color: var(--cream); }
+.wtag b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.9rem; }
+[dir="rtl"] .wtag b { font-family: "Tajawal", sans-serif; }
+.wtag i { flex: none; padding: 3px 8px; border-radius: 6px; background: var(--amber); color: #111; font-style: normal; font-family: var(--mono); font-weight: 700; font-size: 0.85rem; }
+.wheel, .dwheel {
+  position: absolute; bottom: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle, var(--brass-2) 0 4px, #1b1712 5px 9px, transparent 10px),
+    conic-gradient(from 0deg, var(--brass) 0 8deg, transparent 8deg 45deg, var(--brass) 45deg 53deg, transparent 53deg 90deg, var(--brass) 90deg 98deg, transparent 98deg 135deg, var(--brass) 135deg 143deg, transparent 143deg 180deg, var(--brass) 180deg 188deg, transparent 188deg 225deg, var(--brass) 225deg 233deg, transparent 233deg 270deg, var(--brass) 270deg 278deg, transparent 278deg 315deg, var(--brass) 315deg 323deg, transparent 323deg),
+    #1b1712;
+  box-shadow: inset 0 0 0 4px var(--brass-dk);
+  animation: wheelSpin 0.6s linear infinite; animation-play-state: paused;
+}
+.wagon .wheel:nth-of-type(1) { left: 26px; }
+.wagon .wheel:nth-of-type(2) { right: 26px; }
+.scene.moving .wheel, .scene.moving .dwheel, .scene.moving .rod { animation-play-state: running; }
+@keyframes wheelSpin { to { transform: rotate(360deg); } }
+
+/* Locomotive (front = right) */
+.loco { position: relative; width: 300px; height: 200px; flex: none; }
+.loco svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.loco .dwheel { width: 62px; height: 62px; }
+.loco .dwheel.d1 { left: 98px; } .loco .dwheel.d2 { left: 172px; }
+.loco .dwheel.small { width: 34px; height: 34px; left: 248px; }
+.loco .dwheel.rear { width: 34px; height: 34px; left: 30px; }
+.rod { position: absolute; left: 128px; bottom: 26px; width: 76px; height: 7px; border-radius: 4px; background: linear-gradient(var(--brass-2), var(--brass-dk)); animation: rodMove 0.6s linear infinite; animation-play-state: paused; }
+@keyframes rodMove { 0% { transform: translate(0, 0); } 25% { transform: translate(9px, -9px); } 50% { transform: translate(0, -18px); } 75% { transform: translate(-9px, -9px); } 100% { transform: translate(0, 0); } }
+.lamp-glow { position: absolute; right: -150px; top: 70px; width: 170px; height: 70px; pointer-events: none; background: radial-gradient(ellipse at left, rgba(255, 220, 140, 0.45), transparent 70%); filter: blur(2px); }
+#chimney { position: absolute; left: 214px; top: 6px; width: 1px; height: 1px; }
+.puff { position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%; background: radial-gradient(circle, rgba(245, 238, 225, 0.9), rgba(245, 238, 225, 0.25) 70%, transparent); pointer-events: none; }
+.spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 8px 2px rgba(255, 170, 40, 0.9); pointer-events: none; }
+
+/* Track + platform (the platform's bottom blends into the next section) */
+.ballast { position: absolute; left: 0; right: 0; bottom: 70px; height: 22px;
+  background: repeating-linear-gradient(90deg, #4a4033 0 10px, transparent 10px 38px) 0 8px / 100% 10px no-repeat,
+    linear-gradient(#8a7a60, #8a7a60) 0 4px / 100% 3px no-repeat, linear-gradient(#8a7a60, #8a7a60) 0 15px / 100% 3px no-repeat, #1d1914; }
+.train-platform { position: absolute; left: 0; right: 0; bottom: 0; height: 74px;
+  background:
+    radial-gradient(circle, #f2b81c 2px, transparent 2.6px) 0 4px / 12px 12px repeat-x, /* tactile warning dots */
+    linear-gradient(#f2b81c, #f2b81c) 0 0 / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 90px),
+    linear-gradient(180deg, #2b2620 0 26px, #1a1714 60%, var(--ink));
+  box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.45); }
+.platform-sign { position: absolute; left: clamp(18px, 5vw, 64px); bottom: 20px; display: inline-flex; align-items: stretch; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5); font-weight: 800; }
+.platform-sign b { padding: 6px 12px; background: var(--brass); color: var(--ink); font-family: var(--display); font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.platform-sign span { padding: 6px 12px; background: #13110e; color: var(--cream); }
+.platform-hint { position: absolute; right: clamp(18px, 5vw, 64px); bottom: 26px; margin: 0; color: var(--muted); font-size: 0.95rem; }
+.platform-hint::before { content: "👆 "; }
+
+/* The next section continues the platform colour, so there's no hard line */
+.stations { background: radial-gradient(1000px 500px at 50% 0%, rgba(200, 164, 93, 0.06), transparent 70%), var(--ink); padding-top: 70px; }
+
+@media (max-width: 1000px) { .hero-inner { grid-template-columns: none; } }
+@media (max-width: 600px) {
+  .brand img { width: 58px; height: 58px; }
+  .topbar.scrolled .brand img { width: 44px; height: 44px; }
+  .hero { min-height: auto; padding: 110px 20px 0; }
+  .hero-copy { padding-bottom: 260px; }
+  .scene { height: 250px; }
+  .cargo-train { bottom: 70px; }
+  .train-body { --z: 0.62; }
+  .ballast { bottom: 56px; }
+  .train-platform { height: 60px; }
+  .platform-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .cargo-train { transform: none; } }
+
+/* Train gets its own row under the text (never covers the headline or buttons) */
+.hero { display: flex; flex-direction: column; min-height: max(100svh, 820px); }
+.hero-inner { flex: 1; display: flex; align-items: center; }
+.scene { position: relative; inset: auto; flex: none; margin: 24px calc(-1 * clamp(18px, 5vw, 64px)) 0; }
+.wtag b { flex: 1; min-width: 0; }
+@media (max-width: 600px) { .hero-copy { padding-bottom: 0; } .scene { margin: 24px -20px 0; } }
+
+/* Fit headline + train on one screen */
+.hero { padding-top: 104px; min-height: 100svh; }
+.hero-copy { max-width: 980px; }
+.hero-title { font-size: clamp(3rem, 6.6vw, 6.2rem); }
+.since { margin-bottom: 14px; }
+.hero-sub { margin: 16px 0 22px; }
+.scene { height: 300px; margin-top: 10px; }
+.cargo-train { bottom: 80px; }
+.ballast { bottom: 64px; }
+.train-platform { height: 66px; }
+@media (max-height: 760px) and (min-width: 601px) { .train-body { --z: 0.82; } .scene { height: 260px; } }
+@media (max-width: 600px) { .hero-title { font-size: clamp(2.8rem, 13vw, 4rem); } .scene { height: 240px; } }
+.hero { align-items: stretch; }
+.hero-inner { width: 100%; margin: 0 auto; }
+.wtag { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.wtag i { white-space: nowrap; }
+[dir="rtl"] .platform-sign b { font-family: "Tajawal", sans-serif; font-weight: 800; text-transform: none; letter-spacing: 0; }
+[dir="rtl"] .platform-sign { left: auto; right: clamp(18px, 5vw, 64px); }
+[dir="rtl"] .platform-hint { right: auto; left: clamp(18px, 5vw, 64px); }
+@media (max-width: 600px) { .scene { height: 230px; margin-top: 0; } .cargo-train { bottom: 64px; } }
+.scene { overflow: visible; overflow-x: clip; }

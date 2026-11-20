@@ -55,7 +55,7 @@
       switchConfirm: (a, b) => `Your ticket is for ${a}. Switch to ${b}? Prices differ per station, so your ticket will be cleared.`,
       addedToast: (n) => `${n} punched on your ticket`, arrivingToast: (b) => `Now arriving at ${b} station 🚉`, chooseFirst: "Choose your station first",
       waHello: (b) => `Hello Station ${b}! I'd like to order:`, waTotal: "Total", waName: "Name", waAddress: "Address", waNote: "Note", waSize: "Size",
-      waExtras: "Extras", footFine: (y) => `© ${y} Station Resto-Café · المحطة`, lineName: (l) => l.en, langLabel: "العربية",
+      waExtras: "Extras", footFine: (y) => `© ${y} Station Resto-Café · المحطة`, lineName: (l) => l.en, langLabel: "العربية", platform: "Platform 1", tapPlate: "Tap a plate to order it", trainPreview: (b) => `Today's train from ${b} · choose your station to order`,
     },
     ar: {
       skip: "انتقل إلى القائمة", navStations: "المحطات", navMenu: "القائمة", navAbout: "منذ ١٩٩٣", yourStation: "محطتك", choose: "اختر",
@@ -83,7 +83,7 @@
       switchConfirm: (a, b) => `تذكرتك لمحطة ${a}. بدك تنتقل لمحطة ${b}؟ الأسعار بتختلف بين المحطات، فرح تنمسح التذكرة.`,
       addedToast: (n) => `انخرمت ${n} عتذكرتك`, arrivingToast: (b) => `وصلنا إلى محطة ${b} 🚉`, chooseFirst: "اختر محطتك أولاً",
       waHello: (b) => `مرحبا محطة ${b}! بدي اطلب:`, waTotal: "المجموع", waName: "الاسم", waAddress: "العنوان", waNote: "ملاحظة", waSize: "الحجم",
-      waExtras: "إضافات", footFine: (y) => `© ${y} المحطة · Station Resto-Café`, lineName: (l) => l.ar, langLabel: "English",
+      waExtras: "إضافات", footFine: (y) => `© ${y} المحطة · Station Resto-Café`, lineName: (l) => l.ar, langLabel: "English", platform: "رصيف ١", tapPlate: "اضغط على صحن لتطلبه", trainPreview: (b) => `قطار اليوم من ${b} · اختر محطتك لتطلب`,
     },
   };
   const QUICK = [
@@ -187,83 +187,116 @@
     });
   }
 
-  // ---------- Departure board ----------
-  let boardItems = [], boardIdx = 0, boardTimer;
-  async function renderBoard() {
+  // ---------- Hero train ----------
+  // A cargo train carries plates of real dishes. It pulls in, brakes (sparks, bounce),
+  // waits at the platform so you can tap a plate, then leaves and comes back with new dishes.
+  let trainDishes = [], trainTrip = 0, trainBranch = null, trainLoop = false, trainHold = false;
+  const wagonsPerTrip = () => (innerWidth <= 600 ? 3 : 4);
+  async function renderTrain() {
     const id = state.branch && branchById(state.branch)?.menu ? state.branch : PREVIEW_BRANCH;
     let menu;
     try { menu = await getMenu(id); } catch { return; }
-    const pri = (c) => (/shawarma|taste box/i.test(c.en) ? 0 : /mashawi|grill/i.test(c.en) ? 1 : /saj|burger|appetizer/i.test(c.en) ? 2 : 3);
-    const cats = [...menu.categories].sort((a, b) => pri(a) - pri(b));
-    boardItems = cats.flatMap((c) => c.items.filter((i) => !i.out && i.price > 0).slice(0, 4));
-    boardIdx = 0;
-    const rows = $("#boardRows");
-    rows.innerHTML = "";
-    for (let k = 0; k < 5 && k < boardItems.length; k++) rows.appendChild(boardRow(boardItems[boardIdx++ % boardItems.length], k));
+    const pri = (c) => (/shawarma|taste box/i.test(c.en) ? 0 : /mashawi|grill/i.test(c.en) ? 1 : /saj|burger|appetizer|plate/i.test(c.en) ? 2 : 3);
+    const seen = new Set();
+    trainDishes = [...menu.categories].sort((a, b) => pri(a) - pri(b)).flatMap((c) => c.items)
+      .filter((i) => !i.out && i.price > 0 && i.img && !seen.has(i.en || i.ar) && !seen.has(i.ih || i.img) && seen.add(i.en || i.ar) && seen.add(i.ih || i.img));
+    const changed = trainBranch !== id;
+    trainBranch = id;
+    if (changed) trainTrip = 0;
     const b = branchById(id);
-    $("#boardFoot").textContent = state.branch === id ? t("boardFrom", nm(b)) : t("boardPreview", nm(b));
-    $("#boardFoot").dataset.branch = id;
-    clearInterval(boardTimer);
-    if (!reduceMotion) boardTimer = setInterval(cycleBoard, 4200);
+    $("#platformSign").innerHTML = `<b>${esc(t("platform"))}</b><span>${esc(nm(b))}</span>`;
+    $("#platformHint").textContent = state.branch === id ? t("tapPlate") : t("trainPreview", nm(b));
+    loadWagons();
+    if (!trainLoop) runTrain();
   }
-  function boardRow(item, k) {
-    const li = document.createElement("li");
-    li.className = "board-row"; li.tabIndex = 0; li.dataset.id = item.id;
-    const dep = nowBeirut().mins + 4 + k * 6;
-    li.innerHTML = `<span class="time">${fmtMin(dep)}</span><span class="dest"></span><span class="price">${money(item.price)}</span><span class="status ${k === 0 ? "boarding" : ""}">${t(k === 0 ? "boarding" : "onTime")}</span>`;
-    flapInto($(".dest", li), nm(item).toUpperCase());
-    return li;
+  function loadWagons() {
+    const n = wagonsPerTrip(), len = trainDishes.length;
+    if (!len) { $("#wagons").innerHTML = ""; return; }
+    const set = Array.from({ length: Math.min(n, len) }, (_, k) => trainDishes[(trainTrip * n + k) % len]);
+    $("#wagons").innerHTML = set.map((i) => `<button type="button" class="wagon" data-dish="${esc(i.id)}" aria-label="${esc(nm(i))} ${money(i.price)}">
+        <span class="plate"><img src="${esc(i.img)}" alt="" /></span>
+        <span class="chassis"><span class="wtag"><b>${esc(nm(i))}</b><i dir="ltr">${money(i.price)}</i></span></span>
+        <span class="wheel"></span><span class="wheel"></span>
+      </button>`).join("");
   }
-  function cycleBoard() {
-    if (document.hidden || !boardItems.length) return;
-    const rows = $("#boardRows");
-    const first = rows.firstElementChild;
-    if (first) first.remove();
-    $$(".board-row", rows).forEach((r, k) => {
-      const st = $(".status", r);
-      st.className = "status" + (k === 0 ? " boarding" : "");
-      st.textContent = t(k === 0 ? "boarding" : "onTime");
-      if (k === 0) { r.classList.remove("flip"); void r.offsetWidth; r.classList.add("flip"); }
-    });
-    rows.appendChild(boardRow(boardItems[boardIdx++ % boardItems.length], 4));
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function untilVisible() { while (document.hidden || !heroInView) await sleep(400); }
+  let heroInView = true;
+  new IntersectionObserver(([e]) => { heroInView = e.isIntersecting; }).observe($("#hero"));
+  function stopX(train, scene) {
+    const w = train.getBoundingClientRect().width, vw = scene.clientWidth;
+    return w + 32 < vw ? Math.round((vw - w) / 2 + Math.min(120, (vw - w) / 4)) : Math.round(vw - w - 12); // keep the engine in view on phones
   }
-  // Split-flap: each letter clatters through random characters before landing.
-  // Arabic letters must stay joined, so Arabic text flips as a whole word instead.
-  const FLAP_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  function flapInto(el, text) {
-    if (reduceMotion || /[؀-ۿ]/.test(text)) {
-      el.textContent = text;
-      if (!reduceMotion) el.animate([{ transform: "perspective(400px) rotateX(90deg)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 500, easing: "ease-out" });
-      return;
+  async function runTrain() {
+    trainLoop = true;
+    const scene = $("#scene"), train = $("#cargoTrain"), body = $("#trainBody");
+    if (reduceMotion) { train.style.transform = `translateX(${stopX(train, scene)}px)`; trainLoop = false; return; }
+    for (;;) {
+      await untilVisible();
+      const vw = scene.clientWidth, w = train.getBoundingClientRect().width, x = stopX(train, scene);
+      // pull in
+      scene.classList.add("moving");
+      const arrive = train.animate([{ transform: `translateX(${-w - 60}px)` }, { transform: `translateX(${x}px)` }], { duration: 3000, easing: "cubic-bezier(.12,.75,.25,1)", fill: "forwards" });
+      setTimeout(() => sparks(), 2000);
+      await arrive.finished;
+      scene.classList.remove("moving");
+      body.animate([{ transform: "translateY(0)" }, { transform: "translate(5px, 3px)" }, { transform: "translate(-2px,-1px)" }, { transform: "none" }], { duration: 500, easing: "ease-out" });
+      puffBurst(6);
+      // wait at the platform (longer while someone is pointing at it)
+      for (let t0 = Date.now(); Date.now() - t0 < 7500 || trainHold;) await sleep(250);
+      await untilVisible();
+      // leave
+      scene.classList.add("moving");
+      const leave = train.animate([{ transform: `translateX(${x}px)` }, { transform: `translateX(${vw + 60}px)` }], { duration: 2600, easing: "cubic-bezier(.6,0,.9,.4)", fill: "forwards" });
+      await leave.finished;
+      trainTrip++;
+      loadWagons();
+      await sleep(700);
     }
-    el.textContent = "";
-    [...text].forEach((ch, i) => {
-      const s = document.createElement("span");
-      s.className = "flap"; s.textContent = ch === " " ? " " : FLAP_CHARS[(Math.random() * FLAP_CHARS.length) | 0];
-      el.appendChild(s);
-      if (ch === " ") return;
-      let n = 3 + ((i * 1.7) % 6 | 0);
-      const tick = () => {
-        if (!s.isConnected) return;
-        s.classList.remove("spin"); void s.offsetWidth; s.classList.add("spin");
-        if (--n <= 0) { s.textContent = ch; return; }
-        s.textContent = FLAP_CHARS[(Math.random() * FLAP_CHARS.length) | 0];
-        setTimeout(tick, 55);
-      };
-      setTimeout(tick, i * 22);
+  }
+  // steam: a gentle puff while waiting, a busy chuff while moving
+  setInterval(() => {
+    if (reduceMotion || document.hidden || !heroInView) return;
+    const moving = $("#scene").classList.contains("moving");
+    if (moving || Math.random() < 0.35) puffBurst(1);
+  }, 260);
+  function puffBurst(n) {
+    const stack = $("#chimney");
+    if (!stack || reduceMotion) return;
+    for (let k = 0; k < n; k++) {
+      const p = document.createElement("span");
+      p.className = "puff";
+      stack.appendChild(p);
+      const drift = $("#scene").classList.contains("moving") ? -90 : -20;
+      p.animate([
+        { transform: "translate(0,0) scale(.35)", opacity: 0.85 },
+        { transform: `translate(${drift + Math.random() * 30}px, ${-70 - Math.random() * 40}px) scale(${2.2 + Math.random()})`, opacity: 0 },
+      ], { duration: 1500 + Math.random() * 600, delay: k * 90, easing: "ease-out" }).onfinish = () => p.remove();
+    }
+  }
+  function sparks() {
+    const scene = $("#scene"), sr = scene.getBoundingClientRect();
+    $$("#cargoTrain .wheel, #cargoTrain .dwheel").slice(0, 8).forEach((wheel) => {
+      const r = wheel.getBoundingClientRect();
+      for (let k = 0; k < 3; k++) {
+        const s = document.createElement("span");
+        s.className = "spark";
+        s.style.left = r.left - sr.left + r.width / 2 + "px";
+        s.style.top = r.bottom - sr.top - 4 + "px";
+        scene.appendChild(s);
+        s.animate([{ transform: "translate(0,0)", opacity: 1 }, { transform: `translate(${-30 - Math.random() * 50}px, ${-10 - Math.random() * 25}px)`, opacity: 0 }],
+          { duration: 450 + Math.random() * 300, delay: Math.random() * 600, easing: "ease-out" }).onfinish = () => s.remove();
+      }
     });
   }
-  $("#boardRows").addEventListener("click", (e) => { const r = e.target.closest(".board-row"); if (r) openItemFromBoard(r.dataset.id); });
-  $("#boardRows").addEventListener("keydown", (e) => { if (e.key === "Enter") { const r = e.target.closest(".board-row"); if (r) openItemFromBoard(r.dataset.id); } });
-  async function openItemFromBoard(id) {
-    const bid = $("#boardFoot").dataset.branch;
-    if (state.branch !== bid) { toast(t("chooseFirst")); $("#stations").scrollIntoView({ behavior: "smooth" }); return; }
-    openItem(id);
-  }
-  function tickClock() {
-    const n = nowBeirut();
-    $("#boardClock").textContent = `${pad(n.h)}:${pad(n.m)}:${pad(n.s)}`;
-  }
+  $("#cargoTrain").addEventListener("pointerenter", () => { trainHold = true; });
+  $("#cargoTrain").addEventListener("pointerleave", () => { trainHold = false; });
+  $("#cargoTrain").addEventListener("click", (e) => {
+    const w = e.target.closest("[data-dish]");
+    if (!w) return;
+    if (state.branch !== trainBranch) { toast(t("chooseFirst")); $("#pickSheet").showModal(); return; }
+    openItem(w.dataset.dish);
+  });
 
   // ---------- Route map ----------
   function renderRoute() {
@@ -293,6 +326,8 @@
     });
   }
   addEventListener("resize", () => requestAnimationFrame(placeTrain));
+  let lastWagons = wagonsPerTrip();
+  addEventListener("resize", () => { if (wagonsPerTrip() !== lastWagons) { lastWagons = wagonsPerTrip(); loadWagons(); } });
 
   async function renderArrival() {
     const box = $("#arrival");
@@ -712,13 +747,12 @@
     renderChip();
     renderRoute();
     $("#routeMap").classList.add(...($("#routeMap").dataset.seen ? ["in"] : []));
-    await Promise.all([renderArrival(), renderMenu(), renderBoard()]);
+    await Promise.all([renderArrival(), renderMenu(), renderTrain()]);
     renderCart();
   }
   const cust = load("station.customer", {});
   $("#custName").value = cust.name || "";
   $("#custAddress").value = cust.address || "";
-  tickClock(); setInterval(tickClock, 1000);
   applyLang();
   observeReveals();
   observeStats();

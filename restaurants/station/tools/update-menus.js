@@ -133,6 +133,31 @@ function borrowPhotos(target, others) {
   return `${hit}/${total}`;
 }
 
+// Many dishes use Station's logo uploaded as a "photo", under different file names.
+// Download every photo once, fingerprint it, drop the logo, and record a fingerprint
+// (ih) so the site can tell when two dishes share the same picture.
+const LOGO_FINGERPRINT = "cbf45cc818";
+async function fingerprintPhotos(menus) {
+  const crypto = require("crypto");
+  const items = menus.flatMap((m) => m.categories.flatMap((c) => c.items)).filter((i) => i.img);
+  const urls = [...new Set(items.map((i) => i.img))];
+  const fp = new Map();
+  for (let k = 0; k < urls.length; k += 16) {
+    await Promise.all(urls.slice(k, k + 16).map(async (u) => {
+      try { const r = await fetch(u); if (r.ok) fp.set(u, crypto.createHash("md5").update(Buffer.from(await r.arrayBuffer())).digest("hex").slice(0, 10)); else fp.set(u, null); }
+      catch { /* network hiccup: keep the photo */ }
+    }));
+  }
+  let logos = 0, broken = 0;
+  for (const i of items) {
+    const h = fp.get(i.img);
+    if (h === LOGO_FINGERPRINT) { i.img = null; logos++; }
+    else if (h === null) { i.img = null; broken++; }
+    else if (h) i.ih = h;
+  }
+  console.log(`photos: ${urls.length} checked, ${logos} logo placeholders removed, ${broken} broken links removed`);
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const browser = await chromium.launch();
@@ -146,6 +171,7 @@ function borrowPhotos(target, others) {
     menus.hadath = await fetchHadath();
     console.log(`hadath: ${menus.hadath.categories.reduce((s, c) => s + c.items.length, 0)} items, photos matched ${borrowPhotos(menus.hadath, Object.values(menus).filter((m) => m !== menus.hadath))}`);
   } catch (e) { console.log(`hadath: FAILED (${e.message})`); }
+  await fingerprintPhotos(Object.values(menus));
   const updated = new Date().toISOString().slice(0, 10);
   for (const [id, m] of Object.entries(menus)) fs.writeFileSync(path.join(OUT, `${id}.json`), JSON.stringify({ branch: id, updated, ...m }));
   console.log("saved to", OUT);
