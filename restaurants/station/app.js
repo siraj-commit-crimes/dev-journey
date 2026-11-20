@@ -201,7 +201,11 @@
     const vw = innerWidth, phone = vw <= 600;
     const maxZ = phone ? (vw <= 360 ? 0.68 : 0.82) : vw >= 1100 ? 1.3 : 1.12;
     let z = maxZ;
-    if (phone) { trainN = 1; }
+    if (phone) {
+      // Phones: 2 plates + the whole engine (engine is drawn at 0.75 on phones)
+      trainN = 2;
+      z = Math.min(maxZ, (vw - 16) / (300 * 0.75 + 14 + trainN * 224));
+    }
     else {
       const sp = $("#special"), heroTop = hero.getBoundingClientRect().top;
       const textBottom = Math.max($(".hero-copy").getBoundingClientRect().bottom, sp && !sp.hidden && sp.offsetParent ? sp.getBoundingClientRect().bottom : 0) - heroTop;

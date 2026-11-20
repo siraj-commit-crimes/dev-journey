@@ -811,3 +811,22 @@ h2 { font-size: clamp(2.2rem, 5vw, 3.8rem) !important; line-height: 1.08 !import
   .scene { margin-top: 4px !important; }
 }
 @media (max-width: 360px) { .hero-ctas .btn { padding: 0 10px; font-size: 0.85rem; } }
+/* Phones (train drawn small): keep wagon name/price at a readable ~11-12px */
+@media (max-width: 600px) {
+  .wtag b { font-size: calc(11.5px / var(--z)) !important; line-height: 1.15; }
+  .wtag i { font-size: calc(11px / var(--z)) !important; padding: calc(2px / var(--z)) calc(6px / var(--z)); }
+  .chassis { height: 58px; }
+}
+@media (max-width: 600px) {
+  .wtag b { display: block !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: unset; }
+  .chassis { height: 50px; }
+  .hero { min-height: 0 !important; }
+  .hero-inner { flex: none !important; }
+}
+@media (max-width: 600px) {
+  .hero { --tb: 82px; }
+  .wtag b { display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal !important; font-size: calc(11px / var(--z)) !important; line-height: 1.1 !important; }
+  .chassis { height: calc(34px / var(--z)); bottom: calc(14px / var(--z)); padding: 0 6px; }
+  .wagon .wheel { bottom: calc(-4px / var(--z)); }
+  .plate { bottom: calc(46px / var(--z)); }
+}
