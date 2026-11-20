@@ -726,3 +726,49 @@ dialog[open]::backdrop { animation: fade 0.3s; }
 .cargo-train { bottom: var(--tb); }
 .hero-copy { padding-bottom: 8px; }
 @media (max-width: 600px) { .hero { --tb: 64px; } }
+
+/* =====================================================================
+   Hero: two columns (text | today's special), plain dark backdrop.
+   Menu: brass Arabic-star pattern that fades in (no hard edge).
+   ===================================================================== */
+.hero-bg { display: none; }
+.hero::before { background: radial-gradient(900px 600px at 18% 28%, rgba(200, 164, 93, 0.10), transparent 70%), radial-gradient(700px 500px at 80% 35%, rgba(200, 164, 93, 0.08), transparent 70%), linear-gradient(180deg, #14120f, var(--ink)) !important; }
+.hero::after { display: none; }
+.hero-inner { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 48px; align-items: center; }
+.hero-copy { max-width: 640px; }
+
+.special { display: grid; justify-items: center; gap: 16px; transition: opacity 0.35s, transform 0.35s var(--ease); }
+.special[hidden] { display: none; }
+.special.swap { opacity: 0; transform: translateY(10px) scale(0.97); }
+.tt-ring {
+  position: relative; width: min(34vh, 340px); aspect-ratio: 1; padding: 18px; border: 0; border-radius: 50%; cursor: pointer;
+  background: conic-gradient(from 0deg, var(--brass-dk), var(--brass-2), var(--brass-dk), var(--brass), var(--brass-dk));
+  box-shadow: 0 40px 70px -30px #000, 0 0 90px rgba(200, 164, 93, 0.18); transition: transform 0.4s var(--spring);
+}
+.tt-ring:hover { transform: scale(1.03); }
+.tt-ring::before { content: ""; position: absolute; inset: 8px; border-radius: 50%; border: 2px dashed rgba(15, 14, 12, 0.55); animation: ttSpin 30s linear infinite; }
+.tt-plate { display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 10px #f6efe0; animation: ttSpin 40s linear infinite; }
+.tt-plate img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes ttSpin { to { transform: rotate(360deg); } }
+.tt-card { display: flex; align-items: center; gap: 16px; padding: 12px 18px; border: 0; border-radius: 14px; text-align: start; cursor: pointer; color: var(--cream); background: rgba(25, 23, 20, 0.92); box-shadow: inset 0 0 0 1px rgba(200, 164, 93, 0.35); }
+.tt-card:hover { box-shadow: inset 0 0 0 1.5px var(--brass); }
+.tt-card small { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+[dir="rtl"] .tt-card small { font-family: var(--body); letter-spacing: 0; font-size: 0.85rem; }
+.tt-card b { font-size: 1.2rem; }
+.tt-card i { font-style: normal; padding: 4px 10px; border-radius: 8px; background: var(--amber); color: #111; font-family: var(--mono); font-weight: 700; }
+.tt-dots { display: flex; gap: 8px; }
+.tt-dots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 9px; background: rgba(239, 230, 210, 0.3); transition: width 0.35s var(--ease), background 0.3s; }
+.tt-dots button.on { width: 26px; background: var(--brass); }
+@media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; } .special { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .tt-plate, .tt-ring::before { animation: none; } }
+
+/* Menu background A: brass Arabic star, fading in/out so sections blend */
+.menu { background: var(--ink); }
+.menu::before {
+  opacity: 0.13;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23c8a45d' stroke-width='1.2'%3E%3Cpath d='M48 14 58 38 82 48 58 58 48 82 38 58 14 48 38 38Z'/%3E%3Cpath d='M24 24h48v48H24z' transform='rotate(45 48 48)'/%3E%3Cpath d='M24 24h48v48H24z'/%3E%3Ccircle cx='48' cy='48' r='6'/%3E%3Cpath d='M0 0l14 14M96 0 82 14M0 96l14-14M96 96 82 82'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 96px 96px;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 220px, #000 calc(100% - 220px), transparent);
+  mask: linear-gradient(180deg, transparent, #000 220px, #000 calc(100% - 220px), transparent);
+}
+.menu-tools { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.menu-tools.stuck { background: rgba(15, 14, 12, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }

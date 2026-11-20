@@ -55,7 +55,7 @@
       switchConfirm: (a, b) => `Your ticket is for ${a}. Switch to ${b}? Prices differ per station, so your ticket will be cleared.`,
       addedToast: (n) => `${n} punched on your ticket`, arrivingToast: (b) => `Now arriving at ${b} station 🚉`, chooseFirst: "Choose your station first",
       waHello: (b) => `Hello Station ${b}! I'd like to order:`, waTotal: "Total", waName: "Name", waAddress: "Address", waNote: "Note", waSize: "Size",
-      waExtras: "Extras", footFine: (y) => `© ${y} Station Resto-Café · المحطة`, lineName: (l) => l.en, langLabel: "العربية", platform: "Platform 1", tapPlate: "Tap a plate to order it", trainPreview: (b) => `Today's train from ${b} · choose your station to order`,
+      waExtras: "Extras", footFine: (y) => `© ${y} Station Resto-Café · المحطة`, lineName: (l) => l.en, langLabel: "العربية", todaysSpecial: "Today's special", platform: "Platform 1", tapPlate: "Tap a plate to order it", trainPreview: (b) => `Today's train from ${b} · choose your station to order`,
     },
     ar: {
       skip: "انتقل إلى القائمة", navStations: "المحطات", navMenu: "القائمة", navAbout: "منذ ١٩٩٣", yourStation: "محطتك", choose: "اختر",
@@ -83,7 +83,7 @@
       switchConfirm: (a, b) => `تذكرتك لمحطة ${a}. بدك تنتقل لمحطة ${b}؟ الأسعار بتختلف بين المحطات، فرح تنمسح التذكرة.`,
       addedToast: (n) => `انخرمت ${n} عتذكرتك`, arrivingToast: (b) => `وصلنا إلى محطة ${b} 🚉`, chooseFirst: "اختر محطتك أولاً",
       waHello: (b) => `مرحبا محطة ${b}! بدي اطلب:`, waTotal: "المجموع", waName: "الاسم", waAddress: "العنوان", waNote: "ملاحظة", waSize: "الحجم",
-      waExtras: "إضافات", footFine: (y) => `© ${y} المحطة · Station Resto-Café`, lineName: (l) => l.ar, langLabel: "English", platform: "رصيف ١", tapPlate: "اضغط على صحن لتطلبه", trainPreview: (b) => `قطار اليوم من ${b} · اختر محطتك لتطلب`,
+      waExtras: "إضافات", footFine: (y) => `© ${y} المحطة · Station Resto-Café`, lineName: (l) => l.ar, langLabel: "English", todaysSpecial: "طبق اليوم", platform: "رصيف ١", tapPlate: "اضغط على صحن لتطلبه", trainPreview: (b) => `قطار اليوم من ${b} · اختر محطتك لتطلب`,
     },
   };
   const QUICK = [
@@ -193,7 +193,7 @@
   let trainDishes = [], trainTrip = 0, trainBranch = null, trainLoop = false, trainHold = false;
   // Size the train to the room left under the hero text (never overlaps the buttons).
   function fitTrain() {
-    const hero = $("#hero"), copy = $(".hero-copy");
+    const hero = $("#hero"), copy = $(".hero-inner");
     if (!hero || !copy) return;
     const phone = innerWidth <= 600;
     const maxZ = phone ? (innerWidth <= 360 ? 0.68 : 0.82) : innerWidth >= 1100 ? 1.3 : 1.12;
@@ -227,8 +227,47 @@
     $("#platformSign").innerHTML = `<b>${esc(t("platform"))}</b><span>${esc(nm(b))}</span>`;
     $("#platformHint").textContent = state.branch === id ? t("tapPlate") : t("trainPreview", nm(b));
     loadWagons();
+    renderSpecial();
     if (!trainLoop) runTrain();
   }
+
+  // ---------- Today's special (right side of the hero) ----------
+  let specials = [], spIdx = 0, spTimer;
+  function renderSpecial() {
+    const firstTrip = new Set(trainDishes.slice(0, 4));
+    const pool = trainDishes.filter((i) => !firstTrip.has(i) && /mashawi|grill|plate|shawarma|steak|chicken/i.test(i.en || ""));
+    const list = pool.length >= 4 ? pool : trainDishes;
+    specials = list.filter((_, k) => k % 3 === 1).slice(0, 4);
+    if (specials.length < 2) specials = list.slice(0, 4);
+    $("#special").hidden = !specials.length;
+    $("#ttDots").innerHTML = specials.map((_, k) => `<button type="button" data-sp="${k}" aria-label="${k + 1}"></button>`).join("");
+    showSpecial(0, true);
+    clearInterval(spTimer);
+    if (!reduceMotion && specials.length > 1) spTimer = setInterval(() => { if (!document.hidden && heroInView) showSpecial(spIdx + 1); }, 6000);
+  }
+  function showSpecial(k, instant = false) {
+    if (!specials.length) return;
+    spIdx = (k + specials.length) % specials.length;
+    const i = specials[spIdx], el = $("#special");
+    const apply = () => {
+      $("#ttImg").src = i.img;
+      $("#ttName").textContent = nm(i);
+      $("#ttPrice").textContent = money(i.price);
+      $("#ttRing").setAttribute("aria-label", nm(i));
+      $$("#ttDots button").forEach((b, n) => b.classList.toggle("on", n === spIdx));
+    };
+    if (instant || reduceMotion) { apply(); return; }
+    el.classList.add("swap");
+    setTimeout(() => { apply(); el.classList.remove("swap"); }, 350);
+  }
+  $("#ttDots").addEventListener("click", (e) => { const b = e.target.closest("[data-sp]"); if (b) showSpecial(+b.dataset.sp); });
+  const openSpecial = () => {
+    const i = specials[spIdx]; if (!i) return;
+    if (state.branch !== trainBranch) { toast(t("chooseFirst")); $("#pickSheet").showModal(); return; }
+    openItem(i.id);
+  };
+  $("#ttRing").addEventListener("click", openSpecial);
+  $("#ttCard").addEventListener("click", openSpecial);
   function loadWagons() {
     const n = wagonsPerTrip(), len = trainDishes.length;
     if (!len) { $("#wagons").innerHTML = ""; return; }

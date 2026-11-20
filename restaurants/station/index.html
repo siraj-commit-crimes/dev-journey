@@ -60,7 +60,14 @@
             <a class="btn btn-ghost" href="#menu" data-i18n="ctaMenu">See the menu</a>
           </div>
         </div>
-
+        <!-- Right column: today's special on a brass turntable (dishes rotate) -->
+        <div class="special" id="special" hidden>
+          <button type="button" class="tt-ring" id="ttRing" aria-label=""><span class="tt-plate"><img id="ttImg" alt="" /></span></button>
+          <button type="button" class="tt-card" id="ttCard">
+            <span><small data-i18n="todaysSpecial">Today's special</small><b id="ttName"></b></span><i id="ttPrice" dir="ltr"></i>
+          </button>
+          <div class="tt-dots" id="ttDots"></div>
+        </div>
       </div>
       <!-- The star of the hero: a food train that pulls in at the platform -->
       <div class="scene" id="scene">
