@@ -683,3 +683,12 @@ dialog[open]::backdrop { animation: fade 0.3s; }
 [dir="rtl"] .platform-hint { right: auto; left: clamp(18px, 5vw, 64px); }
 @media (max-width: 600px) { .scene { height: 230px; margin-top: 0; } .cargo-train { bottom: 64px; } }
 .scene { overflow: visible; overflow-x: clip; }
+
+/* Phones: a bigger train (2 wagons per trip so plates stay large) */
+@media (max-width: 600px) {
+  .train-body { --z: 0.86; }
+  .scene { height: 280px; }
+  .cargo-train { bottom: 64px; }
+  .wtag b { font-size: 0.95rem; }
+}
+@media (max-width: 360px) { .train-body { --z: 0.68; } .scene { height: 240px; } }

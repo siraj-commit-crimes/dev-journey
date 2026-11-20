@@ -191,7 +191,7 @@
   // A cargo train carries plates of real dishes. It pulls in, brakes (sparks, bounce),
   // waits at the platform so you can tap a plate, then leaves and comes back with new dishes.
   let trainDishes = [], trainTrip = 0, trainBranch = null, trainLoop = false, trainHold = false;
-  const wagonsPerTrip = () => (innerWidth <= 600 ? 3 : 4);
+  const wagonsPerTrip = () => (innerWidth <= 600 ? 2 : 4);
   async function renderTrain() {
     const id = state.branch && branchById(state.branch)?.menu ? state.branch : PREVIEW_BRANCH;
     let menu;
@@ -225,6 +225,11 @@
   new IntersectionObserver(([e]) => { heroInView = e.isIntersecting; }).observe($("#hero"));
   function stopX(train, scene) {
     const w = train.getBoundingClientRect().width, vw = scene.clientWidth;
+    if (w + 32 >= vw) {
+      // Narrow screens: centre the plates (the food matters most); the engine peeks in from the right.
+      const wg = $("#wagons").getBoundingClientRect().width;
+      if (wg + 16 <= vw) return Math.round((vw - wg) / 2);
+    }
     return w + 32 < vw ? Math.round((vw - w) / 2 + Math.min(120, (vw - w) / 4)) : Math.round(vw - w - 12); // keep the engine in view on phones
   }
   async function runTrain() {
