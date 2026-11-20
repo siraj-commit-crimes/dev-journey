@@ -192,25 +192,31 @@
   // waits at the platform so you can tap a plate, then leaves and comes back with new dishes.
   let trainDishes = [], trainTrip = 0, trainBranch = null, trainLoop = false, trainHold = false;
   // Size the train to the room left under the hero text (never overlaps the buttons).
+  // Size the train to the room under the hero text (never overlaps the buttons), and fit as
+  // many plates as possible (up to 6) beside the engine without shrinking them below ~1x.
+  let trainN = 4;
   function fitTrain() {
     const hero = $("#hero"), copy = $(".hero-inner");
     if (!hero || !copy) return;
-    const phone = innerWidth <= 600;
-    const maxZ = phone ? (innerWidth <= 360 ? 0.68 : 0.82) : innerWidth >= 1100 ? 1.3 : 1.12;
+    const vw = innerWidth, phone = vw <= 600;
+    const maxZ = phone ? (vw <= 360 ? 0.68 : 0.82) : vw >= 1100 ? 1.3 : 1.12;
     let z = maxZ;
-    if (!phone) {
-      const textBottom = copy.getBoundingClientRect().bottom - hero.getBoundingClientRect().top;
+    if (phone) { trainN = 1; }
+    else {
+      const sp = $("#special"), heroTop = hero.getBoundingClientRect().top;
+      const textBottom = Math.max($(".hero-copy").getBoundingClientRect().bottom, sp && !sp.hidden && sp.offsetParent ? sp.getBoundingClientRect().bottom : 0) - heroTop;
       const room = innerHeight - textBottom - 24 - 80 - 16; // gap, track, platform edge
-      z = Math.max(0.75, Math.min(maxZ, room / 254));
+      const zRoom = Math.max(0.75, Math.min(maxZ, room / 254));
+      const zFor = (n) => (vw - 80) / (300 + 14 + n * 224); // engine + wagons must fit the width
+      trainN = 1;
+      for (let n = 6; n >= 1; n--) {
+        if (Math.min(zRoom, zFor(n)) >= Math.min(1, zRoom) || n === 1) { trainN = n; break; }
+      }
+      z = Math.min(zRoom, zFor(trainN));
     }
     hero.style.setProperty("--z", z.toFixed(3));
   }
-  // As many wagons as fit beside the engine at the current train size (phones: 1).
-  const wagonsPerTrip = () => {
-    if (innerWidth <= 600) return 1;
-    const z = parseFloat(getComputedStyle($("#trainBody")).getPropertyValue("--z")) || 1;
-    return Math.max(1, Math.min(4, Math.floor((innerWidth - 300 * z - 80) / (224 * z))));
-  };
+  const wagonsPerTrip = () => trainN;
   async function renderTrain() {
     fitTrain();
     const id = state.branch && branchById(state.branch)?.menu ? state.branch : PREVIEW_BRANCH;
@@ -234,7 +240,7 @@
   // ---------- Today's special (right side of the hero) ----------
   let specials = [], spIdx = 0, spTimer;
   function renderSpecial() {
-    const firstTrip = new Set(trainDishes.slice(0, 4));
+    const firstTrip = new Set(trainDishes.slice(0, wagonsPerTrip()));
     const pool = trainDishes.filter((i) => !firstTrip.has(i) && /mashawi|grill|plate|shawarma|steak|chicken/i.test(i.en || ""));
     const list = pool.length >= 4 ? pool : trainDishes;
     specials = list.filter((_, k) => k % 3 === 1).slice(0, 4);
