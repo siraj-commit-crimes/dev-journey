@@ -799,3 +799,15 @@ h2 { font-size: clamp(2.2rem, 5vw, 3.8rem) !important; line-height: 1.08 !import
 .fare, .fare .flap, .tline .tprice, .ticket-foot .total-line strong, .stepper output, .tb-count, .ticket-bar strong, .stat b { font-family: var(--body) !important; font-variant-numeric: tabular-nums; }
 .wtag b { font-family: var(--body) !important; }
 [dir="rtl"] .hero-title { line-height: 1.35 !important; }
+
+/* Phones first: tighter top, buttons side by side, so the train shows on the first screen */
+@media (max-width: 600px) {
+  .hero { padding-top: 84px !important; }
+  .since { margin-bottom: 10px !important; padding: 5px 10px; font-size: 0.75rem; }
+  .hero-title { font-size: clamp(2.3rem, 11vw, 3.2rem) !important; }
+  .hero-sub { margin: 12px 0 16px !important; font-size: 1rem; line-height: 1.5; }
+  .hero-ctas { flex-wrap: nowrap; gap: 8px; }
+  .hero-ctas .btn { flex: 1 1 auto; min-height: 46px; padding: 0 14px; font-size: 0.92rem; }
+  .scene { margin-top: 4px !important; }
+}
+@media (max-width: 360px) { .hero-ctas .btn { padding: 0 10px; font-size: 0.85rem; } }
