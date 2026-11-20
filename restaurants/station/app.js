@@ -508,7 +508,7 @@
         ${(state.lang === "ar" ? i.desc_ar || i.desc_en : i.desc_en || i.desc_ar) ? `<p>${esc(state.lang === "ar" ? i.desc_ar || i.desc_en : i.desc_en || i.desc_ar)}</p>` : ""}
         <div class="card-foot">
           <span class="fare" data-fare="${money(i.price)}" dir="ltr">${fareHtml(money(i.price))}</span>
-          ${i.out ? `<span class="out-tag">${esc(t("out"))}</span>` : `<button type="button" class="add" data-add="${esc(i.id)}">${esc(t("add"))}</button>`}
+          ${i.out ? `<span class="out-tag">${esc(t("out"))}</span>` : `<button type="button" class="add" data-add="${esc(i.id)}" aria-label="${esc(t("addTicket"))}: ${esc(nm(i))}">${esc(t("add"))}</button>`}
         </div>
       </div>
     </article>`;
