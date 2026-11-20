@@ -32,7 +32,7 @@
     en: {
       skip: "Skip to menu", navStations: "Stations", navMenu: "Menu", navAbout: "Since 1993", yourStation: "Your station", choose: "Choose",
       tenStations: "10 stations across Lebanon", heroL1: "All aboard", heroL2: "the flavour line",
-      heroSub: "Shawarma off the spit, mashawi off the charcoal, saj off the dome. Pick your station and we'll have it rolling to your door.",
+      heroSub: "Shawarma spins, mashawi grills, saj flips. You pick the station, we’ll handle the delivery.",
       ctaStation: "Choose your station", ctaMenu: "See the menu", departures: "Departures", departuresAlt: "المغادرة",
       colTime: "Time", colDish: "Destination", colPrice: "Fare", colStatus: "Status", boarding: "Boarding", onTime: "On time",
       boardFrom: (b) => `Now departing from ${b} station`, boardPreview: (b) => `Showing ${b} station · pick yours below`,
