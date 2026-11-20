@@ -191,6 +191,20 @@
   // A cargo train carries plates of real dishes. It pulls in, brakes (sparks, bounce),
   // waits at the platform so you can tap a plate, then leaves and comes back with new dishes.
   let trainDishes = [], trainTrip = 0, trainBranch = null, trainLoop = false, trainHold = false;
+  // Size the train to the room left under the hero text (never overlaps the buttons).
+  function fitTrain() {
+    const hero = $("#hero"), copy = $(".hero-copy");
+    if (!hero || !copy) return;
+    const phone = innerWidth <= 600;
+    const maxZ = phone ? (innerWidth <= 360 ? 0.68 : 0.82) : innerWidth >= 1100 ? 1.3 : 1.12;
+    let z = maxZ;
+    if (!phone) {
+      const textBottom = copy.getBoundingClientRect().bottom - hero.getBoundingClientRect().top;
+      const room = innerHeight - textBottom - 24 - 80 - 16; // gap, track, platform edge
+      z = Math.max(0.75, Math.min(maxZ, room / 254));
+    }
+    hero.style.setProperty("--z", z.toFixed(3));
+  }
   // As many wagons as fit beside the engine at the current train size (phones: 1).
   const wagonsPerTrip = () => {
     if (innerWidth <= 600) return 1;
@@ -198,6 +212,7 @@
     return Math.max(1, Math.min(4, Math.floor((innerWidth - 300 * z - 80) / (224 * z))));
   };
   async function renderTrain() {
+    fitTrain();
     const id = state.branch && branchById(state.branch)?.menu ? state.branch : PREVIEW_BRANCH;
     let menu;
     try { menu = await getMenu(id); } catch { return; }
@@ -333,7 +348,7 @@
   }
   addEventListener("resize", () => requestAnimationFrame(placeTrain));
   let lastWagons = wagonsPerTrip();
-  addEventListener("resize", () => { if (wagonsPerTrip() !== lastWagons) { lastWagons = wagonsPerTrip(); loadWagons(); } });
+  addEventListener("resize", () => { fitTrain(); if (wagonsPerTrip() !== lastWagons) { lastWagons = wagonsPerTrip(); loadWagons(); } });
 
   async function renderArrival() {
     const box = $("#arrival");
