@@ -32,6 +32,9 @@ Plain HTML/CSS/JS, no build step. Train-station theme: departure-board hero, the
 - **Photos:** loaded from the ordering platform's image server (fbgcdn.com). Hadath's own photos are tiny placeholders, so the script reuses the same dish's photo from another branch (177 of 214 matched).
 - **Ordering:** ticket → WhatsApp to the chosen branch, message includes English + Arabic dish names.
 
+### Testing
+`node tests/run-tests.js` (from `station/`) opens the site in a headless browser and checks 60 things: menu data, every branch, search and filters, the ticket and the WhatsApp message, Arabic, phone layout, reduced motion, and that scrolling never jumps. Add `--images` to also check that dish photos load. Failures save a screenshot to `tests/output/`. Run it after every change, and after refreshing menus.
+
 ### Things to confirm with Station before going live
 - **WhatsApp numbers:** taken from each branch's ordering page (`wa` in `BRANCHES` in `station/app.js`). The Contact page lists different (landline) numbers, used for the Call button.
 - **Hadath's opening hours:** not in its menu data, so the site says "Call for opening hours".

@@ -44,7 +44,9 @@ function pictureUrl(pics, type, id, density = 2) {
   const p = pics[`${type}-${id}`];
   if (!p) return null;
   const [base, ext] = p.filename.split(".");
-  return `https://www.fbgcdn.com/pictures/${base}_d${Math.min(density, p.density || density)}.${ext}`;
+  // Photos stored at a single size have no "_dN" ending; asking for one gives a 404.
+  const d = Math.min(density, p.density || 1);
+  return `https://www.fbgcdn.com/pictures/${base}${d >= 2 ? `_d${d}` : ""}.${ext}`;
 }
 
 function fromRestaurantLogin(data) {
@@ -111,8 +113,10 @@ async function fetchHadath() {
     phone: phone ? "+" + phone : "", address: "Old Saida Road, Hadath, near LB University", currency: "USD", hours: [],
     categories: data.categories.map((c) => ({
       id: slug(c.en), en: titleCase(clean(c.en)), ar: clean(c.ar), img: null,
-      items: c.items.map((i) => ({
-        id: i.id, en: clean(i.name_en), ar: clean(i.name_ar), desc_en: clean(i.desc_en), desc_ar: clean(i.desc_ar),
+      // skip unnamed placeholder rows (Hadath's data has a hidden "banner" row)
+      items: c.items.filter((i) => clean(i.name_en) || clean(i.name_ar)).map((i) => ({
+        id: `${slug(c.en)}-${i.id}`, // Hadath's own ids repeat across categories, so make them unique
+        en: clean(i.name_en), ar: clean(i.name_ar), desc_en: clean(i.desc_en), desc_ar: clean(i.desc_ar),
         price: Number(i.price) || 0, img: null, out: false, sizes: [], groups: [],
       })),
     })),

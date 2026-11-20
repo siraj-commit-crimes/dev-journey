@@ -60,7 +60,7 @@
     ar: {
       skip: "انتقل إلى القائمة", navStations: "المحطات", navMenu: "القائمة", navAbout: "منذ ١٩٩٣", yourStation: "محطتك", choose: "اختر",
       tenStations: "١٠ محطات في لبنان", heroL1: "أهلاً بكم", heroL2: "في خط النكهة",
-      heroSub: "مكونات طازة، نكهات عالأصول، ولمسة بتفرق. من صاج الصبح، للشاورما لآخر الليل.",
+      heroSub: "الشاورما عم تلفّ، المشاوي عالفحم، والصاج عم ينقلب. إنت اختار المحطة، والتوصيل علينا.",
       ctaStation: "اختر محطتك", ctaMenu: "شوف القائمة", departures: "المغادرة", departuresAlt: "Departures",
       colTime: "الوقت", colDish: "الوجهة", colPrice: "السعر", colStatus: "الحالة", boarding: "صعود", onTime: "في الموعد",
       boardFrom: (b) => `المغادرة الآن من محطة ${b}`, boardPreview: (b) => `معروض: محطة ${b} · اختر محطتك تحت`,
@@ -473,8 +473,18 @@
   }
   $("#platforms").addEventListener("click", (e) => {
     const p = e.target.closest(".platform"); if (!p) return;
-    tabLock = Date.now() + 900; setPlatform(p.dataset.target);
-    document.getElementById(p.dataset.target)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    tabLock = Date.now() + 1000; setPlatform(p.dataset.target);
+    const sec = document.getElementById(p.dataset.target);
+    if (!sec) return;
+    // Long trips: jump most of the way instantly, then glide the last stretch,
+    // so far-away categories arrive in well under a second.
+    const dist = sec.getBoundingClientRect().top - 150;
+    if (!reduceMotion && Math.abs(dist) > 1600) {
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo(0, scrollY + dist - Math.sign(dist) * 700);
+      document.documentElement.style.scrollBehavior = "";
+    }
+    sec.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   });
   $("#quick").addEventListener("click", (e) => {
     const c = e.target.closest("[data-quick]"); if (!c) return;
