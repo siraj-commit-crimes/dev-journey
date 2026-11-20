@@ -692,3 +692,14 @@ dialog[open]::backdrop { animation: fade 0.3s; }
   .wtag b { font-size: 0.95rem; }
 }
 @media (max-width: 360px) { .train-body { --z: 0.68; } .scene { height: 240px; } }
+
+/* Phones: one big plate + the engine, both fully in view when stopped */
+@media (max-width: 600px) {
+  .train-body { --z: 0.82; }
+  .loco { zoom: 0.75; }
+  .wagons { margin-right: 8px !important; }
+}
+@media (max-width: 360px) { .train-body { --z: 0.68; } .scene { height: 240px; } }
+@media (max-width: 600px) {
+  .wtag b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 0.88rem; line-height: 1.1; }
+}
