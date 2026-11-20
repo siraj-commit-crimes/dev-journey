@@ -60,7 +60,7 @@
     ar: {
       skip: "انتقل إلى القائمة", navStations: "المحطات", navMenu: "القائمة", navAbout: "منذ ١٩٩٣", yourStation: "محطتك", choose: "اختر",
       tenStations: "١٠ محطات في لبنان", heroL1: "أهلاً بكم", heroL2: "في خط النكهة",
-      heroSub: "شاورما عن السيخ، مشاوي عالفحم، ومناقيش عالصاج. اختار محطتك ومنوصلك الطلب لعند الباب.",
+      heroSub: "مكونات طازة، نكهات عالأصول، ولمسة بتفرق. من صاج الصبح، للشاورما لآخر الليل.",
       ctaStation: "اختر محطتك", ctaMenu: "شوف القائمة", departures: "المغادرة", departuresAlt: "Departures",
       colTime: "الوقت", colDish: "الوجهة", colPrice: "السعر", colStatus: "الحالة", boarding: "صعود", onTime: "في الموعد",
       boardFrom: (b) => `المغادرة الآن من محطة ${b}`, boardPreview: (b) => `معروض: محطة ${b} · اختر محطتك تحت`,
