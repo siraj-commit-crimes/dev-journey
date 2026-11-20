@@ -772,3 +772,9 @@ dialog[open]::backdrop { animation: fade 0.3s; }
 }
 .menu-tools { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
 .menu-tools.stuck { background: rgba(15, 14, 12, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+/* Arabic headline: Arabic letters are taller (hamza, dots, descenders), so give the lines room
+   and keep the subtitle clear of the second line. */
+[dir="rtl"] .hero-title { line-height: 1.5 !important; }
+[dir="rtl"] .ht-line { overflow: visible; padding-bottom: 0.05em; }
+[dir="rtl"] .hero-sub { margin-top: 26px; }
