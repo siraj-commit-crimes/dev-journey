@@ -1,0 +1,1135 @@
+{
+ "updated": "2026-11-22",
+ "source": "https://rest.thrubits.com/restaurant/food-bae",
+ "hours": [
+  {
+   "day": 0,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 1,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 2,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 3,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 4,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 5,
+   "open": "09:00",
+   "close": "17:00"
+  },
+  {
+   "day": 6,
+   "open": "09:00",
+   "close": "17:00"
+  }
+ ],
+ "addons": {
+  "dips": [
+   {
+    "id": 1962,
+    "name": "Cheddar Cheese",
+    "price": 1
+   },
+   {
+    "id": 1963,
+    "name": "Honey Mustard",
+    "price": 1
+   },
+   {
+    "id": 1964,
+    "name": "BBQ",
+    "price": 1
+   },
+   {
+    "id": 1965,
+    "name": "Cocktail",
+    "price": 1
+   },
+   {
+    "id": 1966,
+    "name": "Garlic Mayo",
+    "price": 1
+   },
+   {
+    "id": 1967,
+    "name": "Guacamoule",
+    "price": 2
+   },
+   {
+    "id": 1968,
+    "name": "Salsa",
+    "price": 1
+   },
+   {
+    "id": 5250,
+    "name": "Avocado",
+    "price": 1
+   },
+   {
+    "id": 5251,
+    "name": "Buffalo",
+    "price": 1
+   },
+   {
+    "id": 5252,
+    "name": "Mushroom",
+    "price": 3
+   },
+   {
+    "id": 5253,
+    "name": "Ranch",
+    "price": 1
+   }
+  ],
+  "extras": [
+   {
+    "id": 1969,
+    "name": "Beef Patty",
+    "price": 5
+   },
+   {
+    "id": 1970,
+    "name": "Smoked turkey",
+    "price": 2
+   },
+   {
+    "id": 1972,
+    "name": "Fried egg",
+    "price": 2
+   },
+   {
+    "id": 1973,
+    "name": "Breaded mozzarella",
+    "price": 4
+   },
+   {
+    "id": 1974,
+    "name": "Coleslaw",
+    "price": 2
+   },
+   {
+    "id": 1976,
+    "name": "Beef Bacon",
+    "price": 3
+   },
+   {
+    "id": 1977,
+    "name": "Breaded cheddar",
+    "price": 4
+   },
+   {
+    "id": 1978,
+    "name": "Rice",
+    "price": 3
+   },
+   {
+    "id": 4958,
+    "name": "Baked Potato",
+    "price": 3
+   },
+   {
+    "id": 4959,
+    "name": "Grilled Veggies",
+    "price": 3
+   },
+   {
+    "id": 5254,
+    "name": "Swiss cheese Slice",
+    "price": 2
+   },
+   {
+    "id": 5255,
+    "name": "Jalapeños",
+    "price": 2
+   },
+   {
+    "id": 5256,
+    "name": "Cheddar Cheese Slice",
+    "price": 2
+   }
+  ]
+ },
+ "categories": [
+  {
+   "id": "platters",
+   "name": "Platters",
+   "items": [
+    {
+     "id": "194420",
+     "name": "Signature filet",
+     "desc": "Premium grilled beef filet, cooked to your preferred doneness, topped with your choice of creamy mushroom or pepper sauce. Served with crispy fries and sautéed seasonal vegetables.",
+     "price": 17,
+     "img": "https://rest.thrubits.com/uploads/restorants/b85edf72-7d0f-44df-a297-2add8fa39585_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "194421",
+     "name": "Mushroom Melt Chicken",
+     "desc": "Juicy grilled marinated chicken breast topped with rich creamy mushroom sauce. Served with crispy fries and sautéed seasonal vegetables.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/a23b8f9b-24c1-4108-a011-50f6913cd672_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "194422",
+     "name": "Golden Escalope",
+     "desc": "Crispy golden breaded chicken breast served with fries, fresh side greens, and our signature honey mustard dip.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/ab431aa4-d44d-4199-aac9-576b14a04690_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "194423",
+     "name": "Lemon Glow Chicken",
+     "desc": "Pan-seared chicken breast finished in a rich buttery lemon sauce. Served with your choice of crispy fries or fluffy white rice, alongside steamed broccoli.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/99a3c4b9-8804-4e0a-b4e7-8c58071e7f3d_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "194424",
+     "name": "Cheesy Schnitzel",
+     "desc": "Crispy breaded chicken breast topped with Swiss cheese and creamy mushroom sauce. Served with crispy fries and sautéed seasonal vegetables.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/131ee159-1b55-4dde-a0c2-cd97b0a649bc_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "fit-bae",
+   "name": "Fit Bae",
+   "items": [
+    {
+     "id": "165342",
+     "name": "Cajun Chicken Platter",
+     "desc": "3 Cajun chicken breasts, steamed white rice, guacamole sauce & salsa dip.",
+     "price": 11.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/e2eb12bc-e04e-4a42-97a9-9cd4e6f7314c_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "165341",
+     "name": "Healthy Chicken Platter",
+     "desc": "3 marinated chicken breasts, baked potatoes, side green salad & ranch dip.",
+     "price": 11.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/5a4cea51-dae7-4db1-8a8d-a212b56e9505_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "165350",
+     "name": "Light Chicken Platter",
+     "desc": "Grilled chicken breast, steamed white rice, grilled veggies, corn & ranch dip.",
+     "price": 8.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/fc177cb3-eddb-478e-9439-75d6ccfb9e13_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "165351",
+     "name": "Light Steak Platter",
+     "desc": "Grilled steak beef, grilled veggies & baked potatoes.",
+     "price": 17,
+     "img": "https://rest.thrubits.com/uploads/restorants/a985ae14-7f58-4f01-80fc-70c51b9ea478_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "196238",
+     "name": "SKEWER GRILL PLATTER",
+     "desc": "2 Taouk Skewers + Rice (or fries) + garlic sauce + pickles.",
+     "price": 8.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/386427ca-1cdf-45fd-9df5-a0d0b62cd810_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "165356",
+     "name": "Special Chicken Platter (by Coach Ali Murad)",
+     "desc": "500 calories, 47g protein, 60g carbs, grilled chicken breast (150 grams), baked potatoes, grilled veggies, green salad.",
+     "price": 11.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/836ac0a8-a32a-4f16-a68b-617c28de0cef_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 47,
+     "kcal": 500
+    },
+    {
+     "id": "172483",
+     "name": "Special Beef Burger (by Coach Ali Murad)",
+     "desc": "610 calories, 47g protein, 32g carbs, whole wheat bun, double grilled beef patty, light cheddar cheese slice, light mayo Mexican sauce, lettuce, tomato & pickles.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/dcae7c92-fc9b-4741-a2bb-5990a47e1f0c_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 47,
+     "kcal": 610
+    },
+    {
+     "id": "165352",
+     "name": "Special Chicken Burger (by Coach Ali Murad)",
+     "desc": "470 calories, 46g protein, 43g carbs, whole wheat bun, double chicken breasts (160 grams), light cheddar cheese slice, light mayo Mexican sauce, lettuce, tomato & pickles.",
+     "price": 10,
+     "img": "https://rest.thrubits.com/uploads/restorants/726bcf73-d64c-489d-b0ab-6240b48fb6d9_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 46,
+     "kcal": 470
+    },
+    {
+     "id": "165376",
+     "name": "Special Fajita (by Coach Ali Murad)",
+     "desc": "550 calories, 40g protein, 45g carbs, whole wheat bread, grilled chicken breast (110 grams), mozzarella cheese, light mayo avocado sauce, grilled onion, green pepper & corn .",
+     "price": 9.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/daf90a73-c91e-4e1e-9d25-3fe0d98c6628_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 40,
+     "kcal": 550
+    }
+   ]
+  },
+  {
+   "id": "combos",
+   "name": "Combos",
+   "items": [
+    {
+     "id": "14377",
+     "name": "Bae 4 Two",
+     "desc": "2 burgers or 2 sandwiches, french fries or wedges, 6 chicken wings, 2 mozzarella sticks, 3 dips & ketchup. Burgers options: Classic cheese burger Grilled chicken burger Fried chicken burger Mexican burger Lebanese burger Guacamole burger Chicken caeser burger Sandwiches Options: BBQ chicken sandwich Boneless chicken sandwich Francisco sandwich Chicken sub sandwich Cajun chicken sandwich Chicken fajita sandwich Crispy chicken sandwich",
+     "price": 18.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/00b38b6f-83f0-4a04-b303-02e574cbb660_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "14379",
+     "name": "Slay All Day",
+     "desc": "Burger or sandwich, french fries or wedges, 6 chicken wings, dip & soft drink. Burgers options: Classic cheese burger Grilled chicken burger Fried chicken burger Mexican burger Lebanese burger Guacamole burger Chicken caeser burger Sandwiches options: BBQ chicken sandwich Boneless chicken sandwich Francisco sandwich Chicken sub sandwich Cajun chicken sandwich Chicken fajita sandwich Crispy chicken sandwich",
+     "price": 12.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/b4867232-0614-42af-91a6-f977ccbfa348_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "14378",
+     "name": "Snackzilla",
+     "desc": "10 chicken wings, 3 crispy chicken strips, 5 mozzarella sticks, 5 onion rings, 2 cheddar balls, french fries or wedges & 3 dips.",
+     "price": 16,
+     "img": "https://rest.thrubits.com/uploads/restorants/c7ff0e62-69ca-4705-931f-d4a97f545b7b_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "14380",
+     "name": "Dip n’ Drama",
+     "desc": "20 chicken wings, 3 crispy chicken strips, french fries or wedges, 2 dips & soft drink.",
+     "price": 14,
+     "img": "https://rest.thrubits.com/uploads/restorants/6affe264-3344-4875-a09d-40e567e1d6a5_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "14381",
+     "name": "Crunch Bae",
+     "desc": "5 crispy chicken strips, french fries, coleslaw, bun, dip & soft drink.",
+     "price": 9.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/533e152d-0715-41c9-9905-e383005af127_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "salads",
+   "name": "Salads",
+   "items": [
+    {
+     "id": "9010",
+     "name": "Garden salad",
+     "desc": "Iceberg lettuce, tomato, cucumber, corn, onion & lemon oil dressing.",
+     "price": 5.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/9d76e6e4-6ccb-4e22-a4e2-581790445cb1_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9011",
+     "name": "Caesar Salad",
+     "desc": "Iceberg lettuce, seasoned croutons, Parmesan cheese & Caesar dressing.",
+     "price": 5,
+     "img": "https://rest.thrubits.com/uploads/restorants/446e2ea4-2e02-4a5d-806b-460d22852cfc_large.jpg",
+     "extras": [
+      {
+       "id": 1982,
+       "name": "Add marinated grilled chicken",
+       "price": 3.25
+      }
+     ],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151063",
+     "name": "Chicken Caeser Salad",
+     "desc": "Grilled chicken breast, iceberg lettuce, seasoned croutons, Parmesan cheese & Caesar dressing.",
+     "price": 8,
+     "img": "https://rest.thrubits.com/uploads/restorants/070f6b6a-2f1a-4ca6-a466-6ae22138d5b5_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9013",
+     "name": "Chicken Guacamole Salad",
+     "desc": "Grilled chicken breast, iceberg lettuce, guacamole sauce, cherry tomatoes, seasoned croutons & lemon mustard dressing.",
+     "price": 7.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/cf6ee5ca-dcb0-4910-8e6b-242d726a559d_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9012",
+     "name": "Coleslaw",
+     "desc": "Crispy coleslaw with honey cream dressing.",
+     "price": 3,
+     "img": "https://rest.thrubits.com/uploads/restorants/8d908a85-90e5-456e-9264-90a9a8297b60_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151064",
+     "name": "Side Salad",
+     "desc": "Iceberg lettuce, tomato, cucumber, corn, onion & lemon oil dressing.",
+     "price": 3,
+     "img": "https://rest.thrubits.com/uploads/restorants/c3ef6f0a-917c-4e3b-94f8-38eaea0e77fc_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "63010",
+     "name": "Marinated Grilled Chicken",
+     "desc": "",
+     "price": 4,
+     "img": "https://rest.thrubits.com/uploads/settings/41761b75-05c5-414f-b3b0-9a74ceccbf78_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "starters-sides",
+   "name": "Starters &Sides",
+   "items": [
+    {
+     "id": "9003",
+     "name": "Mozzarella Sticks",
+     "desc": "5 pieces served with cocktail dip",
+     "price": 6.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/373c61f1-728f-43af-a697-1c32eb41d70e_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9000",
+     "name": "French Fries",
+     "desc": "Served with cocktail dip",
+     "price": 4.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/d857bae6-3f17-4e05-92c2-fb5970a88cc2_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "8998",
+     "name": "Potato Wedges",
+     "desc": "Served with cocktail dip",
+     "price": 4.75,
+     "img": "https://rest.thrubits.com/uploads/restorants/9dc944aa-3fa2-4090-a91d-154bdf7852b5_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9002",
+     "name": "Curly Fries",
+     "desc": "Served with melted cheddar dip",
+     "price": 6.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/3e852256-0ab7-4ab9-b86e-d01fff1a9e8f_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9006",
+     "name": "BBQ Wings",
+     "desc": "10 pieces served with ranch dip",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/d6db6a78-36bf-40cb-b32f-7a98759722e8_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "163106",
+     "name": "Buffalo Wings",
+     "desc": "10 pieces served with ranch dip",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/dfb29887-1078-426c-a39c-18ba3e375954_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "163107",
+     "name": "Honey Mustard Wings",
+     "desc": "10 pieces served with ranch dip",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/0c9d16db-162c-48a1-8dd0-3a95723fdaf2_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "loaded-fries",
+   "name": "Loaded Fries",
+   "items": [
+    {
+     "id": "150981",
+     "name": "Cheesy Fries",
+     "desc": "French fries topped with melted cheddar cheese",
+     "price": 5.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/9b770ea4-ab12-47d2-b0ad-8090856be861_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "150985",
+     "name": "Chicken BBQ Fries",
+     "desc": "Fried BBQ chicken, fries, melted cheese & honey mustard sauce",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/ccaa5409-451d-4099-a6cb-5f8e8dbf0b67_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151002",
+     "name": "Chicken Spicy Fries",
+     "desc": "Buffalo fried chicken ,fries, melted cheddar cheese & jalapeno",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/c592eed7-95a6-430b-b108-04e987faacbd_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "beef-burgers",
+   "name": "Beef Burgers",
+   "items": [
+    {
+     "id": "9022",
+     "name": "Lebanese Beef",
+     "desc": "Grilled beef patty, coleslaw, fries, ketchup & mayo.",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/e4907fa1-d146-463c-bd5a-70425dc93ff4_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9023",
+     "name": "CLASSIC CHEESE",
+     "desc": "Grilled beef patty, cheddar cheese, lettuce, tomato, pickles, onion & cocktail sauce.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/c82805b4-68a0-4dcc-8456-307e24b94718_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9016",
+     "name": "BBQ Bacon",
+     "desc": "Grilled beef patty, beef bacon, mayo, BBQ sauce, grilled onion, cheddar cheese & pickles.",
+     "price": 8.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/d1f5c037-31a2-41b6-992d-8d33aa578b85_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "56318",
+     "name": "Chili Con Carne 🌶️",
+     "desc": "Grilled beef patty, chili con carne sauce, cheddar cheese, jalapeno, lettuce & mayo.",
+     "price": 8.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/f7e6affe-576f-40e7-b690-b09142184934_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9026",
+     "name": "Atomic Mozzarella",
+     "desc": "Grilled beef patty, fried mozzarella patty, lettuce, tomato, pickles & cocktail sauce.",
+     "price": 9,
+     "img": "https://rest.thrubits.com/uploads/restorants/525a5939-08ed-4bfd-b922-2fb4ed2684e9_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9027",
+     "name": "Mushroom N' Swiss",
+     "desc": "Grilled beef patty, mushroom sauce, Swiss cheese, cocktail sauce & caramelized onion.",
+     "price": 9.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/05a05e50-0f3b-4f9c-9118-6c7a30bbdd77_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9025",
+     "name": "Big Boy",
+     "desc": "Double grilled beef patty , double cheddar cheese, lettuce, tomato, pickles & cocktail sauce.",
+     "price": 10,
+     "img": "https://rest.thrubits.com/uploads/restorants/0e34b2eb-93a6-47dc-9ece-713bd83537c2_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9018",
+     "name": "Beef Bonanza",
+     "desc": "Grilled beef patty, fried cheddar patty, beef bacon, grilled onion, pickles & special sauce.",
+     "price": 10,
+     "img": "https://rest.thrubits.com/uploads/restorants/0a1c8050-187d-4742-880d-058c93a197b0_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "chicken-burgers",
+   "name": "Chicken Burgers",
+   "items": [
+    {
+     "id": "194403",
+     "name": "Chicken Escalope Burger",
+     "desc": "Crispy breaded chicken breast topped with garlic sauce, coleslaw, crispy fries, and ketchup, served in a soft toasted bun.",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/fa95b58b-4d0e-4533-bd79-953aab4715b6_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151022",
+     "name": "Chicken Caeser",
+     "desc": "Grilled chicken breast, lettuce, Parmesan cheese & Caesar sauce.",
+     "price": 6,
+     "img": "https://rest.thrubits.com/uploads/restorants/17effe58-ad59-4a53-a9c8-6d68005604af_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151025",
+     "name": "Grilled Chicken",
+     "desc": "Grilled chicken breast, lettuce, tomato, pickles, garlic mayo & cocktail sauce.",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/73282edb-8613-4b67-a232-3c9503868245_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151040",
+     "name": "Chicken Cheese",
+     "desc": "Grilled chicken breast, melted cheddar, lettuce, tomato, pickles, onion & cocktail sauce.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/c4a23109-6ac1-48dc-9f10-12c9ce7389f5_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151041",
+     "name": "Mexican 🌶️",
+     "desc": "Grilled chicken breast, cheddar cheese, jalapeno, grilled onion, grilled pepper, lettuce, tomato & spicy sauce.",
+     "price": 7.25,
+     "img": "https://rest.thrubits.com/uploads/restorants/7c2e63f0-86e9-4f18-bfb1-5c9b8f3000e2_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151028",
+     "name": "Chicken Mozzarella",
+     "desc": "Grilled chicken breast, breaded mozzarella, lettuce, tomato, pickles, garlic mayo & cocktail sauce.",
+     "price": 8,
+     "img": "https://rest.thrubits.com/uploads/restorants/0c4912f5-d151-469b-9bb5-c3bebc2a2a1f_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151045",
+     "name": "Mushroom Melt",
+     "desc": "Grilled chicken breast, mushroom sauce, Swiss cheese, cocktail sauce & caramelized onion.",
+     "price": 8.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/c75484d9-f734-4d12-aebb-f417e00042fe_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151044",
+     "name": "MegaMunch",
+     "desc": "Double chicken breasts , double cheddar cheese, lettuce, tomato, pickles & cocktail sauce.",
+     "price": 10,
+     "img": "https://rest.thrubits.com/uploads/restorants/784e1375-df50-41a5-bf47-5fcf3cf4004e_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "sizzlin-zingers",
+   "name": "Sizzlin' Zingers",
+   "items": [
+    {
+     "id": "151046",
+     "name": "Fried Chicken (Zinger)",
+     "desc": "Fried breaded chicken breast, cheddar cheese, lettuce, pickles, garlic mayo & cocktail sauce.",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/4c22d3dc-91cc-4366-b115-aac60b29ba59_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151048",
+     "name": "GigaGrub",
+     "desc": "Fried breaded chicken breast, Swiss cheese, chip sticks & honey mustard sauce.",
+     "price": 7.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/dcb686d4-679b-4e99-85c3-999958389dc4_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151050",
+     "name": "Vast Vigor 🌶️",
+     "desc": "Fried breaded chicken breast coated in buffalo sauce, melted cheddar, chip sticks, jalapeno, ranch sauce & mayo.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/be0a0edf-8794-4213-bb5b-f901107b4939_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151051",
+     "name": "BunBuster",
+     "desc": "Fried breaded chicken breast coated in BBQ Sauce, melted cheddar, chip sticks & mayo.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/ba615b2e-6fed-4570-858d-db06eb0135d3_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151047",
+     "name": "Spicy Chicken",
+     "desc": "Fried breaded chicken breast, fried mozzarella patty, jalapeno, lettuce, cheddar cheese & Mexican sauce.",
+     "price": 8.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/5ca69e80-206e-4812-8965-1995123e8ae4_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "151049",
+     "name": "Cascade Crunch",
+     "desc": "Fried breaded chicken breast, fried cheddar patty, beef bacon, chip sticks, jalapeno, mayo & special sauce.",
+     "price": 10,
+     "img": "https://rest.thrubits.com/uploads/restorants/327bf128-0dfe-43f7-adb4-f78d42d871e7_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "sandwiches",
+   "name": "Sandwiches",
+   "items": [
+    {
+     "id": "9034",
+     "name": "Philly Steak",
+     "desc": "Grilled beef fillet, grilled pepper, grilled onion, mozzarella cheese, mayo & soy sauce.",
+     "price": 11,
+     "img": "https://rest.thrubits.com/uploads/restorants/65013842-76a1-49fd-a6cf-55c372f18fb3_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "194404",
+     "name": "Loaded Ciabatta",
+     "desc": "Tender grilled chicken strips with sautéed onions and green peppers, layered with marinara sauce, creamy mayo, and melted cheddar cheese, served in toasted ciabatta bread.",
+     "price": 8,
+     "img": "https://rest.thrubits.com/uploads/restorants/9acbbe5a-e686-4713-bb1d-8ee6ecc48bc4_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9035",
+     "name": "Chicken Sub",
+     "desc": "Grilled chicken breast, mozzarella cheese, pickles, corn, lettuce, soy sauce & garlic may.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/6a684f75-ddc6-4e33-b58f-42afc2dd9cf2_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9036",
+     "name": "Chicken Fajita",
+     "desc": "Grilled chicken breast, mozzarella cheese, green pepper, onion, corn, fajita sauce & avocado mayo.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/4cbde155-22c2-4951-9c92-73804c0b0357_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9039",
+     "name": "Crispy Sandwich",
+     "desc": "Crispy chicken strips, coleslaw, pickles, garlic mayo & honey mustard sauce.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/b1d33ea8-5416-45bb-9ace-2b391e8f719f_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9040",
+     "name": "Francisco",
+     "desc": "Baked chicken, mozzarella cheese, lettuce, corn, mayo & soya sauce.",
+     "price": 7,
+     "img": "https://rest.thrubits.com/uploads/restorants/a33a4f46-f3e6-49ef-9cec-fcb76161f2c7_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9041",
+     "name": "Boneless Wrap",
+     "desc": "Fried boneless BBQ chicken, mayo, cheddar cheese, jalapeno, lettuce, honey mustard & chip sticks.",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/91337de7-3572-434b-8d78-2d35aae3ccd7_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": true,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9038",
+     "name": "Fries Sandwich",
+     "desc": "Fries, ketchup, pickles, coleslaw & garlic mayo.",
+     "price": 3.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/ba7d5296-b403-4184-a65b-e762542175b8_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  },
+  {
+   "id": "protein-desserts",
+   "name": "Protein Desserts",
+   "items": [
+    {
+     "id": "194466",
+     "name": "Tira-Me-UP",
+     "desc": "Protein Tiramisu: Creamy tiramisu with coffee, cacao & vanilla. 20g Protein | 250 kcal",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/6b38e6eb-8482-4569-a9d2-cbb21ab8a4f6_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 20,
+     "kcal": 250
+    },
+    {
+     "id": "194467",
+     "name": "BROWNIE POINT",
+     "desc": "Vanilla Brownie Ice-Cream: Creamy vanilla ice-cream with brownie & a rich cacao finish. 19g Protein | 290 kcal",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/78f4f60a-e117-457e-ac45-be6b5396ec76_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 19,
+     "kcal": 290
+    },
+    {
+     "id": "194468",
+     "name": "MOUSSE GOT YOU",
+     "desc": "Rich Chocolate Mousse: Velvety chocolate mousse with dark chocolate, cacao & vanilla. 20g Protein | 320 kcal",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/e0b5408a-4866-41e4-be09-22f1069a4464_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 20,
+     "kcal": 320
+    },
+    {
+     "id": "194469",
+     "name": "CHEESE, PLEASE!",
+     "desc": "Strawberry Cheesecake: Creamy cheesecake on a cranberry biscuit base, finished with strawberry topping. 20g Protein | 360 kcal",
+     "price": 6.5,
+     "img": "https://rest.thrubits.com/uploads/restorants/7e325bfe-46b0-46d8-98eb-0e1f3aaaaf4f_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": 20,
+     "kcal": 360
+    }
+   ]
+  },
+  {
+   "id": "beverages",
+   "name": "Beverages",
+   "items": [
+    {
+     "id": "9046",
+     "name": "Small Water",
+     "desc": "",
+     "price": 0.5,
+     "img": "https://rest.thrubits.com/uploads/settings/41761b75-05c5-414f-b3b0-9a74ceccbf78_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9047",
+     "name": "Soft Drink",
+     "desc": "",
+     "price": 1.6,
+     "img": "https://rest.thrubits.com/uploads/settings/41761b75-05c5-414f-b3b0-9a74ceccbf78_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9049",
+     "name": "Ice Tea",
+     "desc": "",
+     "price": 1.7,
+     "img": "https://rest.thrubits.com/uploads/settings/41761b75-05c5-414f-b3b0-9a74ceccbf78_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    },
+    {
+     "id": "9050",
+     "name": "Laban",
+     "desc": "",
+     "price": 1.6,
+     "img": "https://rest.thrubits.com/uploads/settings/41761b75-05c5-414f-b3b0-9a74ceccbf78_large.jpg",
+     "extras": [],
+     "variants": [],
+     "spicy": false,
+     "protein": null,
+     "kcal": null
+    }
+   ]
+  }
+ ]
+}

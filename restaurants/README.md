@@ -6,6 +6,7 @@ Interactive restaurant websites. Each restaurant lives in its own folder and dep
 |---|---|---|
 | Blaze (Nashville hot chicken, Beirut) | `blaze/` | Redesign pitch demo |
 | Station / المحطة (Lebanese resto-café, 10 branches) | `station/` | Redesign pitch demo |
+| Food Bae (burgers, zingers, Fit Bae, Beirut) | `foodbae/` | Redesign pitch demo (draft) |
 
 ## Blaze
 
@@ -40,3 +41,17 @@ Plain HTML/CSS/JS, no build step. Train-station theme: a food train that pulls i
 - **WhatsApp numbers:** taken from each branch's ordering page (`wa` in `BRANCHES` in `station/app.js`). The Contact page lists different (landline) numbers, used for the Call button.
 - **Hadath's opening hours:** not in its menu data, so the site says "Call for opening hours".
 - **The about-section numbers** (20+ years, 10 branches, 85k orders) come from their current About page.
+
+## Food Bae
+
+Phone-first ordering (95% of their orders are on phones), styled like their Instagram posters, with a dating-app wink that matches their slogan "Too Good To Ghost".
+
+- **Menu:** `data/menu.json`, saved from their Restbits page. Refresh with `node tools/update-menu.js` (no browser needed). 74 dishes with photos; protein/calorie numbers are only shown where Food Bae lists them.
+- **Features:** swipe deck ("Can't decide? Swipe": right = match, left = ghost), poster-style deals carousel from their combos, Fit Bae mode (high-protein first), match-day banner (`data/promo.json`, `enabled: false` hides it), "Same as last time?" reorder, branch picker, delivery or pick-up, WhatsApp checkout ("Slide into our DMs"), English/Arabic interface.
+- **Dips and Extras** are separate items on their current menu; here they are offered as optional add-ons inside dishes (dips on savoury dishes, extras on burgers/zingers/sandwiches).
+
+### Things to confirm with Food Bae before going live
+- **WhatsApp per branch:** both branches use the WhatsApp number on their current ordering page (`BRANCHES` in `foodbae/app.js`).
+- **Opening hours:** their page data says 09:00–17:00 every day.
+- **Bir El Abed dine-in:** Instagram said it was temporarily closed, then reopening; check its current status.
+- **Add-ons on dishes:** confirm they are happy for dips/extras to be offered inside each dish.

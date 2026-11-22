@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Food Bae · Too Good To Ghost</title>
+  <meta name="description" content="Burgers, zingers, loaded fries, combos and high-protein Fit Bae plates. Order Food Bae on WhatsApp." />
+  <!-- Private pitch demo: keep it out of search engines -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#ef5323" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58 8 34A14 14 0 0 1 32 14a14 14 0 0 1 24 20Z' fill='%23ff9a1a'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia' font-style='italic' font-size='26' fill='%235b3a29'%3Ef%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===== Top bar ===== -->
+  <header class="topbar" id="topbar">
+    <a class="logo" href="#top" aria-label="Food Bae home">
+      <span class="logo-word">Food Bae</span>
+      <svg class="logo-heart" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 58 8 34A14 14 0 0 1 32 14a14 14 0 0 1 24 20Z"/><text x="33" y="43" text-anchor="middle">f</text></svg>
+    </a>
+    <div class="top-actions">
+      <button class="pill" id="branchChip" type="button" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span id="branchName" data-i18n="pickBranch">Pick branch</span>
+      </button>
+      <button class="pill round" id="langBtn" type="button" aria-label="العربية">ع</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===== Hero (poster) ===== -->
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <p class="status" id="status"><i></i><span></span></p>
+        <h1 class="hero-title">
+          <span class="l1" data-i18n="h1a">Too good</span>
+          <span class="l2" data-i18n="h1b">to ghost.</span>
+        </h1>
+        <p class="hero-sub" data-i18n="heroSub">Burgers, zingers, loaded fries and high-protein plates. Tap, match, and slide into our DMs.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-ink" id="swipeBtn" type="button"><span class="emoji" aria-hidden="true">💘</span> <span data-i18n="cantDecide">Can't decide? Swipe</span></button>
+          <a class="btn btn-ghost" href="#menu" data-i18n="seeMenu">Full menu</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <img src="img/hero-dish.webp" alt="" width="900" height="625" />
+        <span class="sticker s1" data-i18n="stickerA">Crush<br>worthy</span>
+        <span class="sticker s2">♥</span>
+      </div>
+      <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+    </section>
+
+    <!-- ===== Same as last time ===== -->
+    <section class="again" id="again" hidden>
+      <div class="again-card">
+        <div><b data-i18n="againTitle">Same as last time?</b><small id="againText"></small></div>
+        <button class="btn btn-ink sm" id="againBtn" type="button" data-i18n="againBtn">Reorder</button>
+        <button class="x-mini" id="againX" type="button" aria-label="Dismiss">×</button>
+      </div>
+    </section>
+
+    <!-- ===== Deals (poster carousel) ===== -->
+    <section class="deals" aria-labelledby="dealsTitle">
+      <div class="sec-head"><h2 id="dealsTitle" data-i18n="dealsTitle">Deals worth committing to</h2></div>
+      <div class="deal-track" id="deals"></div>
+    </section>
+
+    <!-- ===== Match-day banner (data/promo.json) ===== -->
+    <section class="matchday" id="matchday" hidden>
+      <button class="md-card" id="mdCard" type="button">
+        <span class="md-ball" aria-hidden="true">⚽</span>
+        <span class="md-copy"><small id="mdKicker"></small><b id="mdTitle"></b><span id="mdText"></span></span>
+        <span class="md-go" aria-hidden="true">→</span>
+      </button>
+    </section>
+
+    <!-- ===== Menu ===== -->
+    <section class="menu" id="menu">
+      <div class="menu-bar" id="menuBar">
+        <div class="cats" id="cats" role="tablist" aria-label="Menu sections"></div>
+        <div class="tools">
+          <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="search" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Search burgers, wings, protein…" /></label>
+          <button class="fit-toggle" id="fitBtn" type="button" aria-pressed="false"><span class="dot"></span><span data-i18n="fitMode">Fit Bae mode</span></button>
+        </div>
+        <p class="fit-note" id="fitNote" hidden data-i18n="fitNote">High-protein first. Numbers shown where Food Bae lists them.</p>
+      </div>
+      <div class="menu-body" id="menuBody"></div>
+      <p class="empty" id="empty" hidden data-i18n="noMatch">No match. Try “wings” or “protein”.</p>
+    </section>
+
+    <!-- ===== Find us ===== -->
+    <section class="find" id="find">
+      <div class="sec-head"><h2 data-i18n="findTitle">Where to find bae</h2></div>
+      <div class="branches" id="branches"></div>
+      <p class="hours" id="hours"></p>
+      <div class="socials">
+        <a href="https://www.instagram.com/foodbae.lb/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@foodbae.lb" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="foot-word">Food Bae<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 58 8 34A14 14 0 0 1 32 14a14 14 0 0 1 24 20Z"/></svg></div>
+    <p data-i18n="footLine">Too Good To Ghost · High protein since 2019</p>
+  </footer>
+
+  <!-- ===== Bottom cart bar ===== -->
+  <button class="cartbar" id="cartBar" type="button" hidden>
+    <span class="cb-count" id="cbCount">0</span>
+    <span class="cb-label" data-i18n="yourMatches">Your matches</span>
+    <span class="cb-total" id="cbTotal">$0</span>
+  </button>
+
+  <!-- ===== Swipe deck ===== -->
+  <dialog class="deck" id="deck" aria-label="Swipe dishes">
+    <div class="deck-inner">
+      <div class="deck-top">
+        <button class="x" data-close type="button" aria-label="Close">×</button>
+        <div class="deck-filters" id="deckFilters"></div>
+      </div>
+      <div class="deck-stack" id="deckStack"></div>
+      <div class="deck-actions">
+        <button class="da nope" id="nopeBtn" type="button" aria-label="Ghost it">👻</button>
+        <button class="da info" id="infoBtn" type="button" aria-label="Details">i</button>
+        <button class="da like" id="likeBtn" type="button" aria-label="Match">♥</button>
+      </div>
+      <p class="deck-hint" data-i18n="deckHint">Swipe right to match, left to ghost.</p>
+      <div class="match" id="match" hidden>
+        <div class="match-in">
+          <p class="match-title" data-i18n="itsAMatch">It's a match!</p>
+          <div class="match-pics"><span class="mp you" data-i18n="you">You</span><img id="matchImg" alt="" /></div>
+          <p class="match-name" id="matchName"></p>
+          <button class="btn btn-ink" id="keepSwiping" type="button" data-i18n="keepSwiping">Keep swiping</button>
+          <button class="btn btn-ghost light" id="goCart" type="button" data-i18n="seeMatches">See my matches</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===== Dish sheet ===== -->
+  <dialog class="sheet" id="dish" aria-labelledby="dishName">
+    <form method="dialog" class="sheet-in" id="dishForm">
+      <button class="x" type="button" data-close aria-label="Close">×</button>
+      <div class="sheet-img" id="dishImgWrap"><img id="dishImg" alt="" /></div>
+      <div class="sheet-body">
+        <div class="tags" id="dishTags"></div>
+        <h3 id="dishName"></h3>
+        <p class="sheet-desc" id="dishDesc"></p>
+        <div id="dishOpts"></div>
+        <label class="field"><span data-i18n="notes">Notes for the kitchen</span><textarea id="dishNotes" rows="2" maxlength="200" data-i18n-ph="notesPh" placeholder="No pickles, extra sauce…"></textarea></label>
+      </div>
+      <div class="sheet-foot">
+        <div class="stepper"><button type="button" id="qMinus" aria-label="Fewer">−</button><output id="qOut">1</output><button type="button" id="qPlus" aria-label="More">+</button></div>
+        <button type="submit" class="btn btn-ink grow" id="addBtn"><span data-i18n="addMatch">Add</span> · <span id="addTotal"></span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== Cart ===== -->
+  <dialog class="sheet tall" id="cart" aria-labelledby="cartTitle">
+    <div class="sheet-in">
+      <button class="x" type="button" data-close aria-label="Close">×</button>
+      <div class="cart-head"><h3 id="cartTitle" data-i18n="yourMatches">Your matches</h3><p id="cartSub"></p></div>
+      <div class="cart-lines" id="cartLines"></div>
+      <div class="cart-foot" id="cartFoot">
+        <div class="seg" role="radiogroup" aria-label="Order type">
+          <button type="button" class="on" data-mode="delivery" data-i18n="delivery">Delivery</button>
+          <button type="button" data-mode="pickup" data-i18n="pickup">Pick up</button>
+        </div>
+        <div class="branch-pick" id="branchPick"></div>
+        <label class="field"><span data-i18n="name">Your name</span><input id="cName" autocomplete="name" /></label>
+        <label class="field" id="addrField"><span data-i18n="address">Address</span><input id="cAddr" autocomplete="street-address" data-i18n-ph="addressPh" placeholder="Area, street, building, floor" /></label>
+        <p class="total"><span data-i18n="total">Total</span><strong id="cartTotal">$0</strong></p>
+        <button class="btn btn-wa" id="sendBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/></svg>
+          <span data-i18n="slide">Slide into our DMs</span>
+        </button>
+        <p class="fine" data-i18n="fine">Opens WhatsApp with your order ready to send.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===== Branch picker ===== -->
+  <dialog class="sheet small" id="branchSheet" aria-labelledby="branchTitle">
+    <div class="sheet-in pad">
+      <button class="x" type="button" data-close aria-label="Close">×</button>
+      <h3 id="branchTitle" data-i18n="whichBranch">Which Food Bae?</h3>
+      <div class="branch-list" id="branchList"></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
