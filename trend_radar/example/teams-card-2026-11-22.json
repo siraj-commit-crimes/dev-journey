@@ -1,0 +1,99 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.4",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "CARMA Trend Radar · 2026-11-22",
+            "weight": "Bolder",
+            "size": "Large"
+          },
+          {
+            "type": "TextBlock",
+            "isSubtle": true,
+            "wrap": true,
+            "text": "2 topics worth a look · 83 checked · 5 skipped for safety"
+          },
+          {
+            "type": "TextBlock",
+            "text": "1. Grand Theft Auto VI · 7.5/10",
+            "weight": "Bolder",
+            "wrap": true,
+            "spacing": "Large",
+            "separator": true
+          },
+          {
+            "type": "TextBlock",
+            "text": "GTA VI's coverage volume and share of voice compared with other major launches show how much earned media anticipation can generate with very little official messaging.",
+            "wrap": true
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Format",
+                "value": "single image + stat"
+              },
+              {
+                "title": "Post within",
+                "value": "3 days"
+              },
+              {
+                "title": "Ask analysts",
+                "value": "Global English and Arabic online news plus X, Reddit and YouTube mentions, last 7 days and pre-launch 30 days. Pull mention volume, sentiment, share of voice vs. other top 2026 tech/entertainment launches, top narratives (price, delays, reviews, sales), and the share of coverage driven by official Rockstar/Take-Two statements vs. fans and leaks."
+              }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "[X] news articles mentioned Grand Theft Auto VI in the past week, [Y] times more than [comparison launch]. Few launches show the pull of anticipation like this one. For communicators, earned buzz built over years can outweigh any campaign budget. What could your brand do to make people wait for its next announcement?",
+            "wrap": true,
+            "isSubtle": true
+          },
+          {
+            "type": "TextBlock",
+            "text": "2. توطين المهن المالية · 7.0/10",
+            "weight": "Bolder",
+            "wrap": true,
+            "spacing": "Large",
+            "separator": true
+          },
+          {
+            "type": "TextBlock",
+            "text": "Coverage shows how the media is framing the 50% localisation of 17 financial professions, and why employers need a talent story rather than just a compliance notice.",
+            "wrap": true
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              {
+                "title": "Format",
+                "value": "single image + stat"
+              },
+              {
+                "title": "Post within",
+                "value": "3 days"
+              },
+              {
+                "title": "Ask analysts",
+                "value": "Arabic and English online news, print and X/LinkedIn posts in KSA and the wider GCC, last 72 hours. Pull article volume, sentiment split, top 3 narratives (e.g. jobs for nationals, cost to employers, skills gap), share of voice of HRSD vs. private-sector companies, and the most-quoted organisations."
+              }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "[X] articles in 72 hours covered Saudi Arabia's move to localise 17 financial professions at 50% from May 2027, with [Y]% framing it around [top narrative]. For communicators at Gulf employers, this is a talent story, not just a compliance update. How is your organisation explaining localisation to staff and stakeholders?",
+            "wrap": true,
+            "isSubtle": true
+          }
+        ]
+      }
+    }
+  ]
+}
