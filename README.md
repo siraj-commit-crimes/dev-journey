@@ -14,6 +14,8 @@ Starting my development career — learning with Najdi.
 - [x] [Excel QC](excel_qc/) — upload a social media monitoring sheet and Claude checks
   gender, sentiment toward the client and competitors (emojis and sarcasm included),
   and unifies topics
+- [x] [Trend Radar](trend_radar/) — a morning brief of trending topics CARMA could post
+  about, with an analyst request and draft captions in English and Arabic (prototype)
 
 ## Notes
 

@@ -1,1 +1,4 @@
 .venv/
+trend_radar/output/
+__pycache__/
+.pytest_cache/
