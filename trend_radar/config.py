@@ -75,9 +75,18 @@ NEVER_TOUCH = [
     "prophet", "quran", "church", "mosque", "religion", "religious",
     # leaders and royal families
     "king", "crown prince", "emir", "sheikh", "royal", "president", "prime minister",
-    # war and sensitive politics
-    "war", "missile", "gaza", "israel", "iran", "military", "election", "protest",
+    # sensitive politics
+    "election", "protest",
 ]
+
+# War and conflict topics are allowed, but only with an extra sign-off on top of the
+# usual approval (CARMA's US-Iran media work is a good example). The brief marks them.
+# Tragedy words above still block a topic, even when it is about a war.
+NEEDS_SIGN_OFF = [
+    "war", "conflict", "ceasefire", "missile", "military", "sanctions",
+    "iran", "israel", "gaza",
+]
+SIGN_OFF_BY = "Paul"
 
 # Everyday searches with no comms angle (scores, weather, TV times). Skipped before
 # scoring to save time and API cost. Matched anywhere in the title, case-insensitive.

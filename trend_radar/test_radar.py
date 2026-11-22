@@ -127,6 +127,30 @@ def test_finish_ranks_and_removes_unsafe_judgements():
     assert result[0]["hashtags"] == ["#CARMA", "#PR"]
 
 
+def test_war_topics_are_kept_but_flagged_for_extra_sign_off():
+    item = trend("Iran war coverage", ["How media framed the US-Iran conflict"])
+    assert scoring.never_touch_hit(item) is None
+    result = scoring.finish([item], [judgement(item, safety="caution", safety_reason="war")])
+    assert len(result) == 1
+    assert result[0]["sign_off"] is True
+    assert "Paul" in result[0]["sign_off_reason"]
+    # the extra sign-off is the safeguard, so no score penalty
+    assert result[0]["score"] == round(0.35 * 8 + 0.40 * 8 + 0.25 * 5, 1)
+    meta = {"date": "2026-11-22", "scorer": "rules", "candidates": 1, "blocked": 0, "problems": []}
+    assert "Extra sign-off needed" in report.to_html(result, meta)
+    assert "Extra sign-off needed" in report.to_markdown(result, meta)
+
+
+def test_war_topic_with_casualties_is_still_blocked():
+    item = trend("Missile attack", ["Dozens killed"])
+    assert scoring.never_touch_hit(item) in ("attack", "killed")
+
+
+def test_claude_never_on_a_war_topic_is_respected():
+    item = trend("Gaza ceasefire talks")
+    assert scoring.finish([item], [judgement(item, safety="never")]) == []
+
+
 def test_finish_blocks_never_touch_even_if_claude_keeps_it():
     item = trend("Brand ad", ["Royal family attends launch"])
     assert scoring.finish([item], [judgement(item)]) == []

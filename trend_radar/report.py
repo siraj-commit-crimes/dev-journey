@@ -52,6 +52,8 @@ def to_markdown(items, meta):
             f"**Hashtags:** {' '.join(item['hashtags'])}",
             "",
         ]
+        if item.get("sign_off"):
+            lines += [f"> Extra sign-off needed: {item['sign_off_reason']}", ""]
         if item.get("safety") == "caution":
             lines += [f"> Caution: {item['safety_reason']}", ""]
     if meta.get("problems"):
@@ -75,6 +77,8 @@ def to_html(items, meta):
             f'<p class="caution">Caution: {e(item["safety_reason"])}</p>'
             if item.get("safety") == "caution" else ""
         )
+        if item.get("sign_off"):
+            caution = f'<p class="signoff"><b>Extra sign-off needed.</b> {e(item["sign_off_reason"])}</p>' + caution
         tags = " ".join(f"<span>{e(h)}</span>" for h in item["hashtags"])
         cards.append(f"""
   <article>
@@ -133,7 +137,8 @@ def to_html(items, meta):
   .captions h3 {{ margin:0 0 4px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--orange); }}
   .captions p {{ margin:0; }}
   .tags span {{ color:var(--orange); margin-right:8px; font-size:13px; }}
-  .caution {{ color:#b45309; }} .links a {{ color:var(--orange); font-size:13px; }}
+  .caution {{ color:#b45309; }}
+  .signoff {{ border:1px solid #b45309; color:#b45309; border-radius:8px; padding:8px 12px; }} .links a {{ color:var(--orange); font-size:13px; }}
   .problems, footer {{ color:var(--grey); font-size:13px; }}
   @media (max-width:640px) {{ .captions {{ grid-template-columns:1fr; }} }}
 </style></head>
@@ -166,6 +171,8 @@ def to_teams_card(items, meta, link=""):
                 {"title": "Post within", "value": _hours(item)},
                 {"title": "Ask analysts", "value": item["data_request"]},
             ]},
+            *([{"type": "TextBlock", "text": f"Extra sign-off needed: {item['sign_off_reason']}",
+                "wrap": True, "color": "Warning"}] if item.get("sign_off") else []),
             {"type": "TextBlock", "text": item["caption_en"], "wrap": True, "isSubtle": True},
         ]
     card = {

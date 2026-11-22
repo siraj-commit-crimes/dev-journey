@@ -14,8 +14,9 @@ See [`example/`](example/) for a real brief made from topics trending on 22 Nov 
    - Wikipedia's most viewed pages yesterday (English and Arabic)
    - GDELT news searches for CARMA themes (reputation, AI, Gulf business, events)
 2. **Filter.** Drops everyday searches (scores, weather) and anything on the
-   never-touch list (tragedy, religion, royal families, war, elections). This
-   check runs in code, before and after Claude.
+   never-touch list (tragedy, religion, royal families, elections). This
+   check runs in code, before and after Claude. War and conflict topics stay in,
+   but the brief marks them as needing an extra sign-off from Paul.
 3. **Score.** Claude rates each topic on relevance, data angle (can CARMA add its own
    numbers within 24 hours?) and safety, then writes the angle, the analyst request and
    the captions. Score = 35% relevance + 40% data angle + 25% speed.

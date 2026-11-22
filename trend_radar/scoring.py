@@ -33,9 +33,12 @@ Score each topic:
 - relevance 0-10: how much comms leaders in the Gulf and Europe care.
 - data_angle 0-10: how easily CARMA could add its own numbers within 24 hours \
 (coverage volume, sentiment, share of voice, top narratives, brand visibility).
-- safety: "never" for tragedy, violence, war, religion, royal families or heads of \
-state, elections and sensitive regional politics; "caution" for anything that could \
-read as mocking a company in trouble or that needs legal care; otherwise "ok".
+- safety: "never" for tragedy, casualties, violence, religion, royal families or heads \
+of state, elections and protests; "caution" for anything that could read as mocking a \
+company in trouble or that needs legal care; otherwise "ok". War and conflict topics \
+are allowed when the angle is how the media covers them (CARMA's US-Iran media \
+analysis won awards): rate them "caution" and keep the angle strictly on coverage, \
+never on the fighting or its victims. They get an extra sign-off before posting.
 
 Then write, for topics worth posting:
 - why_it_matters: one sentence for the marketing manager.
@@ -111,6 +114,12 @@ def is_low_value(trend):
     return any(pattern in title for pattern in config.LOW_VALUE)
 
 
+def sign_off_hit(trend):
+    """The first war or conflict word found in the trend, or None."""
+    text = trend_text(trend)
+    return next((word for word in config.NEEDS_SIGN_OFF if _contains(text, word)), None)
+
+
 def match_themes(trend):
     """Themes whose keywords appear in the trend, most hits first.
 
@@ -165,6 +174,16 @@ def finish(trends, judgements):
         item["relevance"] = max(0, min(10, int(item["relevance"])))
         item["data_angle"] = max(0, min(10, int(item["data_angle"])))
         item["hashtags"] = [h if h.startswith("#") else f"#{h}" for h in item["hashtags"]][:5]
+        word = sign_off_hit(trend)
+        item["sign_off"] = bool(word)
+        if word:
+            # Allowed, but flagged: the extra sign-off is the safeguard, not a lower score.
+            item["sign_off_reason"] = (
+                f'War or conflict topic ("{word}"): needs an extra sign-off from '
+                f"{config.SIGN_OFF_BY} on top of the usual approval. Keep the angle on the coverage."
+            )
+            if item["safety"] == "caution":
+                item["safety"] = "ok"
         item["score"] = final_score(item)
         results.append(item)
     return sorted(results, key=lambda r: r["score"], reverse=True)
