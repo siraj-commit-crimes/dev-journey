@@ -498,3 +498,11 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
 .row-price { font-size: 1.5rem; }
 .row.out .row-img img { transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { .row-img { transform: none !important; } }
+
+/* Arabic interface + English menu text: let each piece of dish text keep its own direction,
+   and keep prices left-to-right ("+$1", not "$1+"). */
+.row-body h4, .row-body p, #dishName, .sheet-desc, .dcard .info h3, .dcard .info p, .opt span, .pair b, .cl h4, .cl p, .match-name, #againText, .deal h3, .md-copy b { unicode-bidi: plaintext; }
+.row-price, .opt em, .pair i, .dprice, .deal .price, #addTotal, .total strong, .cb-total, .cl .r b, .tag.macro, .tag.fit { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .row-body h4, [dir="rtl"] .row-body p { text-align: start; }
+.deal h3 em { unicode-bidi: plaintext; }
+[dir="rtl"] .deal h3, [dir="rtl"] .deal h3 em { text-align: right; }
