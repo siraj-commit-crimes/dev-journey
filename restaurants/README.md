@@ -16,6 +16,12 @@ Publish or update a site with one command (needs a Cloudflare API token, "Edit C
 ./restaurants/deploy/deploy.sh blaze      # or station / foodbae
 ```
 
+For a **pitch link**, add `--demo`: the link asks for a password, stops working after 7 days, shows a "Demo by Siraj · not for public use" strip, turns ordering/WhatsApp/call buttons into a demo notice, and ships scrambled (minified) code. The password is printed once at the end. Options: `DEMO_DAYS=14`, `DEMO_PASSWORD=...`, `DEMO_NAME=...`.
+
+```
+./restaurants/deploy/deploy.sh foodbae --demo
+```
+
 `deploy/build-worker.js` packs a site's files into a single Cloudflare Worker (no build step), keeps the
 noindex header, and for Blaze adds the `/api/menu` live-menu proxy. All demos are hidden from search engines.
 
