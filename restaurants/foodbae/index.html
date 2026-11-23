@@ -9,6 +9,11 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#ef5323" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58 8 34A14 14 0 0 1 32 14a14 14 0 0 1 24 20Z' fill='%23ff9a1a'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia' font-style='italic' font-size='26' fill='%235b3a29'%3Ef%3C/text%3E%3C/svg%3E" />
+  <!-- Add to home screen -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="img/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Food Bae" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Caveat:wght@700&display=swap" rel="stylesheet" />
@@ -40,16 +45,16 @@
           <span class="l2" data-i18n="h1b">to ghost.</span>
         </h1>
         <p class="hero-sub" data-i18n="heroSub">Burgers, zingers, loaded fries and high-protein plates. Tap, match, and slide into our DMs.</p>
-        <div class="hero-ctas">
-          <button class="btn btn-ink" id="swipeBtn" type="button"><span class="emoji" aria-hidden="true">💘</span> <span data-i18n="cantDecide">Can't decide? Swipe</span></button>
-          <a class="btn btn-ghost" href="#menu" data-i18n="seeMenu">Full menu</a>
-        </div>
       </div>
       <div class="hero-art" aria-hidden="true">
-        <img src="img/hero-dish.webp" alt="" width="900" height="625" />
+        <picture><source media="(max-width: 759px)" srcset="img/hero-burger.webp" /><img src="img/hero-dish.webp" alt="" width="900" height="625" /></picture>
         <span class="sticker s1" data-i18n="stickerA">Crush<br>worthy</span>
         <span class="sticker s2">♥</span>
       </div>
+      <div class="hero-ctas">
+        <button class="btn btn-ink" id="swipeBtn" type="button"><span class="emoji" aria-hidden="true">💘</span> <span data-i18n="cantDecide">Can't decide? Swipe</span></button>
+        <a class="btn btn-ghost" href="#menu" data-i18n="seeMenu">Full menu</a>
+        </div>
       <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
     </section>
 
@@ -166,20 +171,26 @@
       <button class="x" type="button" data-close aria-label="Close">×</button>
       <div class="cart-head"><h3 id="cartTitle" data-i18n="yourMatches">Your matches</h3><p id="cartSub"></p></div>
       <div class="cart-lines" id="cartLines"></div>
+      <div class="pairs" id="pairs" hidden>
+        <p class="pairs-title" data-i18n="pairsTitle">Complete the date</p>
+        <div class="pairs-row" id="pairsRow"></div>
+      </div>
       <div class="cart-foot" id="cartFoot">
+        <p class="step"><b>1</b><span data-i18n="stepHow">How do you want it?</span></p>
         <div class="seg" role="radiogroup" aria-label="Order type">
           <button type="button" class="on" data-mode="delivery" data-i18n="delivery">Delivery</button>
           <button type="button" data-mode="pickup" data-i18n="pickup">Pick up</button>
         </div>
+        <p class="step"><b>2</b><span data-i18n="stepFrom">From which Food Bae?</span></p>
         <div class="branch-pick" id="branchPick"></div>
+        <p class="step"><b>3</b><span data-i18n="stepWho">Your details</span></p>
         <label class="field"><span data-i18n="name">Your name</span><input id="cName" autocomplete="name" /></label>
         <label class="field" id="addrField"><span data-i18n="address">Address</span><input id="cAddr" autocomplete="street-address" data-i18n-ph="addressPh" placeholder="Area, street, building, floor" /></label>
         <p class="total"><span data-i18n="total">Total</span><strong id="cartTotal">$0</strong></p>
         <button class="btn btn-wa" id="sendBtn" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.6L3 21Z"/></svg>
-          <span data-i18n="slide">Slide into our DMs</span>
+          <span><span data-i18n="sendWa">Send order on WhatsApp</span><small data-i18n="slide">Slide into our DMs</small></span>
         </button>
-        <p class="fine" data-i18n="fine">Opens WhatsApp with your order ready to send.</p>
       </div>
     </div>
   </dialog>

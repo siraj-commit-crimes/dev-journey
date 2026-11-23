@@ -1,5 +1,5 @@
 {
-  "_help": "Match-day banner. Set enabled to false to hide it. 'dish' is a dish id from menu.json (tapping the banner opens it). Text is shown as written; ar_* is the Arabic version.",
+  "_help": "Match-day banner. Set enabled to false to hide it. 'dish' is a dish id from menu.json (tapping the banner opens it). Text is shown as written; ar_* is the Arabic version. soldOut: dish ids that are sold out today (shown as 'Ghosted us today' with an alternative).",
   "enabled": true,
   "kicker": "Match day",
   "kicker_ar": "يوم الماتش",
@@ -7,5 +7,6 @@
   "title_ar": "في ماتش؟ Bae 4 Two هو الحل.",
   "text": "2 burgers, wings, mozzarella sticks, fries and 3 dips. Built for sharing (or not).",
   "text_ar": "٢ برغر، وينغز، أصابع موزاريلا، بطاطا و٣ صوصات. للمشاركة (أو لا).",
-  "dish": "14377"
+  "dish": "14377",
+  "soldOut": []
 }

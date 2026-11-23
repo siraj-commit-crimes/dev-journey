@@ -31,7 +31,7 @@
       deckDone: "You've seen everyone.", deckDoneSub: "Bae is waiting in your matches.", restart: "Swipe again", pickFirst: "Pick a branch first 📍", needAddress: "Add your address for delivery",
       call: "Call", whatsapp: "WhatsApp", hours: (o, c) => `Open every day ${o}–${c}`, protein: (g) => `${g}g protein`, kcal: (k) => `${k} kcal`, spicy: "Spicy", fitTag: "Fit Bae",
       wa: { hi: "Hi Food Bae! New order:", type: "Order type", del: "Delivery", pick: "Pick up", branch: "Branch", total: "Total", name: "Name", addr: "Address", note: "Note", adds: "Add-ons" },
-      reorderToast: "Your usual is back in your matches", lastOrder: (s) => s,
+      reorderToast: "Your usual is back in your matches", pairsTitle: "Complete the date", stepHow: "How do you want it?", stepFrom: "From which Food Bae?", stepWho: "Your details", sendWa: "Send order on WhatsApp", ghostedToday: "Ghosted us today 👻", tryInstead: (n) => `Try ${n} instead`, matchDay: "Match day", lastOrder: (s) => s,
       ticker: ["Too good to ghost", "High protein since 2019", "Bae 4 Two", "Crunch Bae", "Wings feast", "Swipe right on dinner"],
     },
     ar: {
@@ -48,7 +48,7 @@
       deckDone: "شفت الكل.", deckDoneSub: "الـ Bae ناطرك بالماتشات.", restart: "اسحب من جديد", pickFirst: "اختار الفرع أولاً 📍", needAddress: "زيد عنوانك للتوصيل",
       call: "اتصل", whatsapp: "واتساب", hours: (o, c) => `مفتوح كل يوم ${o}–${c}`, protein: (g) => `${g}غ بروتين`, kcal: (k) => `${k} سعرة`, spicy: "حار", fitTag: "Fit Bae",
       wa: { hi: "مرحبا Food Bae! طلب جديد:", type: "نوع الطلب", del: "توصيل", pick: "استلام", branch: "الفرع", total: "المجموع", name: "الاسم", addr: "العنوان", note: "ملاحظة", adds: "إضافات" },
-      reorderToast: "طلبك المعتاد رجع عالماتشات", lastOrder: (s) => s,
+      reorderToast: "طلبك المعتاد رجع عالماتشات", pairsTitle: "كمّل الموعد", stepHow: "كيف بدك ياه؟", stepFrom: "من أي فرع؟", stepWho: "معلوماتك", sendWa: "ابعت الطلب عالواتساب", ghostedToday: "عملنا ghost اليوم 👻", tryInstead: (n) => `جرّب ${n} بدالو`, matchDay: "يوم الماتش", lastOrder: (s) => s,
       ticker: ["Too good to ghost", "بروتين عالي من ٢٠١٩", "Bae 4 Two", "Crunch Bae", "Wings feast", "اسحب يمين عالعشا"],
     },
   };
@@ -113,8 +113,10 @@
   async function boot() {
     const [menu, promo] = await Promise.all([fetch("data/menu.json").then((r) => r.json()), fetch("data/promo.json").then((r) => r.json()).catch(() => null)]);
     S.menu = menu; S.promo = promo;
-    menu.categories.forEach((c) => c.items.forEach((i) => S.items.set(i.id, { ...i, cat: c.name })));
-    S.cart = S.cart.filter((l) => S.items.has(l.id));
+    const out = new Set(((promo && promo.soldOut) || []).map(String));
+    menu.categories.forEach((c) => c.items.forEach((i) => S.items.set(i.id, { ...i, cat: c.name, out: out.has(String(i.id)) })));
+    S.cart = S.cart.filter((l) => S.items.has(l.id) && !S.items.get(l.id).out);
+    if (!S.branch && S.last && S.last.branch) S.branch = S.last.branch; // remember the branch from last time
     applyLang();
     setInterval(renderStatus, 60000);
   }
@@ -156,8 +158,15 @@
   // ---------- Deals ----------
   function renderDeals() {
     const cat = S.menu.categories.find((c) => /combo/i.test(c.name));
-    const items = cat ? cat.items : [];
-    $("#deals").innerHTML = items.map((i) => {
+    const items = cat ? cat.items.map((i) => S.items.get(i.id)).filter((i) => !i.out) : [];
+    const p = S.promo, md = p && p.enabled && S.items.get(String(p.dish));
+    const ar = S.lang === "ar";
+    const mdCard = md ? `<button type="button" class="deal md" data-open="${esc(md.id)}">
+        <span class="md-k">⚽ ${esc((ar && p.kicker_ar) || p.kicker || t("matchDay"))}</span>
+        <h3>${esc((ar && p.title_ar) || p.title)}</h3>
+        <img src="${esc(md.img)}" alt="" loading="lazy" />
+        <span class="price">${money(md.price)}</span></button>` : "";
+    $("#deals").innerHTML = mdCard + items.map((i) => {
       const words = tidy(i.name).split(" ");
       const last = words.length > 1 ? words.pop() : "";
       return `<button type="button" class="deal" data-open="${esc(i.id)}">
@@ -171,8 +180,8 @@
 
   // ---------- Match-day banner ----------
   function renderPromo() {
+    $("#matchday").hidden = true; return; // match day now lives in the deals row
     const p = S.promo, on = p && p.enabled && S.items.has(String(p.dish));
-    $("#matchday").hidden = !on;
     if (!on) return;
     const ar = S.lang === "ar";
     $("#mdKicker").textContent = (ar && p.kicker_ar) || p.kicker;
@@ -196,6 +205,13 @@
   const countIn = (id) => S.cart.filter((l) => l.id === id).reduce((s, l) => s + l.qty, 0);
   function rowHtml(i, k) {
     const n = countIn(i.id);
+    if (i.out) {
+      const alt = [...S.items.values()].find((x) => x.cat === i.cat && !x.out && x.id !== i.id);
+      return `<article class="row out">
+      <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
+      <div class="row-body"><span class="ghost-tag">${esc(t("ghostedToday"))}</span><h4>${esc(tidy(i.name))}</h4>
+        ${alt ? `<button type="button" class="try" data-open="${esc(alt.id)}">${esc(t("tryInstead", tidy(alt.name)))} →</button>` : ""}</div></article>`;
+    }
     return `<article class="row pop-in ${n ? "in-cart" : ""}" data-open="${esc(i.id)}" tabindex="0" style="animation-delay:${Math.min(k, 8) * 30}ms">
       <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
       <div class="row-body">
@@ -265,7 +281,7 @@
   }
   let cur = null, qty = 1;
   function openDish(id) {
-    const i = S.items.get(id); if (!i) return;
+    const i = S.items.get(id); if (!i || i.out) return;
     cur = i; qty = 1;
     $("#dishImg").src = i.img;
     $("#dishName").textContent = tidy(i.name);
@@ -284,7 +300,7 @@
   $("#qMinus").addEventListener("click", () => { qty = Math.max(1, qty - 1); updDish(); });
   $("#qPlus").addEventListener("click", () => { qty = Math.min(30, qty + 1); updDish(); });
   $("#dishForm").addEventListener("submit", (e) => { e.preventDefault(); addToCart(cur.id, qty, picked(), $("#dishNotes").value.trim(), $("#addBtn")); closeDlg($("#dish")); });
-  function quickAdd(id, btn) { addToCart(id, 1, [], "", btn); }
+  function quickAdd(id, btn) { if (!S.items.get(id)?.out) addToCart(id, 1, [], "", btn); }
 
   // ---------- Cart ----------
   function addToCart(id, n, opts, note, fromEl) {
@@ -315,11 +331,30 @@
         <div class="r"><b>${money(lineUnit(l) * l.qty)}</b><div class="mini"><button type="button" data-d="-1" aria-label="−">−</button><span>${l.qty}</span><button type="button" data-d="1" aria-label="+">+</button></div></div></div>`; }).join("")
       : `<div class="cart-empty"><b>💔</b>${esc(t("emptyCart"))}</div>`;
     $("#cartFoot").hidden = !S.cart.length;
+    renderPairs();
     $("#cartTotal").textContent = money(cartTotal());
     $$(".seg button").forEach((b) => b.classList.toggle("on", b.dataset.mode === S.mode));
     $("#addrField").hidden = S.mode !== "delivery";
     $("#branchPick").innerHTML = BRANCHES.map((b) => `<button type="button" data-br="${b.id}" class="${S.branch === b.id ? "on" : ""}">${esc(brName(b))}</button>`).join("");
   }
+  // "Complete the date": suggest a side, a drink and a dip the order doesn't have yet.
+  function renderPairs() {
+    const inCart = S.cart.map((l) => S.items.get(l.id));
+    const has = (re) => inCart.some((i) => re.test(i.cat + " " + i.name));
+    const mains = has(/burger|zinger|sandwich|platter|fit|loaded/i) && !has(/combo/i);
+    const pick = (re) => [...S.items.values()].filter((i) => !i.out && re.test(i.cat + " " + i.name) && !S.cart.some((l) => l.id === i.id));
+    const sug = [];
+    if (S.cart.length && (mains || has(/combo/i))) {
+      if (!has(/fries|wedges|side|starter/i) && !has(/combo/i)) sug.push(pick(/^(starters|.*sides).*(french fries|wedges)/i)[0] || pick(/french fries/i)[0]);
+      if (!has(/beverage|drink|ice tea|laban|water/i)) sug.push(pick(/soft drink/i)[0]);
+      if (!has(/dessert/i)) sug.push(pick(/brownie point/i)[0] || pick(/dessert/i)[0]);
+    }
+    const list = sug.filter(Boolean).slice(0, 3);
+    $("#pairs").hidden = !list.length;
+    $("#pairsRow").innerHTML = list.map((i) => `<button type="button" class="pair" data-pair="${esc(i.id)}"><img src="${esc(i.img)}" alt="" /><span><b>${esc(tidy(i.name))}</b><i>+${money(i.price)}</i></span></button>`).join("");
+  }
+  $("#pairsRow").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) addToCart(b.dataset.pair, 1, [], "", b); });
+
   $("#cartLines").addEventListener("click", (e) => {
     const b = e.target.closest("[data-d]"); if (!b) return;
     const row = b.closest(".cl"), l = S.cart.find((x) => x.key === row.dataset.key); if (!l) return;
@@ -376,7 +411,7 @@
   }
   function buildDeck() {
     const f = DECK_FILTERS.find(([k]) => k === deckF)[1];
-    const pool = [...S.items.values()].filter((i) => i.price > 1 && f(i));
+    const pool = [...S.items.values()].filter((i) => i.price > 1 && !i.out && f(i));
     // shuffle, but combos and fan favourites early
     deck = pool.map((i) => [Math.random() - (/combo/i.test(i.cat) ? 0.4 : 0), i]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
     deckIdx = 0;
@@ -470,6 +505,7 @@
     $("#menuBar").classList.toggle("stuck", $("#menuBar").getBoundingClientRect().top <= 72);
   }), { passive: true });
 
+  if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   const cust = load("fb.customer", {});
   $("#cName").value = cust.name || ""; $("#cAddr").value = cust.addr || "";
   boot().catch((e) => { console.error(e); $("#menuBody").innerHTML = '<p class="empty">Menu failed to load. Please refresh.</p>'; });

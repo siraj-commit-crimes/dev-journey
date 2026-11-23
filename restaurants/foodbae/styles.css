@@ -375,3 +375,83 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
 #sendBtn { position: sticky; bottom: calc(10px + var(--safe-b)); z-index: 2; }
 .toast { top: auto; bottom: calc(86px + var(--safe-b)); transform: translate(-50%, 20px); }
 .toast.show { transform: translate(-50%, 0); }
+
+/* =====================================================================
+   Simpler & faster on phones: compact hero, one compact deals row
+   (match day folded in), numbered checkout, extras that appear only when useful.
+   ===================================================================== */
+@media (max-width: 759px) {
+  .hero { display: grid; grid-template-columns: 1fr 42%; grid-template-areas: "copy art" "ctas ctas" "tick tick"; align-items: end; padding-top: 64px; }
+  .hero-copy { grid-area: copy; padding: 8px 0 0 16px; }
+  [dir="rtl"] .hero-copy { padding: 8px 16px 0 0; }
+  .hero-title { font-size: clamp(2.6rem, 13.5vw, 3.6rem); margin: 8px 0 4px; }
+  [dir="rtl"] .hero-title { font-size: clamp(2.2rem, 10.5vw, 3rem); }
+  .hero-sub { font-size: 0.9rem; line-height: 1.35; }
+  .hero-art { grid-area: art; margin: 0 -14px 0 -6px; align-self: center; }
+  [dir="rtl"] .hero-art { margin: 0 -6px 0 -14px; }
+  .hero-art img { width: 150%; max-width: none; margin-inline-start: -18%; }
+  .sticker.s1 { width: 64px; height: 64px; font-size: 1.05rem; top: -8%; inset-inline-end: 8%; }
+  .sticker.s2 { display: none; }
+  .hero-ctas { grid-area: ctas; margin: 12px 16px 0; }
+  .hero-ctas .btn { min-height: 48px; font-size: 0.95rem; }
+  .ticker { grid-area: tick; margin-top: 14px; padding: 8px 0 14px; }
+  .ticker-track { font-size: 1.05rem; }
+  .status { font-size: 0.74rem; padding: 5px 10px; }
+
+  .deals { padding: 14px 0 0; }
+  .deals .sec-head { margin-bottom: 8px; }
+  .deals .sec-head h2 { font-size: 1.4rem; }
+  .deal-track { padding: 2px 14px 12px; gap: 10px; }
+  .deal { width: 210px; aspect-ratio: auto; height: 150px; padding: 12px; border-radius: 18px; box-shadow: 0 4px 0 var(--brown); }
+  .deal h3 { font-size: 1.45rem; max-width: 62%; }
+  .deal h3 em { font-size: 1.15rem; }
+  .deal img { inset-inline: auto; inset-inline-end: -22px; bottom: 10px; top: auto; width: 112px; height: 112px; }
+  .deal .price { bottom: 10px; inset-inline-start: 10px; font-size: 1.35rem; padding: 4px 10px; }
+  .deal .what { display: none; }
+  .menu { padding-top: 6px; }
+  .menu-bar { top: 56px; }
+}
+.deal.md { --c: #2f8f4e; }
+.deal.md h3 { font-family: var(--body); font-weight: 900; font-size: 1.05rem; line-height: 1.2; text-transform: none; text-shadow: none; max-width: 64%; }
+.deal.md .md-k { position: relative; z-index: 2; display: block; margin-bottom: 4px; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--yellow); }
+.matchday { display: none !important; }
+
+/* sold out */
+.row.out { cursor: default; opacity: 0.8; }
+.row.out .row-img img { filter: grayscale(1); }
+.ghost-tag { align-self: flex-start; padding: 2px 8px; border-radius: 99px; background: var(--ink); color: #fff; font-size: 0.72rem; font-weight: 800; margin-bottom: 4px; }
+.try { align-self: flex-start; margin-top: auto; padding: 8px 12px; border: 0; border-radius: 10px; background: var(--cream); color: var(--ink); font-weight: 800; font-size: 0.82rem; }
+
+/* complete the date */
+.pairs { padding: 10px 14px 4px; }
+.pairs-title { font-family: var(--hand); font-size: 1.5rem; color: var(--red); transform: rotate(-2deg); margin-bottom: 6px; }
+[dir="rtl"] .pairs-title { font-size: 1.1rem; font-weight: 900; }
+.pairs-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.pair { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 0; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); text-align: start; }
+[dir="rtl"] .pair { padding: 6px 6px 6px 12px; }
+.pair img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; }
+.pair span { display: grid; }
+.pair b { font-size: 0.85rem; white-space: nowrap; }
+.pair i { font-style: normal; font-weight: 800; font-size: 0.8rem; color: #1e6f3a; }
+
+/* numbered checkout */
+.step { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; font-weight: 800; }
+.step:first-child { margin-top: 4px; }
+.step b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 0.8rem; }
+.cart-foot .field { margin: 8px 0; }
+.branch-pick { margin-top: 0; }
+#sendBtn { min-height: 58px; }
+#sendBtn > span { display: grid; text-align: start; line-height: 1.1; }
+#sendBtn small { font-weight: 600; font-size: 0.75rem; opacity: 0.85; }
+@media (max-width: 759px) {
+  .hero-art { margin: 0 12px 0 0; align-self: center; }
+  [dir="rtl"] .hero-art { margin: 0 0 0 12px; }
+  .hero-art img { width: 100%; max-width: 100%; margin: 0; aspect-ratio: 1; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9), 0 14px 26px -8px rgba(0, 0, 0, 0.45); }
+  .sticker.s1 { top: -10px; inset-inline-end: -6px; }
+}
+@media (max-width: 759px) {
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 40%); }
+  .hero > * { min-width: 0; }
+  .ticker { min-width: 0; width: calc(100% + 20px); }
+}
+@media (min-width: 760px) { .hero-ctas { grid-column: 1; margin: -8px 0 0; } }

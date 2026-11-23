@@ -47,7 +47,9 @@ Plain HTML/CSS/JS, no build step. Train-station theme: a food train that pulls i
 Phone-first ordering (95% of their orders are on phones), styled like their Instagram posters, with a dating-app wink that matches their slogan "Too Good To Ghost".
 
 - **Menu:** `data/menu.json`, saved from their Restbits page. Refresh with `node tools/update-menu.js` (no browser needed). 74 dishes with photos; protein/calorie numbers are only shown where Food Bae lists them.
-- **Features:** swipe deck ("Can't decide? Swipe": right = match, left = ghost), poster-style deals carousel from their combos, Fit Bae mode (high-protein first), match-day banner (`data/promo.json`, `enabled: false` hides it), "Same as last time?" reorder, branch picker, delivery or pick-up, WhatsApp checkout ("Slide into our DMs"), English/Arabic interface.
+- **Features:** swipe deck ("Can't decide? Swipe": right = match, left = ghost), compact poster deals row from their combos with the match-day card first, Fit Bae mode (high-protein first), "Same as last time?" reorder, "Complete the date" suggestions in the cart (side, drink, dessert), numbered 3-step checkout ending in "Send order on WhatsApp", English/Arabic interface, installable to the home screen (works offline once visited).
+- **Owner settings in `data/promo.json`:** the match-day card (`enabled: false` hides it) and `soldOut` (dish ids shown as "Ghosted us today" with an alternative).
+- **Phones first:** the first dish is about 1.1 screens down on an iPhone 13 (was 2.25 in the first draft).
 - **Dips and Extras** are separate items on their current menu; here they are offered as optional add-ons inside dishes (dips on savoury dishes, extras on burgers/zingers/sandwiches).
 
 ### Things to confirm with Food Bae before going live
