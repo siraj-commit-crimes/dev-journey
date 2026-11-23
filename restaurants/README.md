@@ -1,6 +1,23 @@
 # Restaurant sites
 
-Interactive restaurant websites. Each restaurant lives in its own folder and deploys as its own Netlify site.
+Interactive restaurant websites. Each restaurant lives in its own folder.
+
+## Live demos (Cloudflare, free plan)
+
+| Site | Link |
+|---|---|
+| Blaze | https://blaze-demo.mahmoudhaidar.workers.dev/ |
+| Station | https://station-demo.mahmoudhaidar.workers.dev/ |
+| Food Bae | https://foodbae-demo.mahmoudhaidar.workers.dev/ |
+
+Publish or update a site with one command (needs a Cloudflare API token, "Edit Cloudflare Workers" template):
+
+```
+./restaurants/deploy/deploy.sh blaze      # or station / foodbae
+```
+
+`deploy/build-worker.js` packs a site's files into a single Cloudflare Worker (no build step), keeps the
+noindex header, and for Blaze adds the `/api/menu` live-menu proxy. All demos are hidden from search engines.
 
 | Restaurant | Folder | Status |
 |---|---|---|
@@ -12,7 +29,7 @@ Interactive restaurant websites. Each restaurant lives in its own folder and dep
 
 Plain HTML/CSS/JS, no build step.
 
-- **Live menu:** `app.js` reads `/api/menu`, which `_redirects` proxies to Blaze's existing system at blaze-menu.com. Prices, stock, hours and discounts stay in sync with their `/staff` editor. It checks for menu changes every minute.
+- **Live menu:** `app.js` reads `/api/menu`, which is proxied to Blaze's existing system at blaze-menu.com (by the Cloudflare Worker; `_redirects` does the same if the folder is ever hosted on Netlify). Prices, stock, hours and discounts stay in sync with their `/staff` editor. It checks for menu changes every minute.
 - **Fallback:** if the live menu can't be reached, it shows `menu-snapshot.json` (saved copy).
 - **Ordering:** cart → WhatsApp message to the number for the chosen delivery area.
 - **Private demo:** `noindex` meta tag and `X-Robots-Tag` header keep it out of search engines.

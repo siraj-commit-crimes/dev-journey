@@ -1,2 +1,3 @@
-# Read Blaze's live menu from their existing system (keeps their /staff editor working).
+# On Netlify this file proxies Blaze's live menu. On Cloudflare Pages the same job is done by
+# functions/api/menu.js, so this rule is only used when the site is hosted on Netlify.
 /api/menu  https://blaze-menu.com/api/menu  200
