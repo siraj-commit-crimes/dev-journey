@@ -31,7 +31,7 @@
       deckDone: "You've seen everyone.", deckDoneSub: "Bae is waiting in your matches.", restart: "Swipe again", pickFirst: "Pick a branch first 📍", needAddress: "Add your address for delivery",
       call: "Call", whatsapp: "WhatsApp", hours: (o, c) => `Open every day ${o}–${c}`, protein: (g) => `${g}g protein`, kcal: (k) => `${k} kcal`, spicy: "Spicy", fitTag: "Fit Bae",
       wa: { hi: "Hi Food Bae! New order:", type: "Order type", del: "Delivery", pick: "Pick up", branch: "Branch", total: "Total", name: "Name", addr: "Address", note: "Note", adds: "Add-ons" },
-      reorderToast: "Your usual is back in your matches", pairsTitle: "Complete the date", stepHow: "How do you want it?", stepFrom: "From which Food Bae?", stepWho: "Your details", sendWa: "Send order on WhatsApp", ghostedToday: "Ghosted us today 👻", tryInstead: (n) => `Try ${n} instead`, matchDay: "Match day", lastOrder: (s) => s,
+      reorderToast: "Your usual is back in your matches", lookingFor: "Looking for", pairsTitle: "Complete the date", stepHow: "How do you want it?", stepFrom: "From which Food Bae?", stepWho: "Your details", sendWa: "Send order on WhatsApp", ghostedToday: "Ghosted us today 👻", tryInstead: (n) => `Try ${n} instead`, matchDay: "Match day", lastOrder: (s) => s,
       ticker: ["Too good to ghost", "High protein since 2019", "Bae 4 Two", "Crunch Bae", "Wings feast", "Swipe right on dinner"],
     },
     ar: {
@@ -48,7 +48,7 @@
       deckDone: "شفت الكل.", deckDoneSub: "الـ Bae ناطرك بالماتشات.", restart: "اسحب من جديد", pickFirst: "اختار الفرع أولاً 📍", needAddress: "زيد عنوانك للتوصيل",
       call: "اتصل", whatsapp: "واتساب", hours: (o, c) => `مفتوح كل يوم ${o}–${c}`, protein: (g) => `${g}غ بروتين`, kcal: (k) => `${k} سعرة`, spicy: "حار", fitTag: "Fit Bae",
       wa: { hi: "مرحبا Food Bae! طلب جديد:", type: "نوع الطلب", del: "توصيل", pick: "استلام", branch: "الفرع", total: "المجموع", name: "الاسم", addr: "العنوان", note: "ملاحظة", adds: "إضافات" },
-      reorderToast: "طلبك المعتاد رجع عالماتشات", pairsTitle: "كمّل الموعد", stepHow: "كيف بدك ياه؟", stepFrom: "من أي فرع؟", stepWho: "معلوماتك", sendWa: "ابعت الطلب عالواتساب", ghostedToday: "عملنا ghost اليوم 👻", tryInstead: (n) => `جرّب ${n} بدالو`, matchDay: "يوم الماتش", lastOrder: (s) => s,
+      reorderToast: "طلبك المعتاد رجع عالماتشات", lookingFor: "بدوّر على", pairsTitle: "كمّل الموعد", stepHow: "كيف بدك ياه؟", stepFrom: "من أي فرع؟", stepWho: "معلوماتك", sendWa: "ابعت الطلب عالواتساب", ghostedToday: "عملنا ghost اليوم 👻", tryInstead: (n) => `جرّب ${n} بدالو`, matchDay: "يوم الماتش", lastOrder: (s) => s,
       ticker: ["Too good to ghost", "بروتين عالي من ٢٠١٩", "Bae 4 Two", "Crunch Bae", "Wings feast", "اسحب يمين عالعشا"],
     },
   };
@@ -419,11 +419,20 @@
     drawDeck();
   }
   $("#deckFilters").addEventListener("click", (e) => { const b = e.target.closest("[data-df]"); if (b) { deckF = b.dataset.df; buildDeck(); } });
+  // Playful "dating profile" line per section (no claims about the food itself).
+  const LF = {
+    en: [[/combo/i, "a sharing kind of person (or not)"], [/zinger|spicy/i, "someone who likes it hot"], [/beef burger/i, "someone who isn't afraid of sauce"], [/chicken burger/i, "a crunchy little situationship"], [/fit|protein/i, "a gym partner who still loves dessert"], [/dessert/i, "sweet talk"], [/salad/i, "something fresh"], [/loaded|starter|side/i, "a side-kick for the main"], [/platter/i, "a proper dinner date"], [/sandwich/i, "lunch plans"], [/.*/, "someone hungry"]],
+    ar: [[/combo/i, "حدا بيحب يشارك (أو لا)"], [/zinger|spicy/i, "حدا بيحبها حارّة"], [/beef burger/i, "حدا ما بيخاف من الصوص"], [/chicken burger/i, "علاقة مقرمشة"], [/fit|protein/i, "شريك جيم بعدو بيحب الحلو"], [/dessert/i, "كلمة حلوة"], [/salad/i, "شي فريش"], [/loaded|starter|side/i, "رفيق للطبق الرئيسي"], [/platter/i, "عشا محترم"], [/sandwich/i, "خطة غدا"], [/.*/, "حدا جوعان"]],
+  };
+  const lookingFor = (i) => LF[S.lang].find(([re]) => re.test(i.cat + " " + i.name))[1];
   function cardHtml(i, behind) {
-    return `<div class="dcard ${behind ? "behind" : ""}" data-id="${esc(i.id)}">
-      <img src="${esc(i.img)}" alt="" draggable="false" /><span class="dprice">${money(i.price)}</span>
+    // Their photos are 590x400 at most, so show them at their natural shape (no heavy upscaling)
+    // over a soft blurred copy, with the dish "profile" below.
+    return `<div class="dcard v2 ${behind ? "behind" : ""}" data-id="${esc(i.id)}" style="--bg:url('${esc(i.img)}')">
+      <div class="dphoto"><img src="${esc(i.img)}" alt="" draggable="false" /></div>
       <span class="stamp yes">Match</span><span class="stamp no">Ghost</span>
-      <div class="info"><h3>${esc(tidy(i.name))}</h3>${i.desc ? `<p>${esc(i.desc)}</p>` : ""}${tagsHtml(i)}</div></div>`;
+      <div class="info"><div class="dhead"><span class="dcat">${esc(tidy(i.cat))}</span><span class="dprice">${money(i.price)}</span></div><h3>${esc(tidy(i.name))}</h3>${tagsHtml(i)}${i.desc ? `<p>${esc(i.desc)}</p>` : ""}
+        <span class="lf"><small>${esc(t("lookingFor"))}</small>${esc(lookingFor(i))}</span></div></div>`;
   }
   function drawDeck() {
     const st = $("#deckStack");
