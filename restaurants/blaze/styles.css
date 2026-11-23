@@ -1066,3 +1066,9 @@ html, body { overflow-x: clip; }
 
 /* cart button stays visible on the red hero */
 .topbar:not(.scrolled) .cart-btn { background: #fff; color: var(--red); box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.45); }
+
+/* Order panel on phones: the longest delivery-area name made the dropdown (and the
+   whole panel column) wider than the screen. Keep everything inside the panel. */
+.drawer-foot { grid-template-columns: minmax(0, 1fr); }
+.field { min-width: 0; }
+.field input, .field select { width: 100%; min-width: 0; text-overflow: ellipsis; }
