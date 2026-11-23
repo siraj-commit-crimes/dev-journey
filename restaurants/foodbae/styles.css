@@ -506,3 +506,10 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
 [dir="rtl"] .row-body h4, [dir="rtl"] .row-body p { text-align: start; }
 .deal h3 em { unicode-bidi: plaintext; }
 [dir="rtl"] .deal h3, [dir="rtl"] .deal h3 em { text-align: right; }
+.alt-name { display: block; margin-top: 2px; font-family: "Outfit", sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--muted); direction: ltr; unicode-bidi: plaintext; }
+.alt-name:empty { display: none; }
+.dcard.v2 .alt-name { margin-top: -2px; }
+[dir="rtl"] .row-body h4 { font-size: 1.05rem; }
+[dir="rtl"] .alt-name { text-align: right; }
+.dcard.v2 .alt-name ~ p { -webkit-line-clamp: 2; }
+.dcard.v2 .alt-name ~ p { -webkit-line-clamp: 1; }

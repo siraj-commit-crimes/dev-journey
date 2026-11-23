@@ -49,6 +49,7 @@ Phone-first ordering (95% of their orders are on phones), styled like their Inst
 - **Menu:** `data/menu.json`, saved from their Restbits page. Refresh with `node tools/update-menu.js` (no browser needed). 74 dishes with photos; protein/calorie numbers are only shown where Food Bae lists them.
 - **Features:** swipe deck ("Can't decide? Swipe": right = match, left = ghost), compact poster deals row from their combos with the match-day card first, Fit Bae mode (high-protein first), "Same as last time?" reorder, "Complete the date" suggestions in the cart (side, drink, dessert), numbered 3-step checkout ending in "Send order on WhatsApp", English/Arabic interface, installable to the home screen (works offline once visited).
 - **Owner settings in `data/promo.json`:** the match-day card (`enabled: false` hides it) and `soldOut` (dish ids shown as "Ghosted us today" with an alternative).
+- **Arabic dish names:** `data/menu-ar.json` (dishes, sections and add-ons). Kept separate so a menu refresh never removes them; the English name shows small underneath, and WhatsApp orders include both names. Have Food Bae check the wording.
 - **Phones first:** the first dish is about 1.1 screens down on an iPhone 13 (was 2.25 in the first draft).
 - **Dips and Extras** are separate items on their current menu; here they are offered as optional add-ons inside dishes (dips on savoury dishes, extras on burgers/zingers/sandwiches).
 

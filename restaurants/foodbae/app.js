@@ -56,7 +56,7 @@
   // ---------- State ----------
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
-  const S = { lang: load("fb.lang", "en"), branch: load("fb.branch", null), cart: load("fb.cart", []), mode: load("fb.mode", "delivery"), last: load("fb.last", null), fit: false, q: "", menu: null, items: new Map(), promo: null };
+  const S = { lang: load("fb.lang", "en"), branch: load("fb.branch", null), cart: load("fb.cart", []), mode: load("fb.mode", "delivery"), last: load("fb.last", null), fit: false, q: "", menu: null, items: new Map(), promo: null, ar: { dishes: {}, categories: {}, addons: {} } };
 
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -64,6 +64,11 @@
   const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v ?? k; };
   const money = (n) => "$" + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, "");
   const tidy = (s) => (s === s.toUpperCase() && /[A-Z]{3}/.test(s) ? s.toLowerCase().replace(/(^|[\s(-])([a-z])/g, (m, a, b) => a + b.toUpperCase()) : s);
+  // Dish / category / add-on names in the current language (Arabic from data/menu-ar.json).
+  const dn = (i) => (S.lang === "ar" && S.ar.dishes[i.id]) || tidy(i.name);
+  const dnAlt = (i) => (S.lang === "ar" && S.ar.dishes[i.id] ? tidy(i.name) : "");
+  const cn = (c) => (S.lang === "ar" && S.ar.categories[c.id]) || tidy(c.name);
+  const an = (o) => (S.lang === "ar" && S.ar.addons[o.id]) || o.name;
   const brName = (b) => (S.lang === "ar" ? b.ar : b.en);
   const branchById = (id) => BRANCHES.find((b) => b.id === id);
   function toast(m) { const el = $("#toast"); el.textContent = m; el.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("show"), 2300); }
@@ -111,10 +116,10 @@
 
   // ---------- Data ----------
   async function boot() {
-    const [menu, promo] = await Promise.all([fetch("data/menu.json").then((r) => r.json()), fetch("data/promo.json").then((r) => r.json()).catch(() => null)]);
-    S.menu = menu; S.promo = promo;
+    const [menu, promo, ar] = await Promise.all([fetch("data/menu.json").then((r) => r.json()), fetch("data/promo.json").then((r) => r.json()).catch(() => null), fetch("data/menu-ar.json").then((r) => r.json()).catch(() => null)]);
+    S.menu = menu; S.promo = promo; if (ar) S.ar = { dishes: ar.dishes || {}, categories: ar.categories || {}, addons: ar.addons || {} };
     const out = new Set(((promo && promo.soldOut) || []).map(String));
-    menu.categories.forEach((c) => c.items.forEach((i) => S.items.set(i.id, { ...i, cat: c.name, out: out.has(String(i.id)) })));
+    menu.categories.forEach((c) => c.items.forEach((i) => S.items.set(i.id, { ...i, cat: c.name, catId: c.id, out: out.has(String(i.id)) })));
     S.cart = S.cart.filter((l) => S.items.has(l.id) && !S.items.get(l.id).out);
     if (!S.branch && S.last && S.last.branch) S.branch = S.last.branch; // remember the branch from last time
     applyLang();
@@ -145,7 +150,7 @@
     const ok = S.last && S.last.lines?.length && !S.cart.length && S.last.lines.every((l) => S.items.has(l.id));
     $("#again").hidden = !ok;
     if (!ok) return;
-    $("#againText").textContent = S.last.lines.map((l) => `${l.qty}× ${tidy(S.items.get(l.id).name)}`).join(", ");
+    $("#againText").textContent = S.last.lines.map((l) => `${l.qty}× ${dn(S.items.get(l.id))}`).join(", ");
   }
   $("#againBtn").addEventListener("click", () => {
     S.cart = S.last.lines.map((l) => ({ ...l, key: l.key || l.id }));
@@ -167,7 +172,7 @@
         <img src="${esc(md.img)}" alt="" loading="lazy" />
         <span class="price">${money(md.price)}</span></button>` : "";
     $("#deals").innerHTML = mdCard + items.map((i) => {
-      const words = tidy(i.name).split(" ");
+      const words = dn(i).split(" ");
       const last = words.length > 1 ? words.pop() : "";
       return `<button type="button" class="deal" data-open="${esc(i.id)}">
         <h3>${esc(words.join(" "))}${last ? `<em>${esc(last)}</em>` : ""}</h3>
@@ -199,7 +204,7 @@
       fit.sort((a, b) => (b.protein || 0) - (a.protein || 0));
       cats = [{ id: "fit", name: "Fit Bae picks", items: fit }];
     }
-    if (q) cats = cats.map((c) => ({ ...c, items: c.items.filter((i) => `${i.name} ${i.desc} ${i.cat}`.toLowerCase().includes(q)) }));
+    if (q) cats = cats.map((c) => ({ ...c, items: c.items.filter((i) => `${i.name} ${i.desc} ${i.cat} ${S.ar.dishes[i.id] || ""} ${S.ar.categories[i.catId] || ""}`.toLowerCase().includes(q)) }));
     return cats.filter((c) => c.items.length);
   }
   const countIn = (id) => S.cart.filter((l) => l.id === id).reduce((s, l) => s + l.qty, 0);
@@ -209,31 +214,31 @@
       const alt = [...S.items.values()].find((x) => x.cat === i.cat && !x.out && x.id !== i.id);
       return `<article class="row out">
       <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
-      <div class="row-body"><span class="ghost-tag">${esc(t("ghostedToday"))}</span><h4>${esc(tidy(i.name))}</h4>
+      <div class="row-body"><span class="ghost-tag">${esc(t("ghostedToday"))}</span><h4>${esc(dn(i))}</h4>
         ${alt ? `<button type="button" class="try" data-open="${esc(alt.id)}">${esc(t("tryInstead", tidy(alt.name)))} →</button>` : ""}</div></article>`;
     }
     return `<article class="row pop-in ${n ? "in-cart" : ""}" data-open="${esc(i.id)}" tabindex="0" style="animation-delay:${Math.min(k, 8) * 30}ms">
       <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
       <div class="row-body">
         ${tagsHtml(i)}
-        <h4>${esc(tidy(i.name))}</h4>
+        <h4>${esc(dn(i))}</h4>${dnAlt(i) ? `<span class="alt-name">${esc(dnAlt(i))}</span>` : ""}
         ${i.desc ? `<p>${esc(i.desc)}</p>` : ""}
         <div class="row-foot"><span class="row-price">${money(i.price)}</span>
-          <button type="button" class="add" data-add="${esc(i.id)}" aria-label="${esc(t("addMatch"))} ${esc(tidy(i.name))}">+${n ? `<span class="n">${n}</span>` : ""}</button></div>
+          <button type="button" class="add" data-add="${esc(i.id)}" aria-label="${esc(t("addMatch"))} ${esc(dn(i))}">+${n ? `<span class="n">${n}</span>` : ""}</button></div>
       </div>
     </article>`;
   }
   function renderMenu() {
     const cats = visibleCats();
     $("#menuBody").innerHTML = cats.map((c) => `<section class="cat" id="c-${esc(c.id)}" data-cat="${esc(c.id)}">
-      <div class="cat-title"><h3>${esc(tidy(c.name))}</h3><small>${c.items.length}</small></div>
+      <div class="cat-title"><h3>${esc(c.id === "fit" ? c.name : cn(c))}</h3><small>${c.items.length}</small></div>
       <div class="list">${c.items.map(rowHtml).join("")}</div></section>`).join("");
     $("#empty").hidden = cats.length > 0;
     $("#fitNote").hidden = !S.fit;
     observeCats();
   }
   function renderCats() {
-    $("#cats").innerHTML = S.menu.categories.map((c, k) => `<button type="button" class="cat-chip ${k === 0 ? "on" : ""}" data-go="${esc(c.id)}">${esc(tidy(c.name))}</button>`).join("");
+    $("#cats").innerHTML = S.menu.categories.map((c, k) => `<button type="button" class="cat-chip ${k === 0 ? "on" : ""}" data-go="${esc(c.id)}">${esc(cn(c))}</button>`).join("");
   }
   let catObs, lockUntil = 0;
   function observeCats() {
@@ -284,12 +289,12 @@
     const i = S.items.get(id); if (!i || i.out) return;
     cur = i; qty = 1;
     $("#dishImg").src = i.img;
-    $("#dishName").textContent = tidy(i.name);
+    $("#dishName").textContent = dn(i); $("#dishAlt").textContent = dnAlt(i);
     $("#dishDesc").textContent = i.desc;
     $("#dishTags").innerHTML = tagsHtml(i).replace(/^<div class="tags">|<\/div>$/g, "");
     $("#dishNotes").value = "";
     $("#dishOpts").innerHTML = optionGroups(i).map((g) => `<div class="opt-block"><div class="opt-title">${esc(g.title)} <small>${esc(t("optional"))}</small></div><div class="opts">
-      ${g.list.map((o) => `<label class="opt"><input type="checkbox" value="${esc(o.id)}" data-name="${esc(o.name)}" data-price="${o.price}" /><span>${esc(o.name)} <em>+${money(o.price)}</em></span></label>`).join("")}</div></div>`).join("");
+      ${g.list.map((o) => `<label class="opt"><input type="checkbox" value="${esc(o.id)}" data-name="${esc(o.name)}" data-ar="${esc(an(o))}" data-price="${o.price}" /><span>${esc(an(o))} <em>+${money(o.price)}</em></span></label>`).join("")}</div></div>`).join("");
     updDish();
     $("#dish").showModal();
     $(".sheet-body", $("#dish")).scrollTop = 0;
@@ -309,7 +314,7 @@
     if (ex) ex.qty = Math.min(30, ex.qty + n); else S.cart.push({ key, id, qty: n, opts, note });
     save("fb.cart", S.cart);
     hearts(fromEl); vibrate(18);
-    toast(t("added", tidy(S.items.get(id).name)));
+    toast(t("added", dn(S.items.get(id))));
     renderCart(); bumpBar(); refreshRows(id);
   }
   function refreshRows(id) {
@@ -327,7 +332,7 @@
     $("#cbCount").textContent = count; $("#cbTotal").textContent = money(cartTotal());
     $("#cartSub").textContent = count ? t("items", count) : "";
     $("#cartLines").innerHTML = S.cart.length ? S.cart.map((l) => { const i = S.items.get(l.id); return `<div class="cl" data-key="${esc(l.key)}">
-        <img src="${esc(i.img)}" alt="" /><div><h4>${esc(tidy(i.name))}</h4><p>${esc([l.opts.map((o) => o.name).join(", "), l.note && "“" + l.note + "”"].filter(Boolean).join(" · ") || money(lineUnit(l)))}</p></div>
+        <img src="${esc(i.img)}" alt="" /><div><h4>${esc(dn(i))}</h4><p>${esc([l.opts.map(an).join(", "), l.note && "“" + l.note + "”"].filter(Boolean).join(" · ") || money(lineUnit(l)))}</p></div>
         <div class="r"><b>${money(lineUnit(l) * l.qty)}</b><div class="mini"><button type="button" data-d="-1" aria-label="−">−</button><span>${l.qty}</span><button type="button" data-d="1" aria-label="+">+</button></div></div></div>`; }).join("")
       : `<div class="cart-empty"><b>💔</b>${esc(t("emptyCart"))}</div>`;
     $("#cartFoot").hidden = !S.cart.length;
@@ -351,7 +356,7 @@
     }
     const list = sug.filter(Boolean).slice(0, 3);
     $("#pairs").hidden = !list.length;
-    $("#pairsRow").innerHTML = list.map((i) => `<button type="button" class="pair" data-pair="${esc(i.id)}"><img src="${esc(i.img)}" alt="" /><span><b>${esc(tidy(i.name))}</b><i>+${money(i.price)}</i></span></button>`).join("");
+    $("#pairsRow").innerHTML = list.map((i) => `<button type="button" class="pair" data-pair="${esc(i.id)}"><img src="${esc(i.img)}" alt="" /><span><b>${esc(dn(i))}</b><i>+${money(i.price)}</i></span></button>`).join("");
   }
   $("#pairsRow").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) addToCart(b.dataset.pair, 1, [], "", b); });
 
@@ -380,7 +385,7 @@
     const w = T[S.lang].wa, out = [w.hi, ""];
     S.cart.forEach((l, k) => {
       const i = S.items.get(l.id);
-      out.push(`${k + 1}) ${i.name} × ${l.qty} — ${money(lineUnit(l) * l.qty)}`);
+      out.push(`${k + 1}) ${tidy(i.name)}${S.lang === "ar" && S.ar.dishes[i.id] ? " / " + S.ar.dishes[i.id] : ""} × ${l.qty} — ${money(lineUnit(l) * l.qty)}`);
       if (l.opts.length) out.push(`   ${w.adds}: ${l.opts.map((o) => o.name).join(", ")}`);
       if (l.note) out.push(`   ${w.note}: ${l.note}`);
     });
@@ -431,7 +436,7 @@
     return `<div class="dcard v2 ${behind ? "behind" : ""}" data-id="${esc(i.id)}" style="--bg:url('${esc(i.img)}')">
       <div class="dphoto"><img src="${esc(i.img)}" alt="" draggable="false" /></div>
       <span class="stamp yes">Match</span><span class="stamp no">Ghost</span>
-      <div class="info"><div class="dhead"><span class="dcat">${esc(tidy(i.cat))}</span><span class="dprice">${money(i.price)}</span></div><h3>${esc(tidy(i.name))}</h3>${tagsHtml(i)}${i.desc ? `<p>${esc(i.desc)}</p>` : ""}
+      <div class="info"><div class="dhead"><span class="dcat">${esc(cn({ id: i.catId, name: i.cat }))}</span><span class="dprice">${money(i.price)}</span></div><h3>${esc(dn(i))}</h3>${dnAlt(i) ? `<span class="alt-name">${esc(dnAlt(i))}</span>` : ""}${tagsHtml(i)}${i.desc ? `<p>${esc(i.desc)}</p>` : ""}
         <span class="lf"><small>${esc(t("lookingFor"))}</small>${esc(lookingFor(i))}</span></div></div>`;
   }
   function drawDeck() {
@@ -474,7 +479,7 @@
       deckIdx++; drawDeck();
       if (dir > 0) {
         addToCart(i.id, 1, [], "", null);
-        $("#matchImg").src = i.img; $("#matchName").textContent = tidy(i.name);
+        $("#matchImg").src = i.img; $("#matchName").textContent = dn(i);
         $("#match").hidden = false; hearts($("#matchImg"), 18);
       }
     }, reduce ? 0 : 280);
