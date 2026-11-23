@@ -119,7 +119,7 @@ section { position: relative; }
   border: 0; background: var(--red); color: #fff;
   box-shadow: 0 6px 18px -6px rgba(220, 54, 46, 0.8);
 }
-.cart-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.cart-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .cart-count {
   position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 6px;
   display: grid; place-items: center; border-radius: 999px;
@@ -1063,3 +1063,6 @@ html, body { overflow-x: clip; }
 .footer.footer { display: block; place-items: normal; text-align: left; }
 .footer .bigword { font-size: 41vw; margin-left: -0.02em; margin-right: -0.02em; }
 .sticker { z-index: 5; }
+
+/* cart button stays visible on the red hero */
+.topbar:not(.scrolled) .cart-btn { background: #fff; color: var(--red); box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.45); }
