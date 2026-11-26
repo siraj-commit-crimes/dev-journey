@@ -143,14 +143,14 @@
   }
 
   // ---------- Tags ----------
-  function tagsHtml(i) {
+  function tagsHtml(i, inMenu) {
     const out = [];
     const b = S.badges[i.id];
     if (b === "best") out.push(`<span class="tag badge best">🔥 ${esc(t("badgeBest"))}</span>`);
     if (b === "new") out.push(`<span class="tag badge new">✨ ${esc(t("badgeNew"))}</span>`);
     if (i.protein) out.push(`<span class="tag macro">💪 ${esc(t("protein", i.protein))}</span>`);
     if (i.kcal) out.push(`<span class="tag fit">${esc(t("kcal", i.kcal))}</span>`);
-    if (!i.protein && FIT_CATS.test(i.cat)) out.push(`<span class="tag fit">${esc(t("fitTag"))}</span>`);
+    if (!inMenu && !i.protein && FIT_CATS.test(i.cat)) out.push(`<span class="tag fit">${esc(t("fitTag"))}</span>`);
     if (i.spicy) out.push(`<span class="tag hot">🌶 ${esc(t("spicy"))}</span>`);
     return out.length ? `<div class="tags">${out.join("")}</div>` : "";
   }
@@ -246,9 +246,9 @@
         ${alt ? `<button type="button" class="try" data-open="${esc(alt.id)}">${esc(t("tryInstead", tidy(alt.name)))} →</button>` : ""}</div></article>`;
     }
     return `<article class="row pop-in ${n ? "in-cart" : ""}" data-open="${esc(i.id)}" tabindex="0" style="animation-delay:${Math.min(k, 8) * 30}ms">
-      <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" />${heartBtn(i.id)}</div>
+      ${heartBtn(i.id)}<div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
       <div class="row-body">
-        ${tagsHtml(i)}
+        ${tagsHtml(i, true)}
         <h4>${esc(dn(i))}</h4>${dnAlt(i) ? `<span class="alt-name">${esc(dnAlt(i))}</span>` : ""}
         ${i.desc ? `<p>${esc(i.desc)}</p>` : ""}
         <div class="row-foot"><span class="row-price">${money(i.price)}</span>
