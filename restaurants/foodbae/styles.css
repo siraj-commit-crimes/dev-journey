@@ -521,3 +521,12 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
   .hero-ctas .btn-ink { flex: 1 1 auto; }
   .hero-ctas .btn-ghost { flex: 0 1 auto; }
 }
+
+/* Hero photo (tablet/desktop): its left edge is cut through the sandwich's shadow, so it was a
+   shade darker than the orange behind it. Fade every edge into the background: no visible seam. */
+@media (min-width: 760px) {
+  .hero-art img {
+    -webkit-mask: radial-gradient(ellipse 75% 75% at 50% 50%, #000 70%, transparent 100%);
+    mask: radial-gradient(ellipse 75% 75% at 50% 50%, #000 70%, transparent 100%);
+  }
+}
