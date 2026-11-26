@@ -32,7 +32,7 @@
       call: "Call", whatsapp: "WhatsApp", hours: (o, c) => `Open every day ${o}–${c}`, protein: (g) => `${g}g protein`, kcal: (k) => `${k} kcal`, spicy: "Spicy", fitTag: "Fit Bae",
       wa: { hi: "Hi Food Bae! New order:", type: "Order type", del: "Delivery", pick: "Pick up", branch: "Branch", total: "Total", name: "Name", addr: "Address", note: "Note", adds: "Add-ons" },
       reorderToast: "Your usual is back in your matches", lookingFor: "Looking for", pairsTitle: "Complete the date", stepHow: "How do you want it?", stepFrom: "From which Food Bae?", stepWho: "Your details", sendWa: "Send order on WhatsApp", ghostedToday: "Ghosted us today 👻", tryInstead: (n) => `Try ${n} instead`, matchDay: "Match day", lastOrder: (s) => s,
-      crushes: "Your crushes", crushesSub: "Saved on this phone", faveOn: "Saved to your crushes 💘", faveOff: "Removed from your crushes", faveLabel: "Save as a crush", share: "Send to your bae", shareText: (n, p) => `Thought of you 😏 ${n} (${p}) at Food Bae`, badgeNew: "New", badgeBest: "Best seller",
+      crushes: "Your crushes", crushesSub: "Saved on this phone", faveOn: "Saved to your crushes 💘", faveOff: "Removed from your crushes", faveLabel: "Save as a crush", share: "Send to your bae", shareText: (n, p) => `Thought of you 😏 ${n} (${p}) at Food Bae`, badgeNew: "New", badgeBest: "Best seller", andMore: (n) => `+ ${n} more inside`, combo: "Combo",
       ticker: ["Too good to ghost", "High protein since 2019", "Bae 4 Two", "Crunch Bae", "Wings feast", "Swipe right on dinner"],
     },
     ar: {
@@ -50,7 +50,7 @@
       call: "اتصل", whatsapp: "واتساب", hours: (o, c) => `مفتوح كل يوم ${o}–${c}`, protein: (g) => `بروتين ${g}غ`, kcal: (k) => `${k} سعرة`, spicy: "حار", fitTag: "Fit Bae",
       wa: { hi: "مرحبا Food Bae! طلب جديد:", type: "نوع الطلب", del: "توصيل", pick: "استلام", branch: "الفرع", total: "المجموع", name: "الاسم", addr: "العنوان", note: "ملاحظة", adds: "إضافات" },
       reorderToast: "طلبك المعتاد رجع عالماتشات", lookingFor: "بدوّر على", pairsTitle: "كمّل الموعد", stepHow: "كيف بدك ياه؟", stepFrom: "من أي فرع؟", stepWho: "معلوماتك", sendWa: "ابعت الطلب عالواتساب", ghostedToday: "عملنا ghost اليوم 👻", tryInstead: (n) => `جرّب ${n} بدالو`, matchDay: "يوم الماتش", lastOrder: (s) => s,
-      crushes: "الكراشات تبعك", crushesSub: "محفوظين عندك", faveOn: "انحفظ بالكراشات 💘", faveOff: "انشال من الكراشات", faveLabel: "احفظ ككراش", share: "ابعتو للـ bae تبعك", shareText: (n, p) => `تذكرتك 😏 ${n} (${p}) من Food Bae`, badgeNew: "جديد", badgeBest: "الأكثر طلباً",
+      crushes: "الكراشات تبعك", crushesSub: "محفوظين عندك", faveOn: "انحفظ بالكراشات 💘", faveOff: "انشال من الكراشات", faveLabel: "احفظ ككراش", share: "ابعتو للـ bae تبعك", shareText: (n, p) => `تذكرتك 😏 ${n} (${p}) من Food Bae`, badgeNew: "جديد", badgeBest: "الأكثر طلباً", andMore: (n) => `+ ${n} كمان`, combo: "كومبو",
       ticker: ["Too good to ghost", "بروتين عالي من ٢٠١٩", "Bae 4 Two", "Crunch Bae", "Wings feast", "اسحب يمين عالعشا"],
     },
   };
@@ -170,27 +170,45 @@
   });
   $("#againX").addEventListener("click", () => { $("#again").hidden = true; });
 
-  // ---------- Deals ----------
+  // ---------- Deals: dating-profile card + receipt of what's inside ----------
+  // Short flirty "bio" per combo (our copy, not Food Bae's). Unknown combos fall back to the "Looking for" line.
+  const BIOS = {
+    en: [[/bae 4 two/i, "Feeds 2 · a sharing kind of person"], [/slay/i, "Solo date, zero regrets"], [/snackzilla/i, "Commitment issues? Have it all"], [/drama/i, "20 wings. No drama. Okay, some"], [/crunch/i, "Crunchy little situationship"]],
+    ar: [[/bae 4 two/i, "بيكفي ٢ · حدا بيحب يشارك"], [/slay/i, "موعد لحالك، بلا ندم"], [/snackzilla/i, "خايف تلتزم؟ خود كل شي"], [/drama/i, "٢٠ وينغز. بلا دراما. أوكي، شوية"], [/crunch/i, "علاقة مقرمشة"]],
+  };
+  const bio = (i) => (BIOS[S.lang].find(([re]) => re.test(i.name)) || [0, lookingFor(i)])[1];
+  // What's inside, read from the description: "2 burgers or 2 sandwiches, french fries or wedges, 6 chicken wings, …"
+  const INSIDE = [
+    [/burgers? or (\d+ )?sandwich(es)?/, "🍔", "burger or sandwich", "برغر أو ساندويش"], [/fries or wedges/, "🍟", "fries or wedges", "بطاطا أو ودجز"], [/french fries|fries/, "🍟", "fries", "بطاطا"],
+    [/wings?/, "🍗", "chicken wings", "وينغز دجاج"], [/strips?/, "🍗", "crispy strips", "ستريبس مقرمشة"], [/mozzarella/, "🧀", "mozzarella sticks", "أصابع موزاريلا"],
+    [/cheddar/, "🧀", "cheddar balls", "كرات شيدر"], [/onion/, "🧅", "onion rings", "حلقات بصل"], [/dips?\b/, "🥣", "dip", "صوص"], [/ketchup/, "🥫", "ketchup", "كاتشب"],
+    [/drink/, "🥤", "soft drink", "مشروب غازي"], [/coleslaw/, "🥗", "coleslaw", "كول سلو"], [/bun/, "🍞", "bun", "خبز"], [/burger/, "🍔", "burger", "برغر"], [/sandwich/, "🥪", "sandwich", "ساندويش"],
+  ];
+  function inside(desc) {
+    return String(desc || "").split(".")[0].split(/,\s*|\s*&\s*/).map((x) => x.trim()).filter(Boolean).map((x) => {
+      const low = x.toLowerCase(), m = /^(\d+)\s/.exec(low), hit = INSIDE.find(([re]) => re.test(low));
+      const label = hit ? (S.lang === "ar" ? hit[3] : hit[2]) : x.replace(/^\d+\s+/, "");
+      return { n: m ? m[1] : "1", ic: hit ? hit[1] : "•", t: label };
+    });
+  }
+  function dealCard(i, md) {
+    const p = S.promo, ar = S.lang === "ar", list = inside(i.desc), shown = list.slice(0, 4);
+    const pill = md ? `⚽ ${(ar && p.kicker_ar) || p.kicker || t("matchDay")}` : (S.badges[i.id] === "best" ? `🔥 ${t("badgeBest")}` : S.badges[i.id] === "new" ? `✨ ${t("badgeNew")}` : t("combo"));
+    const line = md ? (ar && p.title_ar) || p.title : bio(i);
+    return `<div class="deal ${md ? "md" : ""}" data-open="${esc(i.id)}" role="button" tabindex="0">
+      <div class="ph"><img src="${esc(i.img)}" alt="" loading="lazy" /><div class="bars"><i></i><i></i><i></i></div>
+        <span class="pill">${esc(pill)}</span>${heartBtn(i.id)}
+        <div class="who"><h3>${esc(dn(i))} <span class="v" aria-hidden="true">✓</span></h3><span class="bio">${esc(line)}</span></div></div>
+      <div class="rc">${shown.map((x) => `<div class="li"><b>${esc(x.n)}×</b><span>${x.ic} ${esc(x.t)}</span></div>`).join("")}
+        ${list.length > shown.length ? `<span class="more">${esc(t("andMore", list.length - shown.length))}</span>` : ""}
+        <div class="foot"><span class="pstamp">${money(i.price)}</span><button type="button" class="go" data-add="${esc(i.id)}">${esc(t("addMatch"))} +</button></div></div>
+    </div>`;
+  }
   function renderDeals() {
     const cat = S.menu.categories.find((c) => /combo/i.test(c.name));
     const items = cat ? cat.items.map((i) => S.items.get(i.id)).filter((i) => !i.out) : [];
     const p = S.promo, md = p && p.enabled && S.items.get(String(p.dish));
-    const ar = S.lang === "ar";
-    const mdCard = md ? `<button type="button" class="deal md" data-open="${esc(md.id)}">
-        <span class="md-k">⚽ ${esc((ar && p.kicker_ar) || p.kicker || t("matchDay"))}</span>
-        <h3>${esc((ar && p.title_ar) || p.title)}</h3>
-        <img src="${esc(md.img)}" alt="" loading="lazy" />
-        <span class="price">${money(md.price)}</span></button>` : "";
-    $("#deals").innerHTML = mdCard + items.map((i) => {
-      const words = dn(i).split(" ");
-      const last = words.length > 1 ? words.pop() : "";
-      return `<button type="button" class="deal" data-open="${esc(i.id)}">
-        <h3>${esc(words.join(" "))}${last ? `<em>${esc(last)}</em>` : ""}</h3>
-        <img src="${esc(i.img)}" alt="" loading="lazy" />
-        <span class="price">${money(i.price)}</span>
-        <span class="what">${esc(i.desc.split(/[,.]/).slice(0, 3).join(" ·"))}</span>
-      </button>`;
-    }).join("");
+    $("#deals").innerHTML = (md && !md.out ? dealCard(md, true) : "") + items.filter((i) => !(md && !md.out && i.id === md.id)).map((i) => dealCard(i, false)).join("");
   }
 
   // ---------- Match-day banner ----------
@@ -286,7 +304,7 @@
     const o = e.target.closest("[data-open]");
     if (o) openDish(o.dataset.open);
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.(".row, .crush")) openDish(e.target.dataset.open); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.(".row, .crush, .deal")) openDish(e.target.dataset.open); });
 
   // ---------- Crushes (favourites, saved on this phone) ----------
   const isFave = (id) => S.faves.includes(id);

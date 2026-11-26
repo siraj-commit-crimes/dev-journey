@@ -109,19 +109,6 @@ h1, h2, h3, h4, p { margin: 0; }
 .deals { padding: 26px 0 6px; }
 .deal-track { display: flex; gap: 12px; padding: 4px 18px 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 18px; scrollbar-width: none; }
 .deal-track::-webkit-scrollbar { display: none; }
-.deal { position: relative; flex: none; width: min(78vw, 320px); aspect-ratio: 4 / 5; padding: 16px; border: 0; border-radius: 24px; overflow: hidden; text-align: start; scroll-snap-align: start; color: #fff; background: var(--c, var(--red)); box-shadow: 0 6px 0 var(--brown); transition: transform 0.25s var(--spring); }
-.deal:active { transform: scale(0.97); }
-.deal h3 { position: relative; z-index: 2; font-family: var(--poster); font-weight: 400; font-size: 2.4rem; line-height: 0.92; text-transform: uppercase; text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25); }
-.deal h3 em { display: block; font-family: var(--hand); font-style: normal; font-size: 1.6rem; text-transform: none; color: var(--ink); text-shadow: none; transform: rotate(-4deg); margin-top: 2px; }
-.deal img { position: absolute; inset-inline: -8%; bottom: 14%; width: 116%; height: 58%; object-fit: cover; border-radius: 50%; box-shadow: 0 18px 30px -10px rgba(0, 0, 0, 0.5); }
-.deal .price { position: absolute; bottom: 14px; inset-inline-start: 14px; z-index: 2; padding: 6px 14px; border-radius: 12px; background: var(--yellow); color: var(--ink); font-family: var(--poster); font-size: 2rem; line-height: 1; transform: rotate(-4deg); box-shadow: 3px 3px 0 var(--ink); }
-.deal .what { position: absolute; bottom: 18px; inset-inline-end: 14px; z-index: 2; max-width: 46%; font-size: 0.72rem; font-weight: 700; line-height: 1.25; text-align: end; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); }
-.deal:nth-child(4n + 1) { --c: var(--red); }
-.deal:nth-child(4n + 2) { --c: var(--orange); }
-.deal:nth-child(4n + 2) h3 em, .deal:nth-child(4n + 3) h3 em { color: var(--red); }
-.deal:nth-child(4n + 3) { --c: #2f8f4e; }
-.deal:nth-child(4n + 4) { --c: var(--brown); }
-.deal:nth-child(4n + 4) h3 em { color: var(--yellow); }
 
 /* ---------- Match day ---------- */
 .matchday { padding: 10px 14px 0; }
@@ -402,18 +389,9 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
   .deals .sec-head { margin-bottom: 8px; }
   .deals .sec-head h2 { font-size: 1.4rem; }
   .deal-track { padding: 2px 14px 12px; gap: 10px; }
-  .deal { width: 210px; aspect-ratio: auto; height: 150px; padding: 12px; border-radius: 18px; box-shadow: 0 4px 0 var(--brown); }
-  .deal h3 { font-size: 1.45rem; max-width: 62%; }
-  .deal h3 em { font-size: 1.15rem; }
-  .deal img { inset-inline: auto; inset-inline-end: -22px; bottom: 10px; top: auto; width: 112px; height: 112px; }
-  .deal .price { bottom: 10px; inset-inline-start: 10px; font-size: 1.35rem; padding: 4px 10px; }
-  .deal .what { display: none; }
   .menu { padding-top: 6px; }
   .menu-bar { top: 56px; }
 }
-.deal.md { --c: #2f8f4e; }
-.deal.md h3 { font-family: var(--body); font-weight: 900; font-size: 1.05rem; line-height: 1.2; text-transform: none; text-shadow: none; max-width: 64%; }
-.deal.md .md-k { position: relative; z-index: 2; display: block; margin-bottom: 4px; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--yellow); }
 .matchday { display: none !important; }
 
 /* sold out */
@@ -501,11 +479,9 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
 
 /* Arabic interface + English menu text: let each piece of dish text keep its own direction,
    and keep prices left-to-right ("+$1", not "$1+"). */
-.row-body h4, .row-body p, #dishName, .sheet-desc, .dcard .info h3, .dcard .info p, .opt span, .pair b, .cl h4, .cl p, .match-name, #againText, .deal h3, .md-copy b { unicode-bidi: plaintext; }
-.row-price, .opt em, .pair i, .dprice, .deal .price, #addTotal, .total strong, .cb-total, .cl .r b, .tag.macro, .tag.fit { direction: ltr; unicode-bidi: isolate; }
+.row-body h4, .row-body p, #dishName, .sheet-desc, .dcard .info h3, .dcard .info p, .opt span, .pair b, .cl h4, .cl p, .match-name, #againText, .md-copy b { unicode-bidi: plaintext; }
+.row-price, .opt em, .pair i, .dprice, #addTotal, .total strong, .cb-total, .cl .r b, .tag.macro, .tag.fit { direction: ltr; unicode-bidi: isolate; }
 [dir="rtl"] .row-body h4, [dir="rtl"] .row-body p { text-align: start; }
-.deal h3 em { unicode-bidi: plaintext; }
-[dir="rtl"] .deal h3, [dir="rtl"] .deal h3 em { text-align: right; }
 .alt-name { display: block; margin-top: 2px; font-family: "Outfit", sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--muted); direction: ltr; unicode-bidi: plaintext; }
 .alt-name:empty { display: none; }
 .dcard.v2 .alt-name { margin-top: -2px; }
@@ -573,3 +549,45 @@ dialog::backdrop { background: rgba(36, 21, 16, 0.55); backdrop-filter: blur(3px
 .crushes .sec-head h2 { white-space: nowrap; }
 .crushes .sec-head small { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .share-btn { margin: 8px 0 10px; }
+
+/* ===== Deal cards: dating-profile photo on top, receipt of what's inside below ===== */
+.deal { position: relative; flex: none; display: flex; flex-direction: column; width: min(78vw, 290px); border-radius: 24px; overflow: hidden; background: #fff; text-align: start; cursor: pointer; scroll-snap-align: start; box-shadow: 0 6px 0 var(--brown), inset 0 0 0 2px var(--ink); transition: transform 0.25s var(--spring); }
+.deal:active { transform: scale(0.97); }
+.deal .ph { position: relative; height: 210px; overflow: hidden; background: var(--ink); color: #fff; }
+.deal .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transition: transform 0.6s var(--ease); }
+.deal:hover .ph img { transform: scale(1.12); }
+.deal .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 10, 6, 0.25) 0, transparent 26%, transparent 42%, rgba(20, 10, 6, 0.92) 100%); }
+.deal .bars { position: absolute; top: 7px; inset-inline: 14px; z-index: 2; display: flex; gap: 4px; }
+.deal .bars i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.45); }
+.deal .bars i:first-child { background: #fff; }
+.deal .pill { position: absolute; top: 16px; inset-inline-start: 12px; z-index: 2; padding: 5px 10px; border-radius: 99px; background: var(--yellow); color: var(--ink); font-size: 0.68rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+.deal.md .pill { background: #2f8f4e; color: #fff; }
+.deal .ph .fave { top: auto; bottom: 12px; inset-inline-start: auto; inset-inline-end: 12px; width: 42px; height: 42px; background: var(--red); box-shadow: 0 4px 0 #8f150f; }
+.deal .ph .fave svg { stroke: #fff; width: 21px; height: 21px; }
+.deal .ph .fave.on svg { fill: #fff; stroke: #fff; }
+.deal .who { position: absolute; inset-inline: 14px 64px; bottom: 12px; z-index: 2; display: grid; gap: 3px; }
+.deal h3 { display: flex; align-items: center; gap: 7px; font-family: var(--poster); font-weight: 400; font-size: 1.85rem; line-height: 1; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); unicode-bidi: plaintext; }
+[dir="rtl"] .deal h3 { font-weight: 900; text-transform: none; font-size: 1.6rem; }
+.deal h3 .v { flex: none; display: inline-grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; background: #3b9cff; font: 900 0.66rem var(--body); text-shadow: none; }
+.deal .bio { font-family: var(--hand); font-size: 1.25rem; line-height: 1.05; color: var(--yellow); }
+[dir="rtl"] .deal .bio { font-size: 0.92rem; font-weight: 700; }
+.deal .rc { position: relative; flex: 1; display: flex; flex-direction: column; gap: 3px; padding: 14px 14px 12px; border-top: 2px dashed rgba(36, 21, 16, 0.25); }
+.deal .rc::before, .deal .rc::after { content: ""; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 2px var(--ink); }
+.deal .rc::before { left: -11px; } .deal .rc::after { right: -11px; }
+.deal .li { display: flex; gap: 8px; align-items: baseline; font-size: 0.84rem; font-weight: 700; line-height: 1.3; }
+.deal .li b { min-width: 26px; color: var(--red); font-weight: 900; direction: ltr; unicode-bidi: isolate; }
+.deal .li span { flex: 1; min-width: 0; padding-bottom: 2px; border-bottom: 1px dotted rgba(36, 21, 16, 0.22); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deal .more { font-size: 0.74rem; font-weight: 700; color: var(--muted); padding-inline-start: 34px; }
+.deal .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 8px; }
+.deal .pstamp { padding: 3px 10px; border: 3px solid var(--red); border-radius: 10px; color: var(--red); font-family: "Anton", Impact, sans-serif; font-size: 1.7rem; line-height: 1; transform: rotate(-5deg); direction: ltr; unicode-bidi: isolate; }
+.deal .go { padding: 10px 14px; border: 0; border-radius: 12px; background: var(--ink); color: var(--yellow); font: inherit; font-size: 0.86rem; font-weight: 900; box-shadow: 0 3px 0 var(--brown); transition: transform 0.2s var(--spring); }
+.deal .go:active { transform: scale(0.94); }
+@media (max-width: 759px) {
+  .deal { width: 250px; border-radius: 20px; }
+  .deal .ph { height: 160px; }
+  .deal h3 { font-size: 1.5rem; }
+  .deal .bio { font-size: 1.1rem; }
+  .deal .rc { padding: 12px 12px 10px; }
+  .deal .pstamp { font-size: 1.4rem; }
+}
+.deal .bio { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

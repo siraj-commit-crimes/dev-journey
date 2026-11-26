@@ -82,4 +82,5 @@ Phone-first ordering (95% of their orders are on phones), styled like their Inst
 - **Opening hours:** their page data says 09:00–17:00 every day.
 - **Bir El Abed dine-in:** Instagram said it was temporarily closed, then reopening; check its current status.
 - **Add-ons on dishes:** confirm they are happy for dips/extras to be offered inside each dish.
+- **Deal card copy:** the flirty bios on combo cards and the Arabic words for what's inside each combo are our drafts (`BIOS` and `INSIDE` in `foodbae/app.js`); have Food Bae check them.
 - **Badges:** the Best seller / New dishes in `data/promo.json` are examples picked for the demo; ask which dishes really sell best and which are new.
