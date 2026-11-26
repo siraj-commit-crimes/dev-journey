@@ -67,6 +67,12 @@
       </div>
     </section>
 
+    <!-- ===== Your crushes (favourites) ===== -->
+    <section class="crushes" id="crushes" aria-labelledby="crushTitle" hidden>
+      <div class="sec-head"><h2 id="crushTitle"><span data-i18n="crushes">Your crushes</span> <span class="crush-n" id="crushCount"></span></h2><small data-i18n="crushesSub">Saved on this phone</small></div>
+      <div class="crush-track" id="crushTrack"></div>
+    </section>
+
     <!-- ===== Deals (poster carousel) ===== -->
     <section class="deals" aria-labelledby="dealsTitle">
       <div class="sec-head"><h2 id="dealsTitle" data-i18n="dealsTitle">Deals worth committing to</h2></div>
@@ -150,10 +156,12 @@
   <dialog class="sheet" id="dish" aria-labelledby="dishName">
     <form method="dialog" class="sheet-in" id="dishForm">
       <button class="x" type="button" data-close aria-label="Close">×</button>
-      <div class="sheet-img" id="dishImgWrap"><img id="dishImg" alt="" /></div>
+      <div class="sheet-img" id="dishImgWrap"><img id="dishImg" alt="" />
+        <button type="button" class="fave big" id="dishFave" data-fave="" aria-pressed="false" aria-label="Save as a crush"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2Z"/></svg></button></div>
       <div class="sheet-body">
         <div class="tags" id="dishTags"></div>
         <h3 id="dishName"></h3><p class="alt-name" id="dishAlt"></p>
+        <button type="button" class="share-btn" id="shareBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5 21 3Z"/></svg><span data-i18n="share">Send to your bae</span></button>
         <p class="sheet-desc" id="dishDesc"></p>
         <div id="dishOpts"></div>
         <label class="field"><span data-i18n="notes">Notes for the kitchen</span><textarea id="dishNotes" rows="2" maxlength="200" data-i18n-ph="notesPh" placeholder="No pickles, extra sauce…"></textarea></label>

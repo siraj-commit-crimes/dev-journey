@@ -32,6 +32,7 @@
       call: "Call", whatsapp: "WhatsApp", hours: (o, c) => `Open every day ${o}–${c}`, protein: (g) => `${g}g protein`, kcal: (k) => `${k} kcal`, spicy: "Spicy", fitTag: "Fit Bae",
       wa: { hi: "Hi Food Bae! New order:", type: "Order type", del: "Delivery", pick: "Pick up", branch: "Branch", total: "Total", name: "Name", addr: "Address", note: "Note", adds: "Add-ons" },
       reorderToast: "Your usual is back in your matches", lookingFor: "Looking for", pairsTitle: "Complete the date", stepHow: "How do you want it?", stepFrom: "From which Food Bae?", stepWho: "Your details", sendWa: "Send order on WhatsApp", ghostedToday: "Ghosted us today 👻", tryInstead: (n) => `Try ${n} instead`, matchDay: "Match day", lastOrder: (s) => s,
+      crushes: "Your crushes", crushesSub: "Saved on this phone", faveOn: "Saved to your crushes 💘", faveOff: "Removed from your crushes", faveLabel: "Save as a crush", share: "Send to your bae", shareText: (n, p) => `Thought of you 😏 ${n} (${p}) at Food Bae`, badgeNew: "New", badgeBest: "Best seller",
       ticker: ["Too good to ghost", "High protein since 2019", "Bae 4 Two", "Crunch Bae", "Wings feast", "Swipe right on dinner"],
     },
     ar: {
@@ -46,9 +47,10 @@
       dips: "زيد صوص", extras: "زيد إضافات", itemExtras: "إضافات", optional: "اختياري", all: "الكل", combos: "كومبو", burgers: "برغر", fit: "Fit Bae", sweet: "حلو",
       added: (n) => `${n} صار بالماتشات 💘`, ghosted: "Ghosted 👻", emptyCart: "ما في ماتشات بعد. روح اسحب شوية أكل.", items: (n) => `${n} صنف`,
       deckDone: "شفت الكل.", deckDoneSub: "الـ Bae ناطرك بالماتشات.", restart: "اسحب من جديد", pickFirst: "اختار الفرع أولاً 📍", needAddress: "زيد عنوانك للتوصيل",
-      call: "اتصل", whatsapp: "واتساب", hours: (o, c) => `مفتوح كل يوم ${o}–${c}`, protein: (g) => `${g}غ بروتين`, kcal: (k) => `${k} سعرة`, spicy: "حار", fitTag: "Fit Bae",
+      call: "اتصل", whatsapp: "واتساب", hours: (o, c) => `مفتوح كل يوم ${o}–${c}`, protein: (g) => `بروتين ${g}غ`, kcal: (k) => `${k} سعرة`, spicy: "حار", fitTag: "Fit Bae",
       wa: { hi: "مرحبا Food Bae! طلب جديد:", type: "نوع الطلب", del: "توصيل", pick: "استلام", branch: "الفرع", total: "المجموع", name: "الاسم", addr: "العنوان", note: "ملاحظة", adds: "إضافات" },
       reorderToast: "طلبك المعتاد رجع عالماتشات", lookingFor: "بدوّر على", pairsTitle: "كمّل الموعد", stepHow: "كيف بدك ياه؟", stepFrom: "من أي فرع؟", stepWho: "معلوماتك", sendWa: "ابعت الطلب عالواتساب", ghostedToday: "عملنا ghost اليوم 👻", tryInstead: (n) => `جرّب ${n} بدالو`, matchDay: "يوم الماتش", lastOrder: (s) => s,
+      crushes: "الكراشات تبعك", crushesSub: "محفوظين عندك", faveOn: "انحفظ بالكراشات 💘", faveOff: "انشال من الكراشات", faveLabel: "احفظ ككراش", share: "ابعتو للـ bae تبعك", shareText: (n, p) => `تذكرتك 😏 ${n} (${p}) من Food Bae`, badgeNew: "جديد", badgeBest: "الأكثر طلباً",
       ticker: ["Too good to ghost", "بروتين عالي من ٢٠١٩", "Bae 4 Two", "Crunch Bae", "Wings feast", "اسحب يمين عالعشا"],
     },
   };
@@ -56,7 +58,7 @@
   // ---------- State ----------
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
-  const S = { lang: load("fb.lang", "en"), branch: load("fb.branch", null), cart: load("fb.cart", []), mode: load("fb.mode", "delivery"), last: load("fb.last", null), fit: false, q: "", menu: null, items: new Map(), promo: null, ar: { dishes: {}, categories: {}, addons: {} } };
+  const S = { lang: load("fb.lang", "en"), branch: load("fb.branch", null), cart: load("fb.cart", []), mode: load("fb.mode", "delivery"), last: load("fb.last", null), faves: load("fb.faves", []), badges: {}, fit: false, q: "", menu: null, items: new Map(), promo: null, ar: { dishes: {}, categories: {}, addons: {} } };
 
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -119,14 +121,19 @@
     const [menu, promo, ar] = await Promise.all([fetch("data/menu.json").then((r) => r.json()), fetch("data/promo.json").then((r) => r.json()).catch(() => null), fetch("data/menu-ar.json").then((r) => r.json()).catch(() => null)]);
     S.menu = menu; S.promo = promo; if (ar) S.ar = { dishes: ar.dishes || {}, categories: ar.categories || {}, addons: ar.addons || {} };
     const out = new Set(((promo && promo.soldOut) || []).map(String));
+    const bd = (promo && promo.badges) || {};
+    (bd.best || []).forEach((id) => { S.badges[String(id)] = "best"; });
+    (bd.new || []).forEach((id) => { S.badges[String(id)] = "new"; });
     menu.categories.forEach((c) => c.items.forEach((i) => S.items.set(i.id, { ...i, cat: c.name, catId: c.id, out: out.has(String(i.id)) })));
     S.cart = S.cart.filter((l) => S.items.has(l.id) && !S.items.get(l.id).out);
     if (!S.branch && S.last && S.last.branch) S.branch = S.last.branch; // remember the branch from last time
+    S.faves = S.faves.filter((id) => S.items.has(id));
     applyLang();
     setInterval(renderStatus, 60000);
+    openFromLink();
   }
   function renderAll() {
-    renderStatus(); renderTicker(); renderAgain(); renderDeals(); renderPromo(); renderCats(); renderMenu(); renderBranches(); renderCart();
+    renderStatus(); renderTicker(); renderAgain(); renderCrushes(); renderDeals(); renderPromo(); renderCats(); renderMenu(); renderBranches(); renderCart();
     $("#branchName").textContent = S.branch ? brName(branchById(S.branch)) : t("pickBranch");
   }
 
@@ -138,6 +145,9 @@
   // ---------- Tags ----------
   function tagsHtml(i) {
     const out = [];
+    const b = S.badges[i.id];
+    if (b === "best") out.push(`<span class="tag badge best">🔥 ${esc(t("badgeBest"))}</span>`);
+    if (b === "new") out.push(`<span class="tag badge new">✨ ${esc(t("badgeNew"))}</span>`);
     if (i.protein) out.push(`<span class="tag macro">💪 ${esc(t("protein", i.protein))}</span>`);
     if (i.kcal) out.push(`<span class="tag fit">${esc(t("kcal", i.kcal))}</span>`);
     if (!i.protein && FIT_CATS.test(i.cat)) out.push(`<span class="tag fit">${esc(t("fitTag"))}</span>`);
@@ -218,7 +228,7 @@
         ${alt ? `<button type="button" class="try" data-open="${esc(alt.id)}">${esc(t("tryInstead", tidy(alt.name)))} →</button>` : ""}</div></article>`;
     }
     return `<article class="row pop-in ${n ? "in-cart" : ""}" data-open="${esc(i.id)}" tabindex="0" style="animation-delay:${Math.min(k, 8) * 30}ms">
-      <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" /></div>
+      <div class="row-img"><img src="${esc(i.img)}" alt="" loading="lazy" />${heartBtn(i.id)}</div>
       <div class="row-body">
         ${tagsHtml(i)}
         <h4>${esc(dn(i))}</h4>${dnAlt(i) ? `<span class="alt-name">${esc(dnAlt(i))}</span>` : ""}
@@ -269,12 +279,57 @@
   });
 
   document.addEventListener("click", (e) => {
+    const fv = e.target.closest("[data-fave]");
+    if (fv) { e.stopPropagation(); toggleFave(fv.dataset.fave, fv); return; }
     const add = e.target.closest("[data-add]");
     if (add) { e.stopPropagation(); quickAdd(add.dataset.add, add); return; }
     const o = e.target.closest("[data-open]");
     if (o) openDish(o.dataset.open);
   });
-  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.(".row")) openDish(e.target.dataset.open); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.(".row, .crush")) openDish(e.target.dataset.open); });
+
+  // ---------- Crushes (favourites, saved on this phone) ----------
+  const isFave = (id) => S.faves.includes(id);
+  const heartBtn = (id) => `<button type="button" class="fave ${isFave(id) ? "on" : ""}" data-fave="${esc(id)}" aria-pressed="${isFave(id)}" aria-label="${esc(t("faveLabel"))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2Z"/></svg></button>`;
+  function setHeart(b, on) { b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); }
+  function toggleFave(id, btn) {
+    if (!id) return;
+    const on = !isFave(id);
+    S.faves = on ? [id, ...S.faves] : S.faves.filter((x) => x !== id);
+    save("fb.faves", S.faves);
+    $$(`[data-fave="${CSS.escape(id)}"]`).forEach((b) => setHeart(b, on));
+    if (on) { hearts(btn, 6); vibrate(15); btn.classList.remove("pulse"); void btn.offsetWidth; btn.classList.add("pulse"); }
+    toast(t(on ? "faveOn" : "faveOff"));
+    renderCrushes();
+  }
+  function renderCrushes() {
+    const list = S.faves.map((id) => S.items.get(id)).filter(Boolean);
+    $("#crushes").hidden = !list.length;
+    $("#crushCount").textContent = list.length;
+    $("#crushTrack").innerHTML = list.map((i) => `<div class="crush ${i.out ? "out" : ""}" data-open="${esc(i.id)}" role="button" tabindex="0">
+        <div class="crush-img"><img src="${esc(i.img)}" alt="" loading="lazy" />${heartBtn(i.id)}</div>
+        <b>${esc(dn(i))}</b>
+        <div class="crush-foot"><span>${money(i.price)}</span>${i.out ? "" : `<button type="button" class="add" data-add="${esc(i.id)}" aria-label="${esc(t("addMatch"))} ${esc(dn(i))}">+</button>`}</div></div>`).join("");
+  }
+
+  // ---------- Send to your bae (share a dish with a link that opens it) ----------
+  const dishLink = (id) => location.origin + location.pathname + "#dish=" + encodeURIComponent(id);
+  async function shareDish() {
+    const i = cur; if (!i) return;
+    const text = t("shareText", dn(i), money(i.price)), url = dishLink(i.id);
+    vibrate(12);
+    if (navigator.share) {
+      try { await navigator.share({ title: "Food Bae", text, url }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank", "noopener");
+  }
+  $("#shareBtn").addEventListener("click", shareDish);
+  function openFromLink() {
+    const m = /^#dish=([^&]+)/.exec(location.hash); if (!m) return;
+    const id = decodeURIComponent(m[1]);
+    history.replaceState(null, "", location.pathname + location.search);
+    if (S.items.has(id)) setTimeout(() => openDish(id), 350);
+  }
 
   // ---------- Dish sheet ----------
   function optionGroups(i) {
@@ -290,6 +345,7 @@
     cur = i; qty = 1;
     $("#dishImg").src = i.img;
     $("#dishName").textContent = dn(i); $("#dishAlt").textContent = dnAlt(i);
+    $("#dishFave").dataset.fave = i.id; $("#dishFave").setAttribute("aria-label", t("faveLabel")); setHeart($("#dishFave"), isFave(i.id));
     $("#dishDesc").textContent = i.desc;
     $("#dishTags").innerHTML = tagsHtml(i).replace(/^<div class="tags">|<\/div>$/g, "");
     $("#dishNotes").value = "";

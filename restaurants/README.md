@@ -74,6 +74,7 @@ Phone-first ordering (95% of their orders are on phones), styled like their Inst
 - **Owner settings in `data/promo.json`:** the match-day card (`enabled: false` hides it) and `soldOut` (dish ids shown as "Ghosted us today" with an alternative).
 - **Arabic dish names:** `data/menu-ar.json` (dishes, sections and add-ons). Kept separate so a menu refresh never removes them; the English name shows small underneath, and WhatsApp orders include both names. Have Food Bae check the wording.
 - **Phones first:** the first dish is about 1.1 screens down on an iPhone 13 (was 2.25 in the first draft).
+- **Crushes, sharing, badges:** a heart on each dish saves it to a "Your crushes" row (kept on the phone). "Send to your bae" in the dish window shares a link that opens that dish. Owner badges (Best seller / New) are set in `data/promo.json` under `badges`.
 - **Dips and Extras** are separate items on their current menu; here they are offered as optional add-ons inside dishes (dips on savoury dishes, extras on burgers/zingers/sandwiches).
 
 ### Things to confirm with Food Bae before going live
@@ -81,3 +82,4 @@ Phone-first ordering (95% of their orders are on phones), styled like their Inst
 - **Opening hours:** their page data says 09:00–17:00 every day.
 - **Bir El Abed dine-in:** Instagram said it was temporarily closed, then reopening; check its current status.
 - **Add-ons on dishes:** confirm they are happy for dips/extras to be offered inside each dish.
+- **Badges:** the Best seller / New dishes in `data/promo.json` are examples picked for the demo; ask which dishes really sell best and which are new.
